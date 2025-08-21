@@ -1,0 +1,54 @@
+I am a senior computer science student working on a capstone project to showcase my full-stack development skills to employers. Here are the complete project details:
+Project Overview:
+Building a plant monitoring system that uses Arduino soil moisture sensors connected to a web application. The system allows users to register plants, monitor real-time soil moisture levels, and receive alerts when plants need water.
+Technical Stack & Development Environment:
+
+Frontend: React with Visual Studio Code
+Backend: C# ASP.NET Core Web API with JetBrains Rider
+Database: MySQL hosted locally, managed through JetBrains DataGrip
+Hardware: Arduino Uno with soil moisture sensor (sends serial data as numeric values only)
+Authentication: JWT tokens
+All components running locally during development
+
+Current Status:
+
+Arduino device is built and programmed with soil moisture sensor
+Sensor sends numeric moisture data via serial connection (currently USB, planning Bluetooth upgrade later)
+Sensor refresh rate: 30-60 seconds
+Project timeline: 4 months, dedicating 4 hours daily
+Testing with one plant initially
+
+Database Schema Design:
+
+Users table (authentication)
+Devices table (DeviceId, DeviceName, ConnectionType, ConnectionAddress)
+PlantTypes table (species with ideal moisture ranges)
+UserPlants table (links users to plants and devices)
+SensorReadings table (timestamp, device_id, moisture_level)
+
+Key Features:
+
+Real-time moisture monitoring dashboard
+Plant registration with optimal moisture levels per species
+Visual indicators/alerts for watering needs
+Historical data charts and trends
+Designed for future multi-device Bluetooth connectivity
+Currently single-user system, locally hosted
+
+Data Flow:
+Arduino → Serial USB → C# Console App (Rider) → HTTP POST → ASP.NET Core API (Rider) → MySQL (DataGrip) → React Frontend (VS Code)
+Learning Goals:
+
+Master React development (have some JavaScript/Node.js experience)
+Demonstrate full-stack capabilities with professional IDE setup
+Show IoT integration skills
+Build scalable, employer-ready portfolio piece
+
+Development Approach:
+
+Using Rider's debugging tools for backend development
+Using DataGrip for database management and queries
+Building API-first approach with Rider's built-in HTTP client for testing
+Focusing on clean, professional code structure suitable for portfolio demonstration
+
+Please reference this context when helping with any aspect of this plant monitoring project.

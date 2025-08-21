@@ -1,0 +1,168 @@
+Project Daedalus - 4 Month Roadmap
+
+Phase 1: Backend Foundation (Weeks 1-2)
+
+Set up C# ASP.NET Core Web API project Thinking NetBrains Rider
+Configure MySQL database with Entity Framework Core Thinking NetBrains DataGrip
+Design database schema for multi-device scalability:
+
+Users table for authentication
+Devices table (DeviceId, DeviceName, ConnectionType, ConnectionAddress)
+Users (id, username, password, email)
+PlantTypes table (id, scienctificName, familiarName, lowrange, highrange, fun-fact)
+UserPlants table (userid, plantid)(links users to their plants and devices)
+SensorReadings table (timestamp, device_id, moisture_level)
+
+
+Week 1 - Super Basic API (Just Get It Working):
+
+Create new ASP.NET Core Web API project (Visual Studio template does most work)
+Get simple "Hello World" endpoint working
+Learn what controllers and endpoints actually are
+Test one simple GET endpoint in browser
+
+Week 2 - Add Database Connection:
+
+Connect to MySQL using Entity Framework (lots of tutorials available)
+Create one simple Plant model/table
+Make basic GET endpoint that returns list of plants from database
+
+Week 2.5 - Expand CRUD Operations:
+
+Add POST endpoint to create new plant
+Add PUT/DELETE for updating/removing plants
+Test each endpoint individually as you build them
+
+Phase 2: Arduino Integration (Week 3)
+
+Day 1: Project Setup in Rider
+
+Open Rider and create new Console Application (.NET 6/7)
+Add NuGet packages: System.IO.Ports and Newtonsoft.Json
+Use Rider's built-in NuGet manager (much cleaner than Visual Studio)
+Set up project structure with folders (Models, Services, etc.)
+Test basic console output to ensure project runs
+
+Day 2: Serial Communication Setup
+
+Create SerialService class for organization
+Use Rider's excellent IntelliSense to explore SerialPort class
+Write method to list available COM ports (helps identify Arduino)
+Create basic connection method with proper using statements
+Use Rider's debugger to step through connection logic
+Test connection to Arduino (just connect/disconnect, no data yet)
+
+Day 3: Data Reading and Debugging
+
+Write continuous reading loop using SerialPort.ReadLine()
+Use Rider's debugging tools to inspect received data in real-time
+Add breakpoints to see exactly what Arduino sends
+Use Rider's built-in logging or Console.WriteLine for data inspection
+Test with Arduino connected and sending moisture readings
+Handle timeout exceptions when Arduino isn't sending data
+
+Day 4: Data Parsing with Rider Tools
+
+Analyze Arduino data format using Rider's variable inspector
+Write parsing logic to extract numeric moisture values
+Use Rider's unit test tools to test parsing with sample data
+Create data validation methods (reject invalid readings)
+Use Rider's refactoring tools to clean up parsing code
+
+Day 5: HTTP Client Setup
+
+Add HttpClient setup in a separate ApiService class
+Use Rider's HTTP client testing tool (alternative to Postman)
+Create methods for POST requests to your Web API
+Test API calls with hardcoded data using Rider's HTTP client
+Use Rider's JSON viewer to inspect request/response data
+
+Day 6: Integration and Flow
+
+Combine SerialService + ApiService in main application loop
+Use Rider's excellent debugging to trace data through entire flow
+Add timing logic to match Arduino refresh rate
+Use Rider's performance profiler to ensure efficient operation
+Test complete flow: Arduino → Console → API → Database
+
+Day 7: Error Handling with Rider
+
+Use Rider's exception handling tools to catch serial disconnections
+Add reconnection logic with proper retry patterns
+Use Rider's logging framework integration for better error tracking
+Test unplugging Arduino while debugging in Rider
+Handle API connection failures with retry logic
+
+Day 8: Logging and Monitoring
+
+Set up proper logging using Rider's integrated logging tools
+Add structured logging for data flow tracking
+Use Rider's database tools to verify data reaches MySQL
+Create simple dashboard in Rider to monitor serial data in real-time
+Document any connection issues and solutions
+
+Phase 3: React Frontend Basics (Weeks 4-5)
+
+Set up React application using Create React App or Vite
+Learn React fundamentals: components, state management, hooks, props
+Build core pages and components:
+
+User registration and login pages
+Main dashboard showing all user plants
+Add new plant form with plant type selection
+Individual plant detail/monitoring page
+
+
+Connect React frontend to C# API using axios or fetch
+Implement basic error handling and loading states
+Test user authentication flow
+
+Phase 4: Real-time Features and Data Visualization (Weeks 6-7)
+
+Implement polling mechanism to fetch latest sensor data every 30-60 seconds
+Add real-time moisture level indicators with color coding
+Create alerts for plants that need water (too dry/wet based on plant type)
+Integrate charting library (Chart.js or Recharts) for historical data
+Build moisture level trend graphs over time (hourly, daily, weekly views)
+Add plant status dashboard with health indicators
+
+Phase 5: UI/UX Polish and Advanced Features (Weeks 8-12)
+
+Improve overall design and user experience
+Add responsive design for mobile devices
+Implement plant care recommendations based on moisture data
+Create data export functionality (CSV/PDF reports)
+Add comprehensive error handling throughout application
+Write unit tests for critical backend functionality
+Create user documentation and setup instructions
+Optimize database queries and API performance
+Add data validation and security improvements
+
+Phase 6: Bluetooth Integration and Multi-Device Support (Weeks 13-16)
+
+Research Bluetooth integration options for Arduino Uno
+Select appropriate Bluetooth module (HC-05 or similar)
+Modify Arduino code to support Bluetooth communication
+Update C# console application to handle Bluetooth connections
+Test wireless connectivity and range
+Implement support for multiple Arduino devices
+Update frontend to display multiple plant monitoring devices
+Test complete wireless multi-device system
+Document Bluetooth setup process for future scaling
+
+Learning Milestones:
+
+Week 2: Comfortable with ASP.NET Core and Entity Framework
+Week 5: Proficient in React basics and API integration
+Week 7: Understanding of real-time data handling and visualization
+Week 12: Full-stack development skills demonstrated
+Week 16: IoT device integration and wireless communication mastery
+
+Final Deliverable for Employers:
+
+Complete full-stack web application with database
+Real-time IoT device integration
+Scalable architecture supporting multiple devices
+Modern React frontend with data visualization
+Comprehensive documentation and setup guide
+Demonstration of learning new technologies (React) under timeline pressure
