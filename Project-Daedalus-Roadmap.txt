@@ -10,8 +10,8 @@ Users table for authentication
 Devices table (DeviceId, DeviceName, ConnectionType, ConnectionAddress)
 Users (id, username, password, email)
 PlantTypes table (id, scienctificName, familiarName, lowrange, highrange, fun-fact)
-UserPlants table (userid, plantid)(links users to their plants and devices)
-SensorReadings table (timestamp, device_id, moisture_level)
+UserPlantDevice table (userid, plantid, lowrange, highrange, deviceid, connectionAddress)(links users to their plants and devices)
+SensorReadings table (timestamp, device_id, plantid, moisture_level)
 
 
 Week 1 - Super Basic API (Just Get It Working):

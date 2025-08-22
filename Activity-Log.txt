@@ -4,4 +4,4 @@
 
 8/20/25: Downloaded Rider, DataGrip, updated my github a bit(trying to get the student developer package), Created a general roadmap that I will have to expand on soon tomorrow will probably be the first day where I am writing code. Also generated a context prompt that I will use when starting new chats with claude/gpt, will need to keep updating it as I iron out the specifics of my project.
 
-8/21/25:
+8/21/25: Created the backend project, made my simple hello world controller, designed the database schema and updated other repos in my GitHub to look more professional
