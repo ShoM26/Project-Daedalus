@@ -5,5 +5,5 @@ CREATE TABLE devices
     connection_type ENUM('USB','Bluetooth','WiFi') NOT NULL,
     connection_address VARCHAR(250) NOT NULL UNIQUE,
     last_seen TIMESTAMP NULL,
-    status ENUM('Active', 'Inactive','Disconnected'),
+    status ENUM('Active', 'Inactive','Disconnected') NOT NULL
 )
