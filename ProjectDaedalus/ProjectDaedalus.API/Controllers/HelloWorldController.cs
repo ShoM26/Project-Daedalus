@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using ProjectDaedalus.Core.Entities;
+using ProjectDaedalus.Core.Interfaces;
+
 
 namespace ProjectDaedalus.API.Controllers
 {
