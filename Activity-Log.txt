@@ -5,3 +5,5 @@
 8/20/25: Downloaded Rider, DataGrip, updated my github a bit(trying to get the student developer package), Created a general roadmap that I will have to expand on soon tomorrow will probably be the first day where I am writing code. Also generated a context prompt that I will use when starting new chats with claude/gpt, will need to keep updating it as I iron out the specifics of my project.
 
 8/21/25: Created the backend project, made my simple hello world controller, designed the database schema and updated other repos in my GitHub to look more professional
+
+8/25/25: Back from New York with recharged and ready to tackle the database. I built the project files today and created the sql scripts to create the tables. Connected the DB and scaffolded which is a cool concept to save the lift of writing entities and messing up things along the way. Going to start branching now that everything is built out. Need to update context prompt, move parts of it into the about me section of AI profile and The next plan is to draw out the backend architecture.
