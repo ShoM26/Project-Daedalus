@@ -24,6 +24,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
+builder.Services.AddScoped<IUserPlantRepository, UserPlantRepository>();
 
 // Register UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

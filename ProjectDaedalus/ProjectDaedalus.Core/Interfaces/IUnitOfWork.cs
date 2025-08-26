@@ -9,6 +9,9 @@ namespace ProjectDaedalus.Core.Interfaces
         IDeviceRepository Devices { get; }
         ISensorReadingRepository SensorReadings { get; }
 
+        //Int returns number of entities affected
+        Task<int> SaveChangesAsync();
         Task<int> CompleteAsync();
+        void Dispose();
     }
 }

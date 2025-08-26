@@ -5,6 +5,7 @@ using ProjectDaedalus.Infrastructure.Data;
 
 namespace ProjectDaedalus.Infrastructure.Repositories;
 
-public class PlantRepository
+public class UserPlantRepository
 {
+    
 }
