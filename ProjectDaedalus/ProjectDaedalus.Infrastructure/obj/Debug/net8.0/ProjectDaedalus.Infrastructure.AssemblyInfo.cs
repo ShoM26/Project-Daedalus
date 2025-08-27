@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ProjectDaedalus.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+98244831aff8ba579c0c82ba8da799d9b70c5215")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5f59f69e04a244260717dee61f92db5dbcf70289")]
 [assembly: System.Reflection.AssemblyProductAttribute("ProjectDaedalus.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ProjectDaedalus.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

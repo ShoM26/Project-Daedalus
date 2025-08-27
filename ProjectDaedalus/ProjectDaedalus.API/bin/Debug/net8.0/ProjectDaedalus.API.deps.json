@@ -9,9 +9,9 @@
       "ProjectDaedalus.API/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore.OpenApi": "8.0.19",
-          "Microsoft.EntityFrameworkCore": "9.0.8",
           "Microsoft.EntityFrameworkCore.Tools": "9.0.8",
-          "Pomelo.EntityFrameworkCore.MySql": "9.0.0",
+          "ProjectDaedalus.Core": "1.0.0",
+          "ProjectDaedalus.Infrastructure": "1.0.0",
           "Swashbuckle.AspNetCore": "6.6.2"
         },
         "runtime": {
@@ -712,7 +712,29 @@
           }
         }
       },
-      "System.Threading.Channels/7.0.0": {}
+      "System.Threading.Channels/7.0.0": {},
+      "ProjectDaedalus.Core/1.0.0": {
+        "runtime": {
+          "ProjectDaedalus.Core.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "ProjectDaedalus.Infrastructure/1.0.0": {
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "9.0.8",
+          "Microsoft.EntityFrameworkCore.Relational": "9.0.8",
+          "Pomelo.EntityFrameworkCore.MySql": "9.0.0",
+          "ProjectDaedalus.Core": "1.0.0"
+        },
+        "runtime": {
+          "ProjectDaedalus.Infrastructure.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
     }
   },
   "libraries": {
@@ -1077,6 +1099,16 @@
       "sha512": "sha512-qmeeYNROMsONF6ndEZcIQ+VxR4Q/TX/7uIVLJqtwIWL7dDWeh0l1UIqgo4wYyjG//5lUNhwkLDSFl+pAWO6oiA==",
       "path": "system.threading.channels/7.0.0",
       "hashPath": "system.threading.channels.7.0.0.nupkg.sha512"
+    },
+    "ProjectDaedalus.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ProjectDaedalus.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }
