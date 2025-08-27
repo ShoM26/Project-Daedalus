@@ -7,38 +7,15 @@ namespace ProjectDaedalus.Infrastructure.Repositories;
 
 public class UserRepository : Repository<User>, IUserRepository
 {
-    public async Task<User?> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<User>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<User> AddAsync(User plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<User> UpdateAsync(User plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<bool> DeleteAsync(User plant)
-    {
-        throw new NotImplementedException();
-    }
+    public UserRepository(DaedalusContext context) : base(context){}
 
     public async Task<bool> EmailExistsAsync(string email)
     {
-        throw new NotImplementedException();
+        return await _dbSet.AnyAsync(p => p.Email == email);
     }
 
     public async Task<User?> GetByUsernameAsync(string username)
     {
-        throw new NotImplementedException();
+        return  await _dbSet.FirstAsync(p => p.Username == username);
     }
 }

@@ -7,38 +7,14 @@ namespace ProjectDaedalus.Infrastructure.Repositories;
 
 public class PlantRepository : Repository<Plant>, IPlantRepository
 {
-    public async Task<Plant?> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<Plant>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<Plant> AddAsync(Plant plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<Plant> UpdateAsync(Plant plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<bool> DeleteAsync(Plant plant)
-    {
-        throw new NotImplementedException();
-    }
-
+    public PlantRepository(DaedalusContext context) : base(context){}
     public async Task<Plant?> GetByScientificNameAsync(string scientificName)
     {
-        throw new NotImplementedException();
+        return await _dbSet.FirstAsync(p => p.ScientificName == scientificName);
     }
 
     public async Task<bool> ScientificNameExistAsync(string scientificName)
     {
-        throw new NotImplementedException();
+        return await _dbSet.AnyAsync(p => p.ScientificName == scientificName);
     }
 }

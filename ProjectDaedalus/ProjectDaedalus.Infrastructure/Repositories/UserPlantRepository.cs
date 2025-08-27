@@ -7,43 +7,23 @@ namespace ProjectDaedalus.Infrastructure.Repositories;
 
 public class UserPlantRepository : Repository<UserPlant>, IUserPlantRepository
 {
-    public async Task<UserPlant?> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<UserPlant>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<UserPlant> AddAsync(UserPlant plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<UserPlant> UpdateAsync(UserPlant plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<bool> DeleteAsync(UserPlant plant)
-    {
-        throw new NotImplementedException();
-    }
-
+    public UserPlantRepository(DaedalusContext context) : base(context){}
+    
     public async Task<IEnumerable<UserPlant>> GetUserPlantsAsync(int userId)
     {
-        throw new NotImplementedException();
+        return  await _dbSet.Where(p => p.UserId == userId).ToListAsync();
     }
 
     public async Task<UserPlant?> GetUserPlantByDeviceIdAsync(int deviceId)
     {
-        throw new NotImplementedException();
+        return await _dbSet.FirstAsync(p => p.DeviceId == deviceId);
     }
 
     public async Task<bool> UserPlantExistsAsync(int userId, int plantId, int deviceId)
     {
-        throw new NotImplementedException();
+        return await _dbSet.AnyAsync
+            (p => p.UserId == userId && 
+                  p.PlantId == plantId && 
+                  p.DeviceId == deviceId);
     }
 }

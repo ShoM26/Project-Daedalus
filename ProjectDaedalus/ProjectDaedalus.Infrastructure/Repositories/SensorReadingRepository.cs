@@ -7,31 +7,7 @@ namespace ProjectDaedalus.Infrastructure.Repositories;
 
 public class SensorReadingRepository : Repository<SensorHistory>, ISensorReadingRepository
 {
-    public async Task<SensorHistory?> GetByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IEnumerable<SensorHistory>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<SensorHistory> AddAsync(SensorHistory plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<SensorHistory> UpdateAsync(SensorHistory plant)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<bool> DeleteAsync(SensorHistory plant)
-    {
-        throw new NotImplementedException();
-    }
-
+    public SensorReadingRepository(DaedalusContext context) : base(context){}
     public async Task<SensorHistory?> GetLatestReadingByDeviceIdAsync(int deviceId)
     {
         throw new NotImplementedException();
