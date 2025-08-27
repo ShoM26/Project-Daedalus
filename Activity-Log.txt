@@ -7,3 +7,5 @@
 8/21/25: Created the backend project, made my simple hello world controller, designed the database schema and updated other repos in my GitHub to look more professional
 
 8/25/25: Back from New York with recharged and ready to tackle the database. I built the project files today and created the sql scripts to create the tables. Connected the DB and scaffolded which is a cool concept to save the lift of writing entities and messing up things along the way. Going to start branching now that everything is built out. Need to update context prompt, move parts of it into the about me section of AI profile and The next plan is to draw out the backend architecture.
+
+8/26/25: Put in some work today. Sorted out EF core and migrations which should prove helpful in the coming months. Made a diagram of the backend and worked on the repository layer. The project feels 65% setup right now and I am going to start getting into the meat of the Repository method writing. CRUD for generic repo then once those are inherited I will work on the specific repo methods. Then it is on to Arduino facing APIs(I think GET). Excited and energized.
