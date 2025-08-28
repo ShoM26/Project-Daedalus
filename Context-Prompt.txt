@@ -1,68 +1,41 @@
 I am a senior computer science student building a full-stack plant monitoring system called project Daedalus for my capstone project. The system uses Arduino soil moisture sensors connected to a web application. Users can register plants, monitor real-time soil moisture, and receive alerts when plants need watering. This project is designed to demonstrate full-stack development skills, IoT integration, and professional software architecture.
 Tech Stack
-
 Frontend: React (Visual Studio Code)
-
 Backend: C# ASP.NET Core Web API (JetBrains Rider)
-
 Database: MySQL (DataGrip)
-
 Hardware: Arduino Uno with soil moisture sensor (USB serial now, Bluetooth planned later)
-
-Authentication: JWT tokens
-
+Authentication: JWT tokens (planned)
 Environment: All components running locally during development
-
 Current Status
-
 Arduino device built and transmitting soil moisture data (refresh: 30–60s).
-
-Database schema created (Users, Devices, Plants, UserPlants, SensorReadings).
-
-Backend setup in progress: Entity Framework Core integration with MySQL.
-
-Project starts single-user/single-device but is designed for multi-user scalability.
-
+Database schema created and deployed with EF Core migrations.
+Backend general setup complete with Entity Framework Core integration to MySQL.
+Repository layer methods implemented.
+SensorReadings DTO and controller completed and tested successfully in Postman.
+Test data: Added single device row for API testing, added userid field to devices table.
+Project designed for multi-user scalability from the start.
 Database Schema (Core Tables)
-
 Users: authentication and profile info
-
-Devices: device ID, name, connection type/address
-
+Devices: device ID, name, connection type/address, userid (newly added)
 Plants: scientific/familiar names, ideal moisture ranges, optional fun facts
-
 UserPlants: links users, plants, and devices
-
 SensorReadings: timestamped soil moisture values
-
 Key Features
-
 Real-time soil moisture dashboard
-
 Plant registration with species-specific ideal ranges
-
 Alerts for watering needs
-
 Historical trend charts
-
 Device management (Bluetooth planned)
-
 Learning Goals
-
 Strengthen React development for data dashboards
-
 Apply ASP.NET Core with EF Core ORM and clean architecture
-
 Demonstrate IoT-to-web integration (Arduino → API → DB → Frontend)
-
 Produce a portfolio-ready, scalable full-stack application
-
 Development Approach
-
 API-first backend with ASP.NET Core controllers + EF Core DbContext
-
 DataGrip for schema management and queries
-
 React frontend for data visualization
-
 Iterative testing with seeded DB data before full hardware integration
+Next Steps
+Additional API controllers (Users, Plants, UserPlants, Devices)
+Hardware integration refinement
