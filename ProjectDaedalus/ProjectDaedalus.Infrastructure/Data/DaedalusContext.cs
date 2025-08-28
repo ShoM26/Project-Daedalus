@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using ProjectDaedalus.Core.Entities;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
-namespace ProjectDaedalus.API.Models;
+namespace ProjectDaedalus.Infrastructure.Data;
 
 public partial class DaedalusContext : DbContext
 {

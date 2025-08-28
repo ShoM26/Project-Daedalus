@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ProjectDaedalus.API.Models;
+namespace ProjectDaedalus.Core.Entities;
 
 public partial class Device
 {
@@ -12,6 +12,7 @@ public partial class Device
     public string ConnectionType { get; set; } = null!;
 
     public string ConnectionAddress { get; set; } = null!;
+    public int UserId { get; set; }
 
     public DateTime? LastSeen { get; set; }
 

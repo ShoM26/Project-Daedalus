@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ProjectDaedalus.API.Models;
+namespace ProjectDaedalus.Core.Entities;
 
 public partial class User
 {
