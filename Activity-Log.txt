@@ -11,3 +11,5 @@
 8/26/25: Put in some work today. Sorted out EF core and migrations which should prove helpful in the coming months. Made a diagram of the backend and worked on the repository layer. The project feels 65% setup right now and I am going to start getting into the meat of the Repository method writing. CRUD for generic repo then once those are inherited I will work on the specific repo methods. Then it is on to Arduino facing APIs(I think GET). Excited and energized.
 
 8/27/25: Accomplished a good amount today. Ran an EF core migration while in database management systems class lol. wrote the CRUD and specific methods for repository layer and began working on the Data Ingestion service. For that I downloaded postman to test my newly created DTO and controller method for sensor readings. Not fully working yet but I will lock that down tomorrow and see what the next steps are. Need to be better about smaller branches because I completely forgot to merge after the repository changes.
+
+8/28/25: Didnt do much today. Controller method fixed itself or something and merged into main. Nothing beyond this. Work life balance or smth
