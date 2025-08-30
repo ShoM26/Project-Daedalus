@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectDaedalus.API.Dtos;
-using ProjectDaedalus.Core.Entities;   // assuming entities live in Core
+using ProjectDaedalus.Core.Entities;
+using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
 using ProjectDaedalus.Infrastructure.Data; // DbContext
 
 namespace ProjectDaedalus.API.Controllers
@@ -11,10 +12,14 @@ namespace ProjectDaedalus.API.Controllers
     public class SensorReadingsController : ControllerBase
     {
         private readonly DaedalusContext _context;
+        private readonly IUserPlantRepository _userPlantRepository;
+        private readonly ISensorReadingRepository _sensorReadingRepository;
 
-        public SensorReadingsController(DaedalusContext context)
+        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository, IUserPlantRepository userPlantRepository)
         {
             _context = context;
+            _sensorReadingRepository = sensorReadingRepository;
+            _userPlantRepository = userPlantRepository;
         }
 
         // POST: api/sensorreadings
@@ -54,5 +59,37 @@ namespace ProjectDaedalus.API.Controllers
                 MoistureLevel = reading.MoistureLevel
             });
         }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetSensorReadingsByPlant(int userPlantId)
+        {
+            try
+            {
+                // First get the UserPlant to find the associated device
+                var userPlant = await _userPlantRepository.GetUserPlantByDeviceIdAsync(userPlantId);
+                if (userPlant == null)
+                {
+                    return NotFound($"Plant with ID {userPlantId} not found");
+                }
+
+                // Get sensor readings for the device associated with this plant
+                var sensorReadings = await _sensorReadingRepository.GetReadingsByDeviceIdAsync(userPlant.DeviceId);
+       
+                // Convert to DTOs
+                var sensorReadingDtos = sensorReadings.Select(reading => new SensorReadingDTO
+                {
+                    DeviceIdentifier = reading.DeviceId,
+                    MoistureLevel = reading.MoistureLevel,
+                    Timestamp = reading.TimeStamp
+                });
+
+                return Ok(sensorReadingDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
+    //GET readings for a user's plant
 }
