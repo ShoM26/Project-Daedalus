@@ -12,4 +12,6 @@
 
 8/27/25: Accomplished a good amount today. Ran an EF core migration while in database management systems class lol. wrote the CRUD and specific methods for repository layer and began working on the Data Ingestion service. For that I downloaded postman to test my newly created DTO and controller method for sensor readings. Not fully working yet but I will lock that down tomorrow and see what the next steps are. Need to be better about smaller branches because I completely forgot to merge after the repository changes.
 
-8/28/25: Didnt do much today. Controller method fixed itself or something and merged into main. Nothing beyond this. Work life balance or smth
+8/28/25: Didnt do much today. Controller method fixed itself or something and merged into main. Nothing beyond this. Work life balance or something
+
+8/29/25: Also not much progress gained today but created the shells for the controllers and wrote out the SensorReading controllers. Lots of work to do this weekend
