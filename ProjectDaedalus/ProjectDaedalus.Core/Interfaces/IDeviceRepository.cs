@@ -6,6 +6,8 @@ namespace ProjectDaedalus.Core.Interfaces
     {
         Task<Device?> GetByDeviceIdAsync(int deviceId);
         Task<IEnumerable<Device>> GetDevicesByUserIdAsync(int userId);
+        
+        Task<Device> GetDeviceByHardwareIdentifierAsync(string hardwareIdentifier);
     }
 }
 

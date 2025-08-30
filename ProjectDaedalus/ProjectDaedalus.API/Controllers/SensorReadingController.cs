@@ -33,17 +33,17 @@ namespace ProjectDaedalus.API.Controllers
 
             // Look up device by identifier
             var device = await _context.Devices
-                .FirstOrDefaultAsync(d => d.ConnectionAddress == dto.DeviceIdentifier);
+                .FirstAsync(d => d.HardwareIdentifier == dto.HardwareIdentifier);
 
             if (device == null)
             {
-                return BadRequest($"Device with identifier '{dto.DeviceIdentifier}' not found.");
+                return BadRequest($"Device with identifier '{dto.HardwareIdentifier}' not found.");
             }
 
             // Map DTO → Entity
             var reading = new SensorHistory
             {
-                DeviceId = device.DeviceId, // Not PK
+                DeviceId = device.DeviceId,
                 TimeStamp = dto.Timestamp ?? DateTime.UtcNow,
                 MoistureLevel = dto.MoistureLevel
             };
@@ -66,7 +66,7 @@ namespace ProjectDaedalus.API.Controllers
             try
             {
                 // First get the UserPlant to find the associated device
-                var userPlant = await _userPlantRepository.GetUserPlantByDeviceIdAsync(userPlantId);
+                var userPlant = await _userPlantRepository.GetByIdAsync(userPlantId);
                 if (userPlant == null)
                 {
                     return NotFound($"Plant with ID {userPlantId} not found");
@@ -78,7 +78,7 @@ namespace ProjectDaedalus.API.Controllers
                 // Convert to DTOs
                 var sensorReadingDtos = sensorReadings.Select(reading => new SensorReadingDTO
                 {
-                    DeviceIdentifier = reading.DeviceId,
+                    HardwareIdentifier = reading.Device.HardwareIdentifier,
                     MoistureLevel = reading.MoistureLevel,
                     Timestamp = reading.TimeStamp
                 });
@@ -91,5 +91,4 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
     }
-    //GET readings for a user's plant
 }

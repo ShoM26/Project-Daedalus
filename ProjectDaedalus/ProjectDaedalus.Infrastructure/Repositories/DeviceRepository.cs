@@ -17,4 +17,9 @@ public class DeviceRepository : Repository<Device>,  IDeviceRepository
     {
         return await _dbSet.Where(d => d.UserId == userId).ToListAsync();
     }
+
+    public async Task<Device> GetDeviceByHardwareIdentifierAsync(string hardwareIdentifier)
+    {
+        return await _dbSet.FirstAsync(d => d.HardwareIdentifier == hardwareIdentifier);
+    }
 }
