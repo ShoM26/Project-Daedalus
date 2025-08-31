@@ -15,3 +15,5 @@
 8/28/25: Didnt do much today. Controller method fixed itself or something and merged into main. Nothing beyond this. Work life balance or something
 
 8/29/25: Also not much progress gained today but created the shells for the controllers and wrote out the SensorReading controllers. Lots of work to do this weekend
+
+8/30/25: Lots done today. Wrote many api requests. Basic CRUD ones and some specific. Only one more controller to write before I merge that branch into main. Also ran an ef core migration and wrote a repository method. Got to get on top of this so I can move onto the hardware element soon. I believe itll be one of the more challenging things.
