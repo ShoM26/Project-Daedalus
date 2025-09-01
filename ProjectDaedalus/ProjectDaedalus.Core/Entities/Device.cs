@@ -7,7 +7,7 @@ public partial class Device
 {
     public int DeviceId { get; set; }
 
-    public string DeviceName { get; set; } = null!;
+    public string HardwareIdentifier { get; set; } = null!;
 
     public string ConnectionType { get; set; } = null!;
 
@@ -19,6 +19,6 @@ public partial class Device
     public string Status { get; set; } = null!;
 
     public virtual ICollection<SensorHistory> SensorHistories { get; set; } = new List<SensorHistory>();
-
     public virtual ICollection<UserPlant> UserPlants { get; set; } = new List<UserPlant>();
+    public virtual User User { get; set; } = null!;
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectDaedalus.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using ProjectDaedalus.Infrastructure.Data;
 namespace ProjectDaedalus.Infrastructure.Migrations
 {
     [DbContext(typeof(DaedalusContext))]
-    partial class DaedalusContextModelSnapshot : ModelSnapshot
+    [Migration("20250901231022_EnableCascadeDeletes")]
+    partial class EnableCascadeDeletes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

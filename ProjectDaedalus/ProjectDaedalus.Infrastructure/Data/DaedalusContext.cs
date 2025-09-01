@@ -44,6 +44,7 @@ public partial class DaedalusContext : DbContext
             entity.ToTable("devices");
 
             entity.HasIndex(e => e.ConnectionAddress, "connection_address").IsUnique();
+            entity.HasIndex(e => e.UserId, "fk_device");
 
             entity.Property(e => e.DeviceId).HasColumnName("device_id");
             entity.Property(e => e.ConnectionAddress)
@@ -52,15 +53,18 @@ public partial class DaedalusContext : DbContext
             entity.Property(e => e.ConnectionType)
                 .HasColumnType("enum('USB','Bluetooth','WiFi')")
                 .HasColumnName("connection_type");
-            entity.Property(e => e.DeviceName)
+            entity.Property(e => e.HardwareIdentifier)
                 .HasMaxLength(150)
-                .HasColumnName("device_name");
+                .HasColumnName("hardware_identifier");
+            entity.Property(e=> e.UserId).HasColumnName("user_id");
             entity.Property(e => e.LastSeen)
                 .HasColumnType("timestamp")
                 .HasColumnName("last_seen");
             entity.Property(e => e.Status)
                 .HasColumnType("enum('Active','Inactive','Disconnected')")
                 .HasColumnName("status");
+            entity.HasOne(u => u.User).WithMany(p => p.Devices).HasForeignKey(u => u.UserId)
+                .OnDelete(DeleteBehavior.Cascade).HasConstraintName("fk_device");
         });
 
         modelBuilder.Entity<Plant>(entity =>
@@ -108,7 +112,7 @@ public partial class DaedalusContext : DbContext
                 .HasColumnName("moisture_level");
 
             entity.HasOne(d => d.Device).WithMany(p => p.SensorHistories)
-                .HasForeignKey(d => d.DeviceId)
+                .HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_sensor_history");
         });
 
@@ -160,7 +164,7 @@ public partial class DaedalusContext : DbContext
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.Device).WithMany(p => p.UserPlants)
-                .HasForeignKey(d => d.DeviceId)
+                .HasForeignKey(d => d.DeviceId).OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_userplants_device");
 
             entity.HasOne(d => d.Plant).WithMany(p => p.UserPlants)
@@ -169,7 +173,7 @@ public partial class DaedalusContext : DbContext
                 .HasConstraintName("fk_userplants_plant");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserPlants)
-                .HasForeignKey(d => d.UserId)
+                .HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_userplants_user");
         });
 

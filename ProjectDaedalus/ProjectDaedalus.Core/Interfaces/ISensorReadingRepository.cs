@@ -6,8 +6,8 @@ namespace ProjectDaedalus.Core.Interfaces
     {
         Task<SensorHistory?> GetLatestReadingByDeviceIdAsync(int deviceId);
         Task<IEnumerable<SensorHistory>> GetReadingsByDeviceIdAsync(int deviceId);
-        Task<IEnumerable<SensorHistory>> GetReadingsByDeviceIdAsync(int deviceId, DateTime fromDate, DateTime toDate);
-        Task<bool> DeleteOldReadingsAsync(DateTime cutoffDate);
+        Task<IEnumerable<SensorHistory>> GetReadingsForDeviceByRangeAsync(int deviceId, DateTime fromDate, DateTime toDate);
+        Task<int> DeleteOldReadingsAsync(DateTime cutoffDate);
     }
 }
 

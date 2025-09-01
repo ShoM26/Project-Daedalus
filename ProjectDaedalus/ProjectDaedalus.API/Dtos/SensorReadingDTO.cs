@@ -2,8 +2,9 @@ namespace ProjectDaedalus.API.Dtos
 {
     public class SensorReadingDTO
     {
-        // Unique identifier for the device (MAC, UUID, or assigned string)
-        public string DeviceIdentifier { get; set; } = string.Empty;
+        public int? SensorReadingId { get; set; }
+        // Unique identifier
+        public required string HardwareIdentifier { get; set; }
 
         // When the reading was taken
         public DateTime? Timestamp { get; set; }
