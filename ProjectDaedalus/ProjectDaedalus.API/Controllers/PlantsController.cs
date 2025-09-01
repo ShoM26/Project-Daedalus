@@ -72,8 +72,8 @@ namespace ProjectDaedalus.API.Controllers
 
             try
             {
-                var existingPlant = await _plantRepository.GetByScientificNameAsync(dto.ScientificName);
-                if (existingPlant != null)
+                var existingPlant = await _plantRepository.ScientificNameExistAsync(dto.ScientificName);
+                if (existingPlant)
                 {
                     return Conflict($"Plant with scientific name {dto.ScientificName} already exists");
                 }

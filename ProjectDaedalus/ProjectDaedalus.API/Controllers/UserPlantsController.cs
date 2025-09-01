@@ -6,5 +6,5 @@ public class UserPlantsController
     //GET specific user's plant
     //POST assign a new plant to a user with device
     //PUT update device assignment
-    //GET sensor readings for specific plant
+    
 }
