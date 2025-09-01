@@ -229,5 +229,25 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        //DELETE by deviceId
+        [HttpDelete("{deviceId}/status")]
+        public async Task<IActionResult> DeleteDeviceById(int deviceId)
+        {
+            try
+            {
+                var device = await _deviceRepository.GetByIdAsync(deviceId);
+                if (device == null)
+                {
+                    return NotFound($"Device with identifier '{deviceId}' not found");
+                }
+
+                await _deviceRepository.DeleteAsync(deviceId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

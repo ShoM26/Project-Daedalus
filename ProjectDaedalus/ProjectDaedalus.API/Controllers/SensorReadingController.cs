@@ -90,5 +90,98 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        //Get the latest reading of a device
+        [HttpGet("{deviceId}")]
+        public async Task<IActionResult> GetLastReadingByDevice(int deviceId)
+        {
+            try
+            {
+                var device = _sensorReadingRepository.GetLatestReadingByDeviceIdAsync(deviceId);
+                if (device == null)
+                {
+                    return NotFound($"Device with ID {deviceId} not found.");
+                }
+
+                var reading = _sensorReadingRepository.GetReadingsByDeviceIdAsync(device.Id);
+                return Ok(reading);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("device{deviceId}/range")]
+        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetReadingRangeByDevice(int deviceId,
+            [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            try
+            {
+                if (startDate > endDate)
+                {
+                    return BadRequest("Start date cannot be after end date");
+                }
+
+                var readings = await _sensorReadingRepository.GetReadingsForDeviceByRangeAsync(deviceId, startDate, endDate);
+
+                if (!readings.Any())
+                {
+                    return NotFound(
+                        $"No sensor readings found for device with ID {deviceId} during the requested time.");
+                }
+
+                var readingDtos = readings.Select(r => new SensorReadingDTO
+                {
+                    SensorReadingId = r.DeviceId,
+                    HardwareIdentifier = r.Device.HardwareIdentifier,
+                    MoistureLevel = r.MoistureLevel,
+                    Timestamp = r.TimeStamp
+                });
+                return Ok(readingDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        //DELETE within a certain time frame
+        [HttpDelete]
+        public async Task<IActionResult> DeleteReadingsAfterDate([FromQuery] DateTime cutoff)
+        {
+            try
+            {
+                if (cutoff > DateTime.UtcNow)
+                {
+                    BadRequest("Invalid cutoff");
+                }
+
+                var count = await _sensorReadingRepository.DeleteOldReadingsAsync(cutoff);
+                return Ok(count);
+            }
+            catch
+            {
+                return StatusCode(500, "An error occurred while deleting");
+            }
+        }
+        //DELETE all by deviceid
+        [HttpDelete("{deviceId}")]
+        public async Task<IActionResult> DeleteAllReadingsByDevice(int deviceId)
+        {
+            try
+            {
+                var readings = await _sensorReadingRepository.GetReadingsByDeviceIdAsync(deviceId);
+                if (!readings.Any())
+                {
+                    return NotFound($"No sensor readings found for device {deviceId}");
+                }
+
+                await _sensorReadingRepository.DeleteManyAsync(readings);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

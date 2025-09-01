@@ -1,10 +1,184 @@
-namespace ProjectDaedalus.API.Controllers;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ProjectDaedalus.API.Dtos;
+using ProjectDaedalus.Core.Entities;
+using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
+using ProjectDaedalus.Infrastructure.Data; // DbContext
 
-public class UserPlantsController
+namespace ProjectDaedalus.API.Controllers
 {
-    //GET all user's plants
-    //GET specific user's plant
-    //POST assign a new plant to a user with device
-    //PUT update device assignment
-    
+    public class UserPlantsController : ControllerBase
+    {
+        private readonly DaedalusContext _context;
+        private readonly IUserPlantRepository _userPlantRepository;
+
+        // GET all user's plants
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<UserPlantsDTO>>> GetUserPlants(int userId)
+        {
+            try
+            {
+                var userPlants = await _userPlantRepository.GetUserPlantsAsync(userId);
+                if (!userPlants.Any())
+                {
+                    return NotFound($"No plants found for user {userId}");
+                }
+                var userPlantDtos = userPlants.Select(up => new UserPlantsDTO
+                {
+                    UserPlantId = up.UserPlantId,
+                    UserId = up.UserId,
+                    PlantId = up.PlantId,
+                    DeviceId = up.DeviceId,
+                });
+                return Ok(userPlantDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while retrieving user plants.");
+            }
+        }
+        // GET specific user's plant by UserPlant ID
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserPlantsDTO>> GetUserPlant(int id)
+        {
+            try
+            {
+                var userPlant = await _userPlantRepository.GetByIdAsync(id);
+                if (userPlant == null)
+                {
+                    return NotFound($"User plant with ID {id} not found.");
+                }
+                var userPlantDto = new UserPlantsDTO
+                {
+                    UserPlantId = userPlant.UserPlantId,
+                    UserId = userPlant.UserId,
+                    PlantId = userPlant.PlantId,
+                    DeviceId = userPlant.DeviceId,
+                };
+                return Ok(userPlantDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while retrieving the user plant.");
+            }
+        }
+        // GET specific user's plant by device ID
+        [HttpGet("device/{deviceId}")]
+        public async Task<ActionResult<UserPlantsDTO>> GetUserPlantByDevice(int deviceId)
+        {
+            try
+            {
+                var userPlant = await _userPlantRepository.GetUserPlantByDeviceIdAsync(deviceId);
+                if (userPlant == null)
+                {
+                    return NotFound($"No plant assignment found for device {deviceId}.");
+                }
+                var userPlantDto = new UserPlantsDTO
+                {
+                    UserPlantId = userPlant.UserPlantId,
+                    UserId = userPlant.UserId,
+                    PlantId = userPlant.PlantId,
+                    DeviceId = userPlant.DeviceId,
+                };
+                return Ok(userPlantDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while retrieving the user plant by device.");
+            }
+        }
+
+        // POST assign a new plant to a user with device
+        [HttpPost]
+        public async Task<ActionResult<UserPlantsDTO>> CreateUserPlant(UserPlantsDTO dto)
+        {
+            try
+            {
+                // Validate that the combination doesn't already exist
+                var exists = await _userPlantRepository.UserPlantExistsAsync(
+                    dto.UserId,
+                    dto.PlantId,
+                    dto.DeviceId);
+                if (exists)
+                {
+                    return BadRequest("This plant-device assignment already exists for the user.");
+                }
+                var userPlant = new UserPlant
+                {
+                    UserId = dto.UserId,
+                    PlantId = dto.PlantId,
+                    DeviceId = dto.DeviceId,
+                    DateAdded = DateTime.Now
+                };
+
+                var createdUserPlant = await _userPlantRepository.AddAsync(userPlant);
+                var userPlantDto = new UserPlantsDTO
+                {
+                    UserPlantId = createdUserPlant.UserPlantId,
+                    UserId = createdUserPlant.UserId,
+                    PlantId = createdUserPlant.PlantId,
+                    DeviceId = createdUserPlant.DeviceId,
+                };
+                return CreatedAtAction(nameof(GetUserPlant),
+                    new { id = userPlantDto.UserPlantId }, userPlantDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while creating the user plant assignment.");
+            }
+        }
+        // PUT update device assignment
+        [HttpPut("{id}/device")]
+        public async Task<ActionResult> UpdateDeviceAssignment(int id, UserPlantsDTO dto)
+        {
+            try
+            {
+                var existingUserPlant = await _userPlantRepository.GetByIdAsync(id);
+
+                if (existingUserPlant == null)
+                {
+                    return NotFound($"User plant with ID {id} not found.");
+                }
+
+                // Check if the new device assignment would create a duplicate
+                var wouldDuplicate = await _userPlantRepository.UserPlantExistsAsync(
+                    dto.UserId,
+                    dto.PlantId,
+                    dto.DeviceId);
+                if (wouldDuplicate)
+                {
+                    return BadRequest("This device is already assigned to this plant for this user.");
+                }
+                // Update the device assignment
+                existingUserPlant.DeviceId = dto.DeviceId;
+                existingUserPlant.UserId = dto.UserId;
+                existingUserPlant.PlantId = dto.PlantId;
+                await _userPlantRepository.UpdateAsync(existingUserPlant);
+                return Ok(existingUserPlant);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while updating the device assignment.");
+            }
+        }
+        // DELETE remove plant assignment from user
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserPlant(int id)
+        {
+            try
+            {
+                var userPlant = await _userPlantRepository.GetByIdAsync(id);
+                if (userPlant == null)
+                {
+                    return NotFound($"User plant with ID {id} not found.");
+                }
+                await _userPlantRepository.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while deleting the user plant assignment.");
+            }
+        }
+    }
 }

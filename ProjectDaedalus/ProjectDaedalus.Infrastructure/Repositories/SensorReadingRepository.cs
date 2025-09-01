@@ -8,23 +8,38 @@ namespace ProjectDaedalus.Infrastructure.Repositories;
 public class SensorReadingRepository : Repository<SensorHistory>, ISensorReadingRepository
 {
     public SensorReadingRepository(DaedalusContext context) : base(context){}
+
     public async Task<SensorHistory?> GetLatestReadingByDeviceIdAsync(int deviceId)
     {
-        throw new NotImplementedException();
+        var deviceExists = _context.Devices.AnyAsync(s => s.DeviceId == deviceId);
+        if (deviceExists == null)
+        {
+            return null;
+        }
+        return await _dbSet.Where(s => s.DeviceId == deviceId).OrderByDescending(s => s.TimeStamp).FirstAsync();
     }
 
     public async Task<IEnumerable<SensorHistory>> GetReadingsByDeviceIdAsync(int deviceId)
     {
-        throw new NotImplementedException();
+        return await _dbSet.Where(s => s.DeviceId == deviceId).ToListAsync();
     }
 
-    public async Task<IEnumerable<SensorHistory>> GetReadingsByDeviceIdAsync(int deviceId, DateTime fromDate, DateTime toDate)
+    public async Task<IEnumerable<SensorHistory>> GetReadingsForDeviceByRangeAsync(int deviceId, DateTime startDate, DateTime endDate)
     {
-        throw new NotImplementedException();
+        return await _context.SensorHistories
+            .Where(sr => sr.DeviceId == deviceId 
+                         && sr.TimeStamp >= startDate 
+                         && sr.TimeStamp <= endDate)
+            .OrderBy(sr => sr.TimeStamp)
+            .ToListAsync();
     }
 
-    public async Task<bool> DeleteOldReadingsAsync(DateTime cutoffDate)
+    public async Task<int> DeleteOldReadingsAsync(DateTime cutoffDate)
     {
-        throw new NotImplementedException();
+        var deletedCount = await _dbSet
+            .Where(s => s.TimeStamp < cutoffDate)
+            .ExecuteDeleteAsync();
+    
+        return deletedCount;
     }
 }

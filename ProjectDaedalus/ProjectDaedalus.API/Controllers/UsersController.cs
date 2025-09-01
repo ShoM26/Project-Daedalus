@@ -195,5 +195,25 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        //DELETE remove user
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteUserById(int userId)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(userId);
+                if (user == null)
+                {
+                    return NotFound($"User with id {userId} not found");
+                }
+
+                await _userRepository.DeleteAsync(userId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

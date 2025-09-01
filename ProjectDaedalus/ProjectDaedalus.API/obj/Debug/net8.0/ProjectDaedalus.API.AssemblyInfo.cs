@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ProjectDaedalus.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d639ad313a7764a80fad79fef87cb8c0ee8d2ec8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ac26404702114170ab1a574f13615764aa674876")]
 [assembly: System.Reflection.AssemblyProductAttribute("ProjectDaedalus.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ProjectDaedalus.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
