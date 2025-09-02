@@ -16,4 +16,5 @@ public partial class User
     public DateTime? CreatedAt { get; set; }
 
     public virtual ICollection<UserPlant> UserPlants { get; set; } = new List<UserPlant>();
+    public virtual ICollection<Device> Devices { get; set; } = new List<Device>();
 }

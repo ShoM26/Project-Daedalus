@@ -50,4 +50,16 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet.Remove(entity);
         return true;
     }
+
+    public async Task<int> DeleteManyAsync(IEnumerable<T> entities)
+    {
+        var entitiesList = entities.ToList();
+        if (!entitiesList.Any())
+        {
+            return 0;
+        }
+        _dbSet.RemoveRange(entitiesList);
+        await _context.SaveChangesAsync();
+        return entitiesList.Count();
+    }
 }
