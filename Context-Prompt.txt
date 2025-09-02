@@ -1,41 +1,103 @@
-I am a senior computer science student building a full-stack plant monitoring system called project Daedalus for my capstone project. The system uses Arduino soil moisture sensors connected to a web application. Users can register plants, monitor real-time soil moisture, and receive alerts when plants need watering. This project is designed to demonstrate full-stack development skills, IoT integration, and professional software architecture.
+I am a senior computer science student building a full-stack plant monitoring system called Project Daedalus for my capstone project. The system uses Arduino soil moisture sensors connected to a web application. Users can register plants, monitor real-time soil moisture, and receive alerts when plants need watering. This project demonstrates full-stack development skills, IoT integration, and professional software architecture.
 Tech Stack
+
 Frontend: React (Visual Studio Code)
 Backend: C# ASP.NET Core Web API (JetBrains Rider)
 Database: MySQL (DataGrip)
 Hardware: Arduino Uno with soil moisture sensor (USB serial now, Bluetooth planned later)
 Authentication: JWT tokens (planned)
 Environment: All components running locally during development
-Current Status
-Arduino device built and transmitting soil moisture data (refresh: 30–60s).
-Database schema created and deployed with EF Core migrations.
-Backend general setup complete with Entity Framework Core integration to MySQL.
-Repository layer methods implemented.
-SensorReadings DTO and controller completed and tested successfully in Postman.
-Test data: Added single device row for API testing, added userid field to devices table.
-Project designed for multi-user scalability from the start.
+
+Current Status - Completed Backend Foundation
+Database & Infrastructure
+
+Database schema created and deployed with EF Core migrations
+Repository pattern implemented with generic base repository
+All core repository methods completed (CRUD + specialized queries)
+Database cascading deletes configured and working
+
+API Controllers Completed
+
+SensorReadings Controller: Full CRUD + date range queries + cleanup methods
+UserPlants Controller: Complete CRUD with device assignment management
+Users Controller: CRUD + cascading delete (removes all user data safely)
+Additional controllers for Plants and Devices
+
+Advanced Repository Features
+
+DeleteManyAsync methods for batch operations
+Date range querying for sensor data
+Specialized methods like GetLatestReadingByDeviceId
+Data cleanup methods for old sensor readings
+
+Database Architecture
+
+Multi-user scalable design from the start
+Proper foreign key relationships with cascade deletes
+Optimized for IoT data ingestion and retrieval
+
 Database Schema (Core Tables)
+
 Users: authentication and profile info
-Devices: device ID, name, connection type/address, userid (newly added)
+Devices: device ID, name, connection type/address, user_id
 Plants: scientific/familiar names, ideal moisture ranges, optional fun facts
-UserPlants: links users, plants, and devices
-SensorReadings: timestamped soil moisture values
-Key Features
-Real-time soil moisture dashboard
-Plant registration with species-specific ideal ranges
-Alerts for watering needs
-Historical trend charts
-Device management (Bluetooth planned)
-Learning Goals
-Strengthen React development for data dashboards
-Apply ASP.NET Core with EF Core ORM and clean architecture
-Demonstrate IoT-to-web integration (Arduino → API → DB → Frontend)
-Produce a portfolio-ready, scalable full-stack application
-Development Approach
-API-first backend with ASP.NET Core controllers + EF Core DbContext
-DataGrip for schema management and queries
-React frontend for data visualization
-Iterative testing with seeded DB data before full hardware integration
-Next Steps
-Additional API controllers (Users, Plants, UserPlants, Devices)
-Hardware integration refinement
+UserPlants: links users, plants, and devices with proper constraints
+SensorHistory: timestamped soil moisture values with composite primary key
+
+Key Features Implemented
+
+Complete REST API for all entities
+Cascading delete functionality (delete user removes all associated data)
+Date range queries for historical sensor data
+Device-to-plant assignment management
+Data cleanup capabilities for maintenance
+
+Learning Goals Progress
+Applied ASP.NET Core with EF Core ORM and clean architecture
+Implemented proper repository pattern and dependency injection
+Demonstrated database design with complex relationships
+React frontend development (next phase)
+IoT-to-web integration refinement (next phase)
+Development Approach Validated
+
+API-first backend development completed
+All controllers tested and working in Postman
+Repository layer provides clean abstraction over data access
+Database properly configured with cascading relationships
+Ready for frontend integration and hardware refinement
+
+Next Steps - Testing and Hardware Integration
+Immediate Priorities:
+
+Comprehensive API Testing
+
+Test all CRUD operations for each controller in Postman
+Verify cascading delete functionality (delete user → verify related data removed)
+Test date range queries with various parameters
+Validate error handling and edge cases
+Document API endpoints for frontend development
+
+
+Hardware Integration Refinement
+
+Enhance Arduino code for reliable data transmission
+Implement automatic device registration/detection
+Add error handling for connection failures
+Test continuous data streaming to API
+Validate sensor reading accuracy and consistency
+
+Frontend Development Preparation
+
+Document API contracts and response formats
+Plan React component architecture for dashboards
+Design real-time data visualization components
+Prepare for WebSocket or polling implementation for live updates
+
+Future Phases:
+
+React frontend with real-time dashboards
+JWT authentication implementation
+Bluetooth device connectivity
+Alert system for watering notifications
+Historical trend visualization
+Mobile responsiveness
