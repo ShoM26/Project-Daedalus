@@ -12,7 +12,6 @@ namespace ProjectDaedalus.API.Controllers
     public class SensorReadingsController : ControllerBase
     {
         private readonly DaedalusContext _context;
-        private readonly IUserPlantRepository _userPlantRepository;
         private readonly ISensorReadingRepository _sensorReadingRepository;
 
         public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository,
@@ -20,7 +19,6 @@ namespace ProjectDaedalus.API.Controllers
         {
             _context = context;
             _sensorReadingRepository = sensorReadingRepository;
-            _userPlantRepository = userPlantRepository;
         }
 
         // POST: api/sensorreadings
@@ -61,23 +59,20 @@ namespace ProjectDaedalus.API.Controllers
             });
         }
 
-        [HttpGet("userPlant/{userPlantId}/readings")]
-        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetSensorReadingsByPlant(int userPlantId)
+        [HttpGet("device/{deviceId}/readings")]
+        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetAllReadingsByDeviceIdAsync(int deviceId)
         {
             try
             {
-                // First get the UserPlant to find the associated device
-                var userPlant = await _userPlantRepository.GetByIdAsync(userPlantId);
-                if (userPlant == null)
+                // First get the device to find the associated device
+                var readings = await _sensorReadingRepository.GetReadingsByDeviceIdAsync(deviceId);
+                if (!readings.Any())
                 {
-                    return NotFound($"Plant with ID {userPlantId} not found");
+                    return NotFound($"Device with ID {deviceId} not found");
                 }
-
-                // Get sensor readings for the device associated with this plant
-                var sensorReadings = await _sensorReadingRepository.GetReadingsByDeviceIdAsync(userPlant.DeviceId);
        
                 // Convert to DTOs
-                var sensorReadingDtos = sensorReadings.Select(reading => new SensorReadingDTO
+                var sensorReadingDtos = readings.Select(reading => new SensorReadingDTO
                 {
                     HardwareIdentifier = reading.Device.HardwareIdentifier,
                     MoistureLevel = reading.MoistureLevel,
@@ -97,13 +92,12 @@ namespace ProjectDaedalus.API.Controllers
         {
             try
             {
-                var device = _sensorReadingRepository.GetLatestReadingByDeviceIdAsync(deviceId);
-                if (device == null)
+                var reading = await _sensorReadingRepository.GetLatestReadingByDeviceIdAsync(deviceId);
+                if (reading == null)
                 {
                     return NotFound($"Device with ID {deviceId} not found.");
                 }
-
-                var reading = _sensorReadingRepository.GetReadingsByDeviceIdAsync(device.Id);
+                
                 return Ok(reading);
             }
             catch (Exception ex)

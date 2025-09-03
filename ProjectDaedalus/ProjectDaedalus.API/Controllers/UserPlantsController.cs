@@ -38,14 +38,14 @@ namespace ProjectDaedalus.API.Controllers
         }
         // GET specific user's plant by UserPlant ID
         [HttpGet("{userPlantId}")]
-        public async Task<ActionResult<UserPlantsDTO>> GetUserPlant(int id)
+        public async Task<ActionResult<UserPlantsDTO>> GetUserPlant(int userPlantId)
         {
             try
             {
-                var userPlant = await _userPlantRepository.GetByIdAsync(id);
+                var userPlant = await _userPlantRepository.GetByIdAsync(userPlantId);
                 if (userPlant == null)
                 {
-                    return NotFound($"User plant with ID {id} not found.");
+                    return NotFound($"User plant with ID {userPlantId} not found.");
                 }
                 var userPlantDto = new UserPlantsDTO
                 {
@@ -178,6 +178,34 @@ namespace ProjectDaedalus.API.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "An error occurred while deleting the user plant assignment.");
+            }
+        }
+        //GET all plants belonging to user
+        [HttpGet("userplants/{userId}/plants")]
+        public async Task<ActionResult<IEnumerable<PlantDTO>>> GetPlantsBelongingToUser(int userId)
+        {
+            try
+            {
+                var userPlants = await _userPlantRepository.GetUserPlantsByUserIdAsync(userId);
+                if (!userPlants.Any())
+                {
+                    return NotFound($"User with id {userId} not found");
+                }
+                    
+                var plantsDto = userPlants.Select(up => new PlantDTO
+                {
+                    PlantId = up.Plant.PlantId,
+                    ScientificName = up.Plant.ScientificName,
+                    FamiliarName = up.Plant.FamiliarName,
+                    FunFact = up.Plant.FunFact,
+                    MoistureLowRange = up.Plant.MoistureLowRange,
+                    MoistureHighRange = up.Plant.MoistureHighRange
+                }).ToList();
+                return Ok(plantsDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }
