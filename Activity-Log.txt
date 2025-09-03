@@ -22,4 +22,6 @@
 
 9/1/25: Finished up writing the APIs today and merged into main. Going to begin testing tomorrow then may table this project for a week to focus on my honors project. I think the hardest part of this may be the hardware which is on the horizon and I am worried it will all crash and burn like it did last time.
 
-8/2/25: Tested all of the POST API requests and began testing other API requests today. a few architectural changes were made and forgot to make a separate branch for this. 
+9/2/25: Tested all of the POST API requests and began testing other API requests today. a few architectural changes were made and forgot to make a separate branch for this.
+
+9/3/25: Tested the rest of the API requests, created a gitignore file to hide the build files and Development.json. This project is going to take a backseat for the next two weeks. Still planning on doing something for the project everyday but I need to focus on my honors project because I ambitiously would like to knock that out before the end of the semester so I can focus on getting it published during the spring. I have an interview today for an internship position for the fall we will see what that has in store too.
