@@ -21,13 +21,14 @@ public class SensorReadingRepository : Repository<SensorHistory>, ISensorReading
 
     public async Task<IEnumerable<SensorHistory>> GetReadingsByDeviceIdAsync(int deviceId)
     {
-        return await _dbSet.Where(s => s.DeviceId == deviceId).ToListAsync();
+        return await _context.SensorHistories.Include(sh => sh.Device).Where(s => s.DeviceId == deviceId).OrderByDescending(sh => sh.TimeStamp)
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<SensorHistory>> GetReadingsForDeviceByRangeAsync(int deviceId, DateTime startDate, DateTime endDate)
     {
         return await _context.SensorHistories
-            .Where(sr => sr.DeviceId == deviceId 
+            .Include(sh=> sh.Device).Where(sr => sr.DeviceId == deviceId 
                          && sr.TimeStamp >= startDate 
                          && sr.TimeStamp <= endDate)
             .OrderBy(sr => sr.TimeStamp)
@@ -36,7 +37,7 @@ public class SensorReadingRepository : Repository<SensorHistory>, ISensorReading
 
     public async Task<int> DeleteOldReadingsAsync(DateTime cutoffDate)
     {
-        var deletedCount = await _dbSet
+        var deletedCount = await _dbSet.Include(sh => sh.Device)
             .Where(s => s.TimeStamp < cutoffDate)
             .ExecuteDeleteAsync();
     

@@ -27,8 +27,8 @@ public class UserPlantRepository : Repository<UserPlant>, IUserPlantRepository
                   p.DeviceId == deviceId);
     }
 
-    public async Task<IEnumerable<Plant>> GetUserPlantsByUserIdAsync(int userId)
+    public async Task<IEnumerable<UserPlant>> GetUserPlantsByUserIdAsync(int userId)
     {
-        return await _dbSet.Select(p => p.Plant).Where(u => userId == userId).ToListAsync();
+        return await _context.UserPlants.Include(up => up.Plant).Where(up => up.UserId == userId).ToListAsync();
     }
 }

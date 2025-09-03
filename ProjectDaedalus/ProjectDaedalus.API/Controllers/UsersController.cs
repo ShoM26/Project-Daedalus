@@ -180,33 +180,5 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        //GET all plants belonging to user
-        [HttpGet("user/{userId}/plants")]
-        public async Task<ActionResult<IEnumerable<Plant>>> GetPlantsBelongingToUser(int userId)
-        {
-            try
-            {
-                var user = await _userRepository.GetByIdAsync(userId);
-                if (user == null)
-                {
-                    return NotFound($"User with id {userId} not found");
-                }
-
-                var plants = user.UserPlants.Select(up => new PlantDTO
-                {
-                    PlantId = up.Plant.PlantId,
-                    ScientificName = up.Plant.ScientificName,
-                    FamiliarName = up.Plant.FamiliarName,
-                    FunFact = up.Plant.FunFact,
-                    MoistureLowRange = up.Plant.MoistureLowRange,
-                    MoistureHighRange = up.Plant.MoistureHighRange
-                }).ToList();
-                return Ok(plants);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
     }
 }

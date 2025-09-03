@@ -1,0 +1,75 @@
+############################
+# .NET / ASP.NET Core
+############################
+
+# Build results
+bin/
+obj/
+out/
+Debug/
+Release/
+
+# Auto-generated files
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vspscc
+*.vssscc
+*.tmp
+*.sourcelink.json
+
+# AssemblyInfo
+*.AssemblyInfo.cs
+*.AssemblyInfoInputs.cache
+*.csproj.AssemblyReference.cache
+
+# Visual Studio working folders
+.vs/
+
+############################
+# Rider / JetBrains
+############################
+.idea/
+*.iml
+
+############################
+# Node / React frontend
+############################
+
+# Node modules
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files (keep secrets out of Git)
+.env
+.env.local
+.env.*.local
+
+############################
+# Entity Framework Core
+############################
+
+# If you want to ignore migrations, uncomment below
+# **/Migrations/
+
+############################
+# App Settings
+############################
+
+# Ignore local dev secrets
+**/appsettings.Development.json
