@@ -1,1 +1,4 @@
 /ProjectDaedalus/ProjectDaedalus.sln
+# Local dev settings
+ProjectDaedalus.API/appsettings.Development.json
+
