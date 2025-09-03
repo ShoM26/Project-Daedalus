@@ -7,30 +7,29 @@ using ProjectDaedalus.Infrastructure.Data; // DbContext
 
 namespace ProjectDaedalus.API.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class UserPlantsController : ControllerBase
     {
         private readonly DaedalusContext _context;
         private readonly IUserPlantRepository _userPlantRepository;
 
+        public UserPlantsController(DaedalusContext context, IUserPlantRepository userPlantRepository)
+        {
+            _context = context;
+            _userPlantRepository = userPlantRepository;
+        }
         // GET all user's plants
-        [HttpGet("user/{userId}")]
+        [HttpGet("user/{userId}/plants")]
         public async Task<ActionResult<IEnumerable<UserPlantsDTO>>> GetUserPlants(int userId)
         {
             try
             {
-                var userPlants = await _userPlantRepository.GetUserPlantsAsync(userId);
-                if (!userPlants.Any())
-                {
-                    return NotFound($"No plants found for user {userId}");
-                }
-                var userPlantDtos = userPlants.Select(up => new UserPlantsDTO
-                {
-                    UserPlantId = up.UserPlantId,
-                    UserId = up.UserId,
-                    PlantId = up.PlantId,
-                    DeviceId = up.DeviceId,
-                });
-                return Ok(userPlantDtos);
+                var plants = await _userPlantRepository.GetUserPlantsByUserIdAsync(userId);
+                if (!plants.Any())
+                    return NotFound($"No plants found for user {userId}.");
+    
+                return Ok(plants);
             }
             catch (Exception ex)
             {
@@ -38,7 +37,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         // GET specific user's plant by UserPlant ID
-        [HttpGet("{id}")]
+        [HttpGet("{userPlantId}")]
         public async Task<ActionResult<UserPlantsDTO>> GetUserPlant(int id)
         {
             try
@@ -63,7 +62,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         // GET specific user's plant by device ID
-        [HttpGet("device/{deviceId}")]
+        [HttpGet("device/{deviceId}/plant")]
         public async Task<ActionResult<UserPlantsDTO>> GetUserPlantByDevice(int deviceId)
         {
             try
@@ -118,9 +117,10 @@ namespace ProjectDaedalus.API.Controllers
                     UserId = createdUserPlant.UserId,
                     PlantId = createdUserPlant.PlantId,
                     DeviceId = createdUserPlant.DeviceId,
+                    DateAdded = createdUserPlant.DateAdded
                 };
                 return CreatedAtAction(nameof(GetUserPlant),
-                    new { id = userPlantDto.UserPlantId }, userPlantDto);
+                    new { userPlantId = userPlantDto.UserPlantId }, userPlantDto);
             }
             catch (Exception ex)
             {

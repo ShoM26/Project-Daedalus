@@ -10,7 +10,7 @@ public class PlantRepository : Repository<Plant>, IPlantRepository
     public PlantRepository(DaedalusContext context) : base(context){}
     public async Task<Plant?> GetByScientificNameAsync(string scientificName)
     {
-        return await _dbSet.FirstAsync(p => p.ScientificName == scientificName);
+        return await _dbSet.FirstOrDefaultAsync(p => p.ScientificName == scientificName);
     }
 
     public async Task<bool> ScientificNameExistAsync(string scientificName)

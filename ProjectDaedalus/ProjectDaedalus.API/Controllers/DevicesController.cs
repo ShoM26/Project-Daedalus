@@ -13,8 +13,14 @@ namespace ProjectDaedalus.API.Controllers
     {
         private readonly DaedalusContext _context;
         private readonly IDeviceRepository _deviceRepository;
+
+        public DevicesController(DaedalusContext context, IDeviceRepository deviceRepository)
+        {
+            _context = context;
+            _deviceRepository = deviceRepository;
+        }
         //GET all devices for a user
-        [HttpGet("{userId}")]
+        [HttpGet("user/{userId}/devices")]
         public async Task<ActionResult<IEnumerable<Device>>> GetAllDevicesOfUser(int userId)
         {
             try
@@ -44,7 +50,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET specific device details
-        [HttpGet("{deviceId}")]
+        [HttpGet("{deviceId}/device")]
         public async Task<IActionResult> GetDeviceById(int deviceId)
         {
             try

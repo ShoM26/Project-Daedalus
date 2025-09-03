@@ -7,13 +7,22 @@ using ProjectDaedalus.Infrastructure.Data; // DbContext
 
 namespace ProjectDaedalus.API.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly DaedalusContext _context;
         private readonly IUserRepository _userRepository;
         private readonly IPlantRepository _plantRepository;
+        public UsersController(DaedalusContext context, IUserRepository userRepository,
+            IPlantRepository plantRepository)
+        {
+            _context = context;
+            _userRepository = userRepository;
+            _plantRepository = plantRepository;
+        }
         //GET user profile
-        [HttpGet("{userId}")]
+        [HttpGet("user/{userId}")]
         public async Task<IActionResult> GetUserById(int userId)
         {
             try
@@ -51,6 +60,10 @@ namespace ProjectDaedalus.API.Controllers
 
             try
             {
+                if (_userRepository == null)
+                {
+                    return StatusCode(500, "UserRepository is not injected");
+                }
                 var existingUser = await _userRepository.GetByUsernameAsync(dto.Username);
                 if (existingUser != null)
                 {
@@ -168,7 +181,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET all plants belonging to user
-        [HttpGet("{userId}")]
+        [HttpGet("user/{userId}/plants")]
         public async Task<ActionResult<IEnumerable<Plant>>> GetPlantsBelongingToUser(int userId)
         {
             try
@@ -189,26 +202,6 @@ namespace ProjectDaedalus.API.Controllers
                     MoistureHighRange = up.Plant.MoistureHighRange
                 }).ToList();
                 return Ok(plants);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-        //DELETE remove user
-        [HttpDelete("{userId}")]
-        public async Task<IActionResult> DeleteUserById(int userId)
-        {
-            try
-            {
-                var user = await _userRepository.GetByIdAsync(userId);
-                if (user == null)
-                {
-                    return NotFound($"User with id {userId} not found");
-                }
-
-                await _userRepository.DeleteAsync(userId);
-                return NoContent();
             }
             catch (Exception ex)
             {

@@ -15,7 +15,8 @@ namespace ProjectDaedalus.API.Controllers
         private readonly IUserPlantRepository _userPlantRepository;
         private readonly ISensorReadingRepository _sensorReadingRepository;
 
-        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository, IUserPlantRepository userPlantRepository)
+        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository,
+            IUserPlantRepository userPlantRepository)
         {
             _context = context;
             _sensorReadingRepository = sensorReadingRepository;
@@ -60,7 +61,7 @@ namespace ProjectDaedalus.API.Controllers
             });
         }
 
-        [HttpGet]
+        [HttpGet("userPlant/{userPlantId}/readings")]
         public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetSensorReadingsByPlant(int userPlantId)
         {
             try
@@ -91,7 +92,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //Get the latest reading of a device
-        [HttpGet("{deviceId}")]
+        [HttpGet("device/{deviceId}/reading")]
         public async Task<IActionResult> GetLastReadingByDevice(int deviceId)
         {
             try
@@ -111,7 +112,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
 
-        [HttpGet("device{deviceId}/range")]
+        [HttpGet("device/{deviceId}/range")]
         public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetReadingRangeByDevice(int deviceId,
             [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {

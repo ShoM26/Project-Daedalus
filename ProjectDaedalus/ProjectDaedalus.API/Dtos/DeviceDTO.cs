@@ -6,7 +6,7 @@ namespace ProjectDaedalus.API.Dtos
         public string HardwareIdentifier { get; set; } = string.Empty;
         public string ConnectionType { get; set; } = string.Empty;
         public string ConnectionAddress { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
+        public string? Status { get; set; } = string.Empty;
         public DateTime? LastSeen { get; set; }
         public int? UserId { get; set; } // Nullable for flexibility
     

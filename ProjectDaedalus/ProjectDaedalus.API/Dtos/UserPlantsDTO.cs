@@ -2,7 +2,7 @@ namespace ProjectDaedalus.API.Dtos
 {
     public class UserPlantsDTO
     {
-        public int UserPlantId { get; set; }
+        public int? UserPlantId { get; set; }
         public int UserId { get; set; }
         public int PlantId { get; set; }
         public int DeviceId { get; set; }

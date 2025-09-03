@@ -16,6 +16,6 @@ public class UserRepository : Repository<User>, IUserRepository
 
     public async Task<User?> GetByUsernameAsync(string username)
     {
-        return  await _dbSet.FirstAsync(p => p.Username == username);
+        return  await _dbSet.FirstOrDefaultAsync(p => p.Username == username);
     }
 }

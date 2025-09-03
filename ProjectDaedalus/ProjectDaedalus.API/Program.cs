@@ -20,6 +20,7 @@ builder.Services.AddDbContext<DaedalusContext>(options =>
 );
 
 // Register repositories (so UnitOfWork can inject them)
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();

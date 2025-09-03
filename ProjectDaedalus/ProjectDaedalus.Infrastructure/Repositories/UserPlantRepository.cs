@@ -16,7 +16,7 @@ public class UserPlantRepository : Repository<UserPlant>, IUserPlantRepository
 
     public async Task<UserPlant?> GetUserPlantByDeviceIdAsync(int deviceId)
     {
-        return await _dbSet.FirstAsync(p => p.DeviceId == deviceId);
+        return await _dbSet.FirstOrDefaultAsync(p => p.DeviceId == deviceId);
     }
 
     public async Task<bool> UserPlantExistsAsync(int userId, int plantId, int deviceId)
@@ -25,5 +25,10 @@ public class UserPlantRepository : Repository<UserPlant>, IUserPlantRepository
             (p => p.UserId == userId && 
                   p.PlantId == plantId && 
                   p.DeviceId == deviceId);
+    }
+
+    public async Task<IEnumerable<Plant>> GetUserPlantsByUserIdAsync(int userId)
+    {
+        return await _dbSet.Select(p => p.Plant).Where(u => userId == userId).ToListAsync();
     }
 }

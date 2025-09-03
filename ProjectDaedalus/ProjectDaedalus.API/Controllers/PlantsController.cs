@@ -13,6 +13,12 @@ namespace ProjectDaedalus.API.Controllers
     {
         private readonly DaedalusContext _context;
         private readonly IPlantRepository _plantRepository;
+
+        public PlantsController(DaedalusContext context, IPlantRepository plantRepository)
+        {
+            _context = context;
+            _plantRepository = plantRepository;
+        }
         //GET all plants
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants()
@@ -33,7 +39,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET specific plant
-        [HttpGet("{plantId}")]
+        [HttpGet("plants/{plantId}/byId")]
         public async Task<IActionResult> GetPlantById(int plantId)
         {
             try
@@ -97,7 +103,8 @@ namespace ProjectDaedalus.API.Controllers
                     MoistureLowRange = createdPlant.MoistureLowRange,
                     FunFact = createdPlant.FunFact
                 };
-                return CreatedAtAction(nameof(GetPlantById), resultDto);
+                return CreatedAtAction(
+                    nameof(GetPlantById), new { plantId = resultDto.PlantId }, resultDto);
             }
             catch (Exception ex)
             {
@@ -177,7 +184,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET search plants by name
-        [HttpGet("{scientificName}")]
+        [HttpGet("plants/{scientificName}/byName")]
         public async Task<IActionResult> GetPlantByScientificName(string scientificName)
         {
             try
