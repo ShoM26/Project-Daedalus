@@ -21,3 +21,5 @@
 8/31/25: Work-life balance kinda day. Learned more about the relationship between controller and repo today. With that new knowledge I cleaned up the controllers a bit. Just a couple more methods to write before I test and merge the branch with main
 
 9/1/25: Finished up writing the APIs today and merged into main. Going to begin testing tomorrow then may table this project for a week to focus on my honors project. I think the hardest part of this may be the hardware which is on the horizon and I am worried it will all crash and burn like it did last time.
+
+8/2/25: Tested all of the POST API requests and began testing other API requests today. a few architectural changes were made and forgot to make a separate branch for this. 
