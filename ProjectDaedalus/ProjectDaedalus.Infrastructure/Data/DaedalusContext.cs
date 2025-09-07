@@ -28,6 +28,9 @@ public partial class DaedalusContext : DbContext
     public virtual DbSet<UserPlant> UserPlants { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
