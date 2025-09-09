@@ -166,3 +166,25 @@ Scalable architecture supporting multiple devices
 Modern React frontend with data visualization
 Comprehensive documentation and setup guide
 Demonstration of learning new technologies (React) under timeline pressure
+
+
+
+# Project Daedalus Hardware TODO List - Pre-HC-05 Phase
+
+## Arduino Code Enhancements
+1. Implement structured data formatting (JSON is best)
+2. Include device identification in each transmission
+3. Averaging readings to reduce noise
+4. Implement calibration routines
+5. Sensor disconnect monitoring(Better handled API side)
+6. Sleep modes
+7. Low power indicators
+8. Time and space complexity should always be taken into account
+
+## Hardware Preparation
+9. Plan HC-05 wiring layout on breadboard
+10. Consider voltage level compatibility - sensor is also 3.3V so one will have to go to 5V
+11. Integration with API (especially monitoring for memory leaks)
+12. Document current wiring setup with diagrams
+13. Define standard message formats for sensor data
+14. Design error codes and status messages
