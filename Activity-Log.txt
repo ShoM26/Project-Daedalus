@@ -25,3 +25,7 @@
 9/2/25: Tested all of the POST API requests and began testing other API requests today. a few architectural changes were made and forgot to make a separate branch for this.
 
 9/3/25: Tested the rest of the API requests, created a gitignore file to hide the build files and Development.json. This project is going to take a backseat for the next two weeks. Still planning on doing something for the project everyday but I need to focus on my honors project because I ambitiously would like to knock that out before the end of the semester so I can focus on getting it published during the spring. I have an interview today for an internship position for the fall we will see what that has in store too.
+
+9/8/25: I got the internship position as an IT intern and it didn't really sound interesting so I declined it to put my effort into this project and my honors project. Currently waiting on a meeting for my honors project so I will be working on this for now
+
+9/9/25: Thrown back into the fire of this project. Built the device again and made major changes to the script file downloaded onto it. Ordered the Bluetooth add on and it ill arrive on the 18th supposedly. Until then I have some more script, DTO and API work to do to make sure the data transfer is smooth. Exciting time to work on this but also this is where I failed last year so hopefully all of the work I did on the backend pays off. I created the bridge to transfer the serial data to the apis. Will continue with that tomorrow and begin testing that. Once that is in place I will feel incredibly relieved.
