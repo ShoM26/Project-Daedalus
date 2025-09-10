@@ -151,10 +151,6 @@ namespace ProjectDaedalus.Bridge.Services
                 // Route message based on type
                 switch (arduinoMessage.GetMessageType())
                 {
-                    case ArduinoMessageType.Status:
-                        HandleStatusMessage(arduinoMessage);
-                        break;
-                    
                     case ArduinoMessageType.Error:
                         HandleErrorMessage(arduinoMessage);
                         break;
@@ -173,14 +169,6 @@ namespace ProjectDaedalus.Bridge.Services
                 Console.WriteLine($"JSON parsing error: {ex.Message}");
                 Console.WriteLine($"Raw data: {jsonLine}");
             }
-        }
-
-        /// <summary>
-        /// Handles status/startup messages from Arduino
-        /// </summary>
-        private void HandleStatusMessage(ArduinoMessage message)
-        {
-            Console.WriteLine($"Status from {message.hardwareidentifier}: {message.message}");
         }
 
         /// <summary>
@@ -204,7 +192,6 @@ namespace ProjectDaedalus.Bridge.Services
                     HardwareIdentifier = message.hardwareidentifier,
                     MoistureLevel = message.moisture_raw.Value,
                     TimeStamp = DateTime.UtcNow,
-                    RawValue = message.moisture_raw
                 };
 
                 await SendToApiAsync(sensorReading);

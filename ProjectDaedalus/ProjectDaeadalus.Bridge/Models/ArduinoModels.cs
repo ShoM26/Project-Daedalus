@@ -9,9 +9,7 @@ namespace ProjectDaedalus.Bridge.Models
         public string hardwareidentifier { get; set; }
         public long timestamp { get; set; }
         public int? moisture_raw { get; set; }
-        public string status { get; set; }
-        public string message { get; set; }      // For startup/status messages
-        public string error { get; set; }        // For error messages
+        public string? error { get; set; }        // For error messages
         
         /// <summary>
         /// Determines the type of message received from Arduino
@@ -20,9 +18,6 @@ namespace ProjectDaedalus.Bridge.Models
         {
             if (!string.IsNullOrEmpty(error))
                 return ArduinoMessageType.Error;
-            
-            if (!string.IsNullOrEmpty(message))
-                return ArduinoMessageType.Status;
                 
             if (moisture_raw.HasValue)
                 return ArduinoMessageType.SensorReading;
@@ -45,12 +40,6 @@ namespace ProjectDaedalus.Bridge.Models
         public string HardwareIdentifier { get; set; }
         public int MoistureLevel { get; set; }
         public DateTime TimeStamp { get; set; }
-        
-        /// <summary>
-        /// Additional metadata that could be useful for your API
-        /// </summary>
-        public int? RawValue { get; set; }          // Original sensor reading
-        public string Source { get; set; } = "Arduino";  // Data source identifier
     }
     
     /// <summary>
@@ -61,7 +50,6 @@ namespace ProjectDaedalus.Bridge.Models
     {
         Unknown,
         SensorReading,
-        Status,
         Error
     }
 }

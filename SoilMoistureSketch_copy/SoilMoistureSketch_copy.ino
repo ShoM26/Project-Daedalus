@@ -48,12 +48,10 @@ int getAveragedReading() {
   for (int i = 0; i < SAMPLE_COUNT; i++) {
     int reading = analogRead(A0);
     
-    
     if (reading >= 0 && reading <= 1023) {
       total += reading;
       validReadings++;
     }
-    
     delay(SAMPLE_DELAY);  
   }
   
@@ -78,19 +76,15 @@ int getRollingAverage(int newReading) {
   for (int i = 0; i < count; i++) {
     total += sampleBuffer[i];
   }
-  
   return total / count;
 }
 
 void setup() {
   Serial.begin(9600);
   hardwareIdentifier = getEEPROMDeviceID();
-
   for(int i =0; i< SAMPLE_COUNT; i++){
     sampleBuffer[i] = 0;
   }
-  // Send a startup message
-  sendStartupMessage();
 }
 
 void loop() {
@@ -119,32 +113,19 @@ void loop() {
 void sendSensorData(int smoothedValue) {
   StaticJsonDocument<200> doc;
   
-  doc["device_id"] = hardwareIdentifier;
+  doc["hardwareidentifier"] = hardwareIdentifier;
   doc["timestamp"] = millis();
   doc["moisture_raw"] = smoothedValue;
-  doc["status"] = "OK";
   
   serializeJson(doc, Serial);
   Serial.println();  
 }
 
-void sendStartupMessage() {
-  StaticJsonDocument<200> doc;
-  doc["device_id"] = hardwareIdentifier;
-  doc["message"] = "Device started";
-  doc["timestamp"] = millis();
-  doc["sample_count"] = SAMPLE_COUNT;
-  
-  serializeJson(doc, Serial);
-  Serial.println();
-}
-
 void sendErrorMessage(const char* errorMsg) {
   StaticJsonDocument<200> doc;
-  doc["device_id"] = hardwareIdentifier;
+  doc["hardwareidentifier"] = hardwareIdentifier;
   doc["error"] = errorMsg;
   doc["timestamp"] = millis();
-  doc["status"] = "ERROR";
   
   serializeJson(doc, Serial);
   Serial.println();
