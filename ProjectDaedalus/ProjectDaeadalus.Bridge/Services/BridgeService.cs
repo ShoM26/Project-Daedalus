@@ -5,6 +5,8 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ProjectDaeadalus.Bridge.Configuration;
 using ProjectDaeadalus.Bridge.Models;
+using ProjectDaedalus.API.Dtos.Device;
+using ProjectDaedalus.API.Dtos.SensorReading;
 
 namespace ProjectDaeadalus.Bridge.Services
 {
@@ -19,12 +21,14 @@ namespace ProjectDaeadalus.Bridge.Services
         private SerialPort _serialPort;
         private bool _isRunning = true;
         private bool _disposed = false;
+        private readonly IInternalApiService _apiService ;
 
         /// <summary>
         /// Initializes the bridge service with configuration and HTTP client
         /// </summary>
-        public BridgeService()
+        public BridgeService(IInternalApiService apiService)
         {
+            _apiService = apiService;
             _config = new BridgeConfig();
             _config.Validate(); // Ensure configuration is valid
             
@@ -186,11 +190,11 @@ namespace ProjectDaeadalus.Bridge.Services
             try
             {
                 // Convert Arduino message to API DTO format
-                var sensorReading = new CreateSensorReadingDto
+                var sensorReading = new SensorReadingInsertDto()
                 {
                     HardwareIdentifier = message.hardwareidentifier,
                     MoistureLevel = message.moisture_raw.Value,
-                    TimeStamp = DateTime.UtcNow,
+                    Timestamp = DateTime.UtcNow,
                 };
 
                 await SendToApiAsync(sensorReading);
@@ -200,11 +204,28 @@ namespace ProjectDaeadalus.Bridge.Services
                 Console.WriteLine($"Error processing sensor reading: {ex.Message}");
             }
         }
+        
+        /// <summary>
+        /// Register device when it is its first time logging in
+        /// </summary>
+        public async Task RegisterNewDevice(string hardwareIdentifier, int userId)
+        {
+            var registerDto = new DeviceDto
+            {
+                
+                HardwareIdentifier = hardwareIdentifier,
+                ConnectionType = "",
+                ConnectionAddress = "",
+                UserId = userId
+            };
+
+            await _apiService.PostAsync<object>("devices/internal/register", registerDto);
+        }
 
         /// <summary>
         /// Sends sensor data to the API with retry logic
         /// </summary>
-        private async Task SendToApiAsync(CreateSensorReadingDto sensorReading)
+        private async Task SendToApiAsync(SensorReadingInsertDto sensorReading)
         {
             var jsonOptions = new JsonSerializerOptions
             {

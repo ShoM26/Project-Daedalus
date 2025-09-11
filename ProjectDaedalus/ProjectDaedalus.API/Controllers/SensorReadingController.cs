@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProjectDaedalus.API.Attributes;
 using ProjectDaedalus.API.Dtos;
+using ProjectDaedalus.API.Dtos.SensorReading;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
 using ProjectDaedalus.Infrastructure.Data; // DbContext
@@ -22,14 +24,14 @@ namespace ProjectDaedalus.API.Controllers
         }
 
         // POST: api/sensorreadings
-        [HttpPost]
-        public async Task<IActionResult> PostReading([FromBody] SensorReadingDTO dto)
+        [HttpPost("internal")]
+        [InternalApi]
+        public async Task<IActionResult> CreateFromBridge([FromBody] SensorReadingInsertDto dto)
         {
             if (dto == null)
             {
                 return BadRequest("Invalid payload.");
             }
-
             // Look up device by identifier
             var device = await _context.Devices
                 .FirstAsync(d => d.HardwareIdentifier == dto.HardwareIdentifier);

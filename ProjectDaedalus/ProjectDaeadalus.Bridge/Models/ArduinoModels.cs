@@ -31,16 +31,6 @@ namespace ProjectDaeadalus.Bridge.Models
         public bool IsValid => !string.IsNullOrEmpty(hardwareidentifier);
     }
     
-    /// <summary>
-    /// DTO that matches your API's expected format for sensor readings
-    /// This is what gets sent to your ASP.NET Core API
-    /// </summary>
-    public class CreateSensorReadingDto
-    {
-        public string HardwareIdentifier { get; set; }
-        public int MoistureLevel { get; set; }
-        public DateTime TimeStamp { get; set; }
-    }
     
     /// <summary>
     /// Enumeration of different Arduino message types

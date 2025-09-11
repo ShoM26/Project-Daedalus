@@ -1,6 +1,6 @@
-namespace ProjectDaedalus.API.Dtos
+namespace ProjectDaedalus.API.Dtos.Device
 {
-    public class DeviceDTO
+    public class DeviceDto
     {
         public int? DeviceId { get; set; } // Nullable for POST requests
         public string HardwareIdentifier { get; set; } = string.Empty;

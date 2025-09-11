@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectDaedalus.API.Dtos;
+using ProjectDaedalus.API.Attributes;
+using ProjectDaedalus.API.Dtos.Plant;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
 using ProjectDaedalus.Infrastructure.Data; // DbContext
@@ -51,7 +52,7 @@ namespace ProjectDaedalus.API.Controllers
                 }
 
                 // convert to dto
-                var plant = new PlantDTO
+                var plant = new PlantDto
                 {
                     PlantId = p.PlantId,
                     ScientificName = p.ScientificName,
@@ -68,8 +69,9 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //POST add new plant to database
-        [HttpPost]
-        public async Task<ActionResult<PlantDTO>> AddPlant([FromBody] PlantDTO dto)
+        [HttpPost("internal")]
+        [InternalApi]
+        public async Task<ActionResult<PlantDto>> AddPlant([FromBody] PlantDto dto)
         {
             if (dto == null)
             {
@@ -94,7 +96,7 @@ namespace ProjectDaedalus.API.Controllers
                 };
                 var createdPlant = await _plantRepository.AddAsync(plant);
 
-                var resultDto = new PlantDTO
+                var resultDto = new PlantDto
                 {
                     PlantId = createdPlant.PlantId,
                     ScientificName = createdPlant.ScientificName,
@@ -112,8 +114,9 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //PUT update plant info
-        [HttpPut("{plantId}")]
-        public async Task<IActionResult> UpdatePlant(int plantId, [FromBody] PlantDTO dto)
+        [HttpPut("internal/{plantId}")]
+        [InternalApi]
+        public async Task<IActionResult> UpdatePlant(int plantId, [FromBody] PlantDto dto)
         {
             if (dto == null)
             {
@@ -148,7 +151,7 @@ namespace ProjectDaedalus.API.Controllers
 
                 var updatedPlant = await _plantRepository.UpdateAsync(existingPlant);
 
-                var resultDto = new PlantDTO
+                var resultDto = new PlantDto
                 {
                     ScientificName = updatedPlant.ScientificName,
                     FamiliarName = updatedPlant.FamiliarName,

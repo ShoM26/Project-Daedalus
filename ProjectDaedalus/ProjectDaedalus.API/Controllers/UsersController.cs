@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectDaedalus.API.Dtos;
+using ProjectDaedalus.API.Dtos.User;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
 using ProjectDaedalus.Infrastructure.Data; // DbContext
@@ -34,7 +34,7 @@ namespace ProjectDaedalus.API.Controllers
                 }
 
                 // Convert to DTO for security
-                var user = new UserDTO
+                var user = new UserDto
                 {
                     UserId = u.UserId,
                     Username = u.Username,
@@ -51,7 +51,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //POST create a new user
         [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] UserDTO dto)
+        public async Task<IActionResult> CreateUser([FromBody] UserDto dto)
         {
             if (dto == null)
             {
@@ -85,7 +85,7 @@ namespace ProjectDaedalus.API.Controllers
                 };
                 var createdUser = await _userRepository.AddAsync(user);
 
-                var resultDto = new UserDTO
+                var resultDto = new UserDto
                 {
                     UserId = createdUser.UserId,
                     Username = createdUser.Username,
@@ -102,7 +102,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //PUT update a user
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserDTO dto)
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UserDto dto)
         {
             if (dto == null)
             {
@@ -146,7 +146,7 @@ namespace ProjectDaedalus.API.Controllers
                 var updatedUser = await _userRepository.UpdateAsync(existingUser);
 
                 //Return updated device as DTO for security
-                var resultDto = new UserDTO
+                var resultDto = new UserDto
                 {
                     Username = updatedUser.Username,
                     Email = updatedUser.Email,

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectDaedalus.API.Dtos;
+using ProjectDaedalus.API.Dtos.UserPlant;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
 using ProjectDaedalus.Infrastructure.Data; // DbContext
@@ -21,7 +21,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         // GET all user's plants
         [HttpGet("user/{userId}/plants")]
-        public async Task<ActionResult<IEnumerable<UserPlantsDTO>>> GetUserPlants(int userId)
+        public async Task<ActionResult<IEnumerable<UserPlant>>> GetUserPlants(int userId)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         // GET specific user's plant by UserPlant ID
         [HttpGet("{userPlantId}")]
-        public async Task<ActionResult<UserPlantsDTO>> GetUserPlant(int userPlantId)
+        public async Task<ActionResult<UserPlantsDto>> GetUserPlant(int userPlantId)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"User plant with ID {userPlantId} not found.");
                 }
-                var userPlantDto = new UserPlantsDTO
+                var userPlantDto = new UserPlantsDto
                 {
                     UserPlantId = userPlant.UserPlantId,
                     UserId = userPlant.UserId,
@@ -63,7 +63,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         // GET specific user's plant by device ID
         [HttpGet("device/{deviceId}/plant")]
-        public async Task<ActionResult<UserPlantsDTO>> GetUserPlantByDevice(int deviceId)
+        public async Task<ActionResult<UserPlantsDto>> GetUserPlantByDevice(int deviceId)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"No plant assignment found for device {deviceId}.");
                 }
-                var userPlantDto = new UserPlantsDTO
+                var userPlantDto = new UserPlantsDto
                 {
                     UserPlantId = userPlant.UserPlantId,
                     UserId = userPlant.UserId,
@@ -89,7 +89,7 @@ namespace ProjectDaedalus.API.Controllers
 
         // POST assign a new plant to a user with device
         [HttpPost]
-        public async Task<ActionResult<UserPlantsDTO>> CreateUserPlant(UserPlantsDTO dto)
+        public async Task<ActionResult<UserPlantsDto>> CreateUserPlant(UserPlantsDto dto)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace ProjectDaedalus.API.Controllers
                 };
 
                 var createdUserPlant = await _userPlantRepository.AddAsync(userPlant);
-                var userPlantDto = new UserPlantsDTO
+                var userPlantDto = new UserPlantsDto
                 {
                     UserPlantId = createdUserPlant.UserPlantId,
                     UserId = createdUserPlant.UserId,
@@ -129,7 +129,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         // PUT update device assignment
         [HttpPut("{id}/device")]
-        public async Task<ActionResult> UpdateDeviceAssignment(int id, UserPlantsDTO dto)
+        public async Task<ActionResult> UpdateDeviceAssignment(int id, UserPlantsDto dto)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET all plants belonging to user
         [HttpGet("userplants/{userId}/plants")]
-        public async Task<ActionResult<IEnumerable<PlantDTO>>> GetPlantsBelongingToUser(int userId)
+        public async Task<ActionResult<IEnumerable<PlantDto>>> GetPlantsBelongingToUser(int userId)
         {
             try
             {
@@ -192,7 +192,7 @@ namespace ProjectDaedalus.API.Controllers
                     return NotFound($"User with id {userId} not found");
                 }
                     
-                var plantsDto = userPlants.Select(up => new PlantDTO
+                var plantsDto = userPlants.Select(up => new PlantDto
                 {
                     PlantId = up.Plant.PlantId,
                     ScientificName = up.Plant.ScientificName,

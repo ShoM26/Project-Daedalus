@@ -1,6 +1,6 @@
-namespace ProjectDaedalus.API.Dtos
+namespace ProjectDaedalus.API.Dtos.User
 {
-    public class UserDTO
+    public class UserDto
     {
         public int? UserId { get; set; }
 
