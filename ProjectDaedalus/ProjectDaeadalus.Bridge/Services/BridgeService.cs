@@ -1,13 +1,12 @@
-using System;
 using System.IO.Ports;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using ProjectDaedalus.Bridge.Configuration;
-using ProjectDaedalus.Bridge.Models;
+using ProjectDaeadalus.Bridge.Configuration;
+using ProjectDaeadalus.Bridge.Models;
 
-namespace ProjectDaedalus.Bridge.Services
+namespace ProjectDaeadalus.Bridge.Services
 {
     /// <summary>
     /// Main service class that handles Arduino communication and API integration

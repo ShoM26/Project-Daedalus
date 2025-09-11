@@ -1,4 +1,4 @@
-namespace ProjectDaedalus.Bridge.Models
+namespace ProjectDaeadalus.Bridge.Models
 {
     /// <summary>
     /// Represents the JSON structure received from Arduino

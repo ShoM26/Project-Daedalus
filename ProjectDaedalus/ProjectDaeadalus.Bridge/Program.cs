@@ -1,9 +1,9 @@
-﻿using ProjectDaedalus.Bridge.Services;
-using ProjectDaedalus.Bridge.Models;
+﻿using ProjectDaeadalus.Bridge.Services;
+using ProjectDaeadalus.Bridge.Models;
 using System;
 using System.Threading.Tasks;
 
-namespace ProjectDaedalus.Bridge
+namespace ProjectDaeadalus.Bridge
 {
     /// <summary>
     /// Entry point for the Arduino Bridge Console Application

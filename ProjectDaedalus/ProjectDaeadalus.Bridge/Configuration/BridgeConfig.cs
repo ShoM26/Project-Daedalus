@@ -1,4 +1,4 @@
-namespace ProjectDaedalus.Bridge.Configuration
+namespace ProjectDaeadalus.Bridge.Configuration
 {
     /// <summary>
     /// Configuration settings for the Arduino Bridge
@@ -11,7 +11,7 @@ namespace ProjectDaedalus.Bridge.Configuration
         public int BaudRate { get; set; } = 9600;
 
         // API Connection Settings  
-        public string ApiBaseUrl { get; set; } = "https://localhost:5721";  // API URL
+        public string ApiBaseUrl { get; set; } = "http://localhost:5278";  // API URL
         public string SensorEndpoint { get; set; } = "/api/sensorreadings";
         
         // Connection Management
