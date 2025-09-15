@@ -16,8 +16,7 @@ namespace ProjectDaedalus.API.Controllers
         private readonly DaedalusContext _context;
         private readonly ISensorReadingRepository _sensorReadingRepository;
 
-        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository,
-            IUserPlantRepository userPlantRepository)
+        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository)
         {
             _context = context;
             _sensorReadingRepository = sensorReadingRepository;
@@ -62,7 +61,7 @@ namespace ProjectDaedalus.API.Controllers
         }
 
         [HttpGet("device/{deviceId}/readings")]
-        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetAllReadingsByDeviceIdAsync(int deviceId)
+        public async Task<ActionResult<IEnumerable<SensorReadingSelectDto>>> GetAllReadingsByDeviceIdAsync(int deviceId)
         {
             try
             {
@@ -74,9 +73,9 @@ namespace ProjectDaedalus.API.Controllers
                 }
        
                 // Convert to DTOs
-                var sensorReadingDtos = readings.Select(reading => new SensorReadingDTO
+                var sensorReadingDtos = readings.Select(reading => new SensorReadingSelectDto
                 {
-                    HardwareIdentifier = reading.Device.HardwareIdentifier,
+                    DeviceId = reading.DeviceId,
                     MoistureLevel = reading.MoistureLevel,
                     Timestamp = reading.TimeStamp
                 });
@@ -109,7 +108,7 @@ namespace ProjectDaedalus.API.Controllers
         }
 
         [HttpGet("device/{deviceId}/range")]
-        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetReadingRangeByDevice(int deviceId,
+        public async Task<ActionResult<IEnumerable<SensorReadingSelectDto>>> GetReadingRangeByDevice(int deviceId,
             [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             try
@@ -127,10 +126,9 @@ namespace ProjectDaedalus.API.Controllers
                         $"No sensor readings found for device with ID {deviceId} during the requested time.");
                 }
 
-                var readingDtos = readings.Select(r => new SensorReadingDTO
+                var readingDtos = readings.Select(r => new SensorReadingSelectDto
                 {
-                    SensorReadingId = r.DeviceId,
-                    HardwareIdentifier = r.Device.HardwareIdentifier,
+                    DeviceId = r.DeviceId,
                     MoistureLevel = r.MoistureLevel,
                     Timestamp = r.TimeStamp
                 });
