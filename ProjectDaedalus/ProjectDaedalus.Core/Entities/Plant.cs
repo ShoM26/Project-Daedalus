@@ -7,9 +7,9 @@ public partial class Plant
 {
     public int PlantId { get; set; }
 
-    public string ScientificName { get; set; } = null!;
+    public required string ScientificName { get; set; }
 
-    public string FamiliarName { get; set; } = null!;
+    public required string FamiliarName { get; set; }
 
     public decimal MoistureLowRange { get; set; }
 
