@@ -38,7 +38,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         // GET specific user's plant by UserPlant ID
         [HttpGet("{userPlantId}")]
-        public async Task<ActionResult<UserPlantsDto>> GetUserPlant(int userPlantId)
+        public async Task<ActionResult<UserPlantCreateDto>> GetUserPlant(int userPlantId)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"User plant with ID {userPlantId} not found.");
                 }
-                var userPlantDto = new UserPlantsDto
+                var userPlantDto = new UserPlantCreateDto
                 {
                     UserPlantId = userPlant.UserPlantId,
                     UserId = userPlant.UserId,
@@ -63,7 +63,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         // GET specific user's plant by device ID
         [HttpGet("device/{deviceId}/plant")]
-        public async Task<ActionResult<UserPlantsDto>> GetUserPlantByDevice(int deviceId)
+        public async Task<ActionResult<UserPlantCreateDto>> GetUserPlantByDevice(int deviceId)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"No plant assignment found for device {deviceId}.");
                 }
-                var userPlantDto = new UserPlantsDto
+                var userPlantDto = new UserPlantCreateDto
                 {
                     UserPlantId = userPlant.UserPlantId,
                     UserId = userPlant.UserId,
@@ -89,7 +89,7 @@ namespace ProjectDaedalus.API.Controllers
 
         // POST assign a new plant to a user with device
         [HttpPost]
-        public async Task<ActionResult<UserPlantsDto>> CreateUserPlant(UserPlantsDto dto)
+        public async Task<ActionResult<UserPlantCreateDto>> CreateUserPlant(UserPlantCreateDto dto)
         {
             try
             {
@@ -111,7 +111,7 @@ namespace ProjectDaedalus.API.Controllers
                 };
 
                 var createdUserPlant = await _userPlantRepository.AddAsync(userPlant);
-                var userPlantDto = new UserPlantsDto
+                var userPlantDto = new UserPlantCreateDto
                 {
                     UserPlantId = createdUserPlant.UserPlantId,
                     UserId = createdUserPlant.UserId,
@@ -129,7 +129,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         // PUT update device assignment
         [HttpPut("{id}/device")]
-        public async Task<ActionResult> UpdateDeviceAssignment(int id, UserPlantsDto dto)
+        public async Task<ActionResult> UpdateDeviceAssignment(int id, UserPlantCreateDto dto)
         {
             try
             {
@@ -182,7 +182,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET all plants belonging to user
         [HttpGet("userplants/{userId}/plants")]
-        public async Task<ActionResult<IEnumerable<PlantDto>>> GetPlantsBelongingToUser(int userId)
+        public async Task<ActionResult<IEnumerable<UserPlantSelectDto>>> GetPlantsBelongingToUser(int userId)
         {
             try
             {
@@ -192,14 +192,11 @@ namespace ProjectDaedalus.API.Controllers
                     return NotFound($"User with id {userId} not found");
                 }
                     
-                var plantsDto = userPlants.Select(up => new PlantDto
+                var plantsDto = userPlants.Select(up => new UserPlantSelectDto
                 {
-                    PlantId = up.Plant.PlantId,
-                    ScientificName = up.Plant.ScientificName,
-                    FamiliarName = up.Plant.FamiliarName,
-                    FunFact = up.Plant.FunFact,
-                    MoistureLowRange = up.Plant.MoistureLowRange,
-                    MoistureHighRange = up.Plant.MoistureHighRange
+                    UserPlantId = up.UserPlantId,
+                    PlantId = up.PlantId
+                    
                 }).ToList();
                 return Ok(plantsDto);
             }
