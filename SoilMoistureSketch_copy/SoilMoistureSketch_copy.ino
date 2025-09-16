@@ -118,7 +118,8 @@ void sendSensorData(int smoothedValue) {
   doc["moisture_raw"] = smoothedValue;
   
   serializeJson(doc, Serial);
-  Serial.println();  
+  Serial.println();
+  delay(100);
 }
 
 void sendErrorMessage(const char* errorMsg) {
@@ -129,4 +130,6 @@ void sendErrorMessage(const char* errorMsg) {
   
   serializeJson(doc, Serial);
   Serial.println();
+  Serial.flush();
+  delay(100);
 }

@@ -21,14 +21,14 @@ namespace ProjectDaeadalus.Bridge.Services
         private SerialPort _serialPort;
         private bool _isRunning = true;
         private bool _disposed = false;
-        private readonly IInternalApiService _apiService ;
+        private readonly IInternalApiService _internalApiService ;
 
         /// <summary>
         /// Initializes the bridge service with configuration and HTTP client
         /// </summary>
         public BridgeService(IInternalApiService apiService)
         {
-            _apiService = apiService;
+            _internalApiService = apiService;
             _config = new BridgeConfig();
             _config.Validate(); // Ensure configuration is valid
             
@@ -99,6 +99,17 @@ namespace ProjectDaeadalus.Bridge.Services
             // Main data processing loop
             await ProcessArduinoDataAsync();
         }
+        
+        private string CleanJsonString(string rawJson)
+        {
+            if (string.IsNullOrEmpty(rawJson))
+                return rawJson;
+
+            return rawJson
+                .Replace("\0", "")      // Remove null bytes
+                .Replace("\x00", "")    // Remove null bytes (hex format)
+                .Trim();                // Remove leading/trailing whitespace
+        }
 
         /// <summary>
         /// Processes incoming data from Arduino in a continuous loop
@@ -109,7 +120,7 @@ namespace ProjectDaeadalus.Bridge.Services
             {
                 try
                 {
-                    string jsonLine = _serialPort.ReadLine().Trim();
+                    string jsonLine = CleanJsonString(_serialPort.ReadLine());
                     
                     if (!string.IsNullOrEmpty(jsonLine))
                     {
@@ -219,7 +230,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 UserId = userId
             };
 
-            await _apiService.PostAsync<object>("devices/internal/register", registerDto);
+            await _internalApiService.PostAsync<object>("devices/internal/register", registerDto);
         }
 
         /// <summary>
@@ -227,38 +238,13 @@ namespace ProjectDaeadalus.Bridge.Services
         /// </summary>
         private async Task SendToApiAsync(SensorReadingInsertDto sensorReading)
         {
-            var jsonOptions = new JsonSerializerOptions
+            var apiDto = new SensorReadingInsertDto
             {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                HardwareIdentifier = sensorReading.HardwareIdentifier,
+                MoistureLevel = sensorReading.MoistureLevel,
+                Timestamp = sensorReading.Timestamp
             };
-
-            string jsonPayload = JsonSerializer.Serialize(sensorReading, jsonOptions);
-            var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-            string url = _config.ApiBaseUrl + _config.SensorEndpoint;
-
-            Console.WriteLine($"Sending to API: {jsonPayload}");
-
-            try
-            {
-                var response = await _httpClient.PostAsync(url, content);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"API Success: Device {sensorReading.HardwareIdentifier}, Value {sensorReading.MoistureLevel}");
-                    Console.WriteLine($"Response: {responseContent}\n");
-                }
-                else
-                {
-                    string errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"API Error ({response.StatusCode}): {errorContent}\n");
-                }
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Network Error: {ex.Message}");
-                Console.WriteLine($"Check if your API is running at {_config.ApiBaseUrl}\n");
-            }
+            await _internalApiService.PostAsync<object>("sensorreadings/internal", apiDto);
         }
 
         #region Helper Methods

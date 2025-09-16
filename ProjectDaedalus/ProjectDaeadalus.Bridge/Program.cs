@@ -2,6 +2,9 @@
 using ProjectDaeadalus.Bridge.Models;
 using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace ProjectDaeadalus.Bridge
 {
@@ -17,8 +20,21 @@ namespace ProjectDaeadalus.Bridge
 
             try
             {
+                // Build configuration
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json", optional: false)
+                    .Build();
+
+                // Build service provider
+                var services = new ServiceCollection();
+                services.AddSingleton<IConfiguration>(config);
+                services.AddHttpClient<IInternalApiService, InternalApiService>();
+                services.AddSingleton<BridgeService>();
+                var serviceProvider = services.BuildServiceProvider();
+                
                 // Create and run the bridge service
-                var bridgeService = new BridgeService();
+                var bridgeService = serviceProvider.GetRequiredService<BridgeService>();
                 await bridgeService.RunAsync();
             }
             catch (Exception ex)
@@ -27,6 +43,7 @@ namespace ProjectDaeadalus.Bridge
                 Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
             }
+
         }
     }
 }

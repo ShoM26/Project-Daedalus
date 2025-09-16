@@ -12,7 +12,7 @@ namespace ProjectDaeadalus.Bridge.Configuration
 
         // API Connection Settings  
         public string ApiBaseUrl { get; set; } = "http://localhost:5278";  // API URL
-        public string SensorEndpoint { get; set; } = "/api/sensorreadings";
+        public string SensorEndpoint { get; set; } = "/api/SensorReadings/internal";
         
         // Connection Management
         public int ReconnectDelayMs { get; set; } = 5000;  // Wait 5 seconds before reconnecting

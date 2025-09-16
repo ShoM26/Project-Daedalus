@@ -27,6 +27,20 @@ namespace ProjectDaedalus.API.Controllers
         [InternalApi]
         public async Task<IActionResult> CreateFromBridge([FromBody] SensorReadingInsertDto dto)
         {
+            Console.WriteLine("=== API Method Hit ===");
+            Console.WriteLine($"ModelState Valid: {ModelState.IsValid}");
+    
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"Field: {error.Key}, Errors: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+                return BadRequest(ModelState);
+            }
+    
+            Console.WriteLine($"DTO received: DeviceId={dto.HardwareIdentifier}, MoistureValue={dto?.MoistureLevel}");
+
             if (dto == null)
             {
                 return BadRequest("Invalid payload.");
