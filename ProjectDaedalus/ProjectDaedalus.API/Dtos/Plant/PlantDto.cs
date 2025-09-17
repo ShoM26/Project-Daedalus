@@ -1,6 +1,6 @@
-namespace ProjectDaedalus.API.Dtos
+namespace ProjectDaedalus.API.Dtos.Plant
 {
-    public class PlantDTO
+    public class PlantDto
     {
         public int? PlantId { get; set; } //Nullable for post and put requests
 

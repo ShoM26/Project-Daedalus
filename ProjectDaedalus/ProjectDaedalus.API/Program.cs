@@ -39,7 +39,16 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"=== Incoming Request ===");
+    Console.WriteLine($"Method: {context.Request.Method}");
+    Console.WriteLine($"Path: {context.Request.Path}");
+    Console.WriteLine($"Full URL: {context.Request.Scheme}://{context.Request.Host}{context.Request.Path}{context.Request.QueryString}");
+    await next();
+});
+
+//app.UseHttpsRedirection();
 
 app.MapControllers();
 

@@ -7,18 +7,20 @@ public partial class Device
 {
     public int DeviceId { get; set; }
 
-    public string HardwareIdentifier { get; set; } = null!;
+    public required string HardwareIdentifier { get; set; }
 
-    public string ConnectionType { get; set; } = null!;
+    //USB, Bluetooth, or Wifi
+    public required string ConnectionType { get; set; }
 
-    public string ConnectionAddress { get; set; } = null!;
-    public int UserId { get; set; }
+    //COM port for USB or MAC address for Bluetooth
+    public required string ConnectionAddress { get; set; }
+    public required int UserId { get; set; }
 
     public DateTime? LastSeen { get; set; }
 
-    public string Status { get; set; } = null!;
+    public string? Status { get; set; }
 
     public virtual ICollection<SensorHistory> SensorHistories { get; set; } = new List<SensorHistory>();
     public virtual ICollection<UserPlant> UserPlants { get; set; } = new List<UserPlant>();
-    public virtual User User { get; set; } = null!;
+    public virtual User User { get; set; }
 }

@@ -15,9 +15,9 @@ public partial class UserPlant
 
     public DateTime? DateAdded { get; set; }
 
-    public virtual Device Device { get; set; } = null!;
+    public virtual Device Device { get; set; }
 
-    public virtual Plant Plant { get; set; } = null!;
+    public virtual Plant Plant { get; set; }
 
-    public virtual User User { get; set; } = null!;
+    public virtual User User { get; set; }
 }

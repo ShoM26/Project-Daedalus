@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProjectDaedalus.API.Attributes;
 using ProjectDaedalus.API.Dtos;
+using ProjectDaedalus.API.Dtos.SensorReading;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
 using ProjectDaedalus.Infrastructure.Data; // DbContext
@@ -14,25 +16,38 @@ namespace ProjectDaedalus.API.Controllers
         private readonly DaedalusContext _context;
         private readonly ISensorReadingRepository _sensorReadingRepository;
 
-        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository,
-            IUserPlantRepository userPlantRepository)
+        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository)
         {
             _context = context;
             _sensorReadingRepository = sensorReadingRepository;
         }
 
         // POST: api/sensorreadings
-        [HttpPost]
-        public async Task<IActionResult> PostReading([FromBody] SensorReadingDTO dto)
+        [HttpPost("internal")]
+        //[InternalApi]
+        public async Task<IActionResult> CreateFromBridge([FromBody] SensorReadingInsertDto dto)
         {
+            Console.WriteLine("=== API Method Hit ===");
+            Console.WriteLine($"ModelState Valid: {ModelState.IsValid}");
+    
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"Field: {error.Key}, Errors: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+                }
+                return BadRequest(ModelState);
+            }
+    
+            Console.WriteLine($"DTO received: DeviceId={dto.HardwareIdentifier}, MoistureValue={dto?.MoistureLevel}");
+
             if (dto == null)
             {
                 return BadRequest("Invalid payload.");
             }
-
             // Look up device by identifier
             var device = await _context.Devices
-                .FirstAsync(d => d.HardwareIdentifier == dto.HardwareIdentifier);
+                .FirstOrDefaultAsync(d => d.HardwareIdentifier == dto.HardwareIdentifier);
 
             if (device == null)
             {
@@ -60,7 +75,7 @@ namespace ProjectDaedalus.API.Controllers
         }
 
         [HttpGet("device/{deviceId}/readings")]
-        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetAllReadingsByDeviceIdAsync(int deviceId)
+        public async Task<ActionResult<IEnumerable<SensorReadingSelectDto>>> GetAllReadingsByDeviceIdAsync(int deviceId)
         {
             try
             {
@@ -72,9 +87,9 @@ namespace ProjectDaedalus.API.Controllers
                 }
        
                 // Convert to DTOs
-                var sensorReadingDtos = readings.Select(reading => new SensorReadingDTO
+                var sensorReadingDtos = readings.Select(reading => new SensorReadingSelectDto
                 {
-                    HardwareIdentifier = reading.Device.HardwareIdentifier,
+                    DeviceId = reading.DeviceId,
                     MoistureLevel = reading.MoistureLevel,
                     Timestamp = reading.TimeStamp
                 });
@@ -107,7 +122,7 @@ namespace ProjectDaedalus.API.Controllers
         }
 
         [HttpGet("device/{deviceId}/range")]
-        public async Task<ActionResult<IEnumerable<SensorReadingDTO>>> GetReadingRangeByDevice(int deviceId,
+        public async Task<ActionResult<IEnumerable<SensorReadingSelectDto>>> GetReadingRangeByDevice(int deviceId,
             [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
             try
@@ -125,10 +140,9 @@ namespace ProjectDaedalus.API.Controllers
                         $"No sensor readings found for device with ID {deviceId} during the requested time.");
                 }
 
-                var readingDtos = readings.Select(r => new SensorReadingDTO
+                var readingDtos = readings.Select(r => new SensorReadingSelectDto
                 {
-                    SensorReadingId = r.DeviceId,
-                    HardwareIdentifier = r.Device.HardwareIdentifier,
+                    DeviceId = r.DeviceId,
                     MoistureLevel = r.MoistureLevel,
                     Timestamp = r.TimeStamp
                 });

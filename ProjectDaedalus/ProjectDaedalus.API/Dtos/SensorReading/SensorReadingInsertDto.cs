@@ -1,8 +1,7 @@
-namespace ProjectDaedalus.API.Dtos
+namespace ProjectDaedalus.API.Dtos.SensorReading
 {
-    public class SensorReadingDTO
+    public class SensorReadingInsertDto
     {
-        public int? SensorReadingId { get; set; }
         // Unique identifier
         public required string HardwareIdentifier { get; set; }
 

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProjectDaedalus.API.Attributes;
 using ProjectDaedalus.API.Dtos;
+using ProjectDaedalus.API.Dtos.Device;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
 using ProjectDaedalus.Infrastructure.Data; // DbContext
@@ -32,7 +34,7 @@ namespace ProjectDaedalus.API.Controllers
                 }
 
                 // Convert to DTO
-                var devices = device.Select(d => new DeviceDTO
+                var devices = device.Select(d => new DeviceDto
                 {
                     DeviceId = d.DeviceId,
                     HardwareIdentifier = d.HardwareIdentifier,
@@ -62,7 +64,7 @@ namespace ProjectDaedalus.API.Controllers
                 }
 
                 // Convert to DTO
-                var device = new DeviceDTO
+                var device = new DeviceDto
                 {
                     DeviceId = d.DeviceId,
                     HardwareIdentifier = d.HardwareIdentifier,
@@ -80,8 +82,9 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //POST register a new Device
-        [HttpPost]
-        public async Task<IActionResult> AddDevice([FromBody] DeviceDTO dto)
+        [HttpPost("internal/register")]
+        [InternalApi]
+        public async Task<IActionResult> RegisterDevice([FromBody] DeviceDto dto)
         {
             if (dto == null)
             {
@@ -108,7 +111,7 @@ namespace ProjectDaedalus.API.Controllers
                 };
                 var createdDevice = await _deviceRepository.AddAsync(device);
 
-                var resultDto = new DeviceDTO
+                var resultDto = new DeviceDto
                 {
                     DeviceId = createdDevice.DeviceId,
                     HardwareIdentifier = createdDevice.HardwareIdentifier,
@@ -127,7 +130,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //PUT update device
         [HttpPut("{deviceId}")]
-        public async Task<IActionResult> UpdateDevice(int deviceId, [FromBody] DeviceDTO dto)
+        public async Task<IActionResult> UpdateDevice(int deviceId, [FromBody] DeviceDto dto)
         {
             if (dto == null)
             {
@@ -172,7 +175,7 @@ namespace ProjectDaedalus.API.Controllers
                 var updatedDevice = await _deviceRepository.UpdateAsync(existingDevice);
 
                 // Return updated device as DTO
-                var resultDto = new DeviceDTO
+                var resultDto = new DeviceDto
                 {
                     HardwareIdentifier = updatedDevice.HardwareIdentifier,
                     ConnectionType = updatedDevice.ConnectionType,
@@ -221,7 +224,7 @@ namespace ProjectDaedalus.API.Controllers
                 }
 
                 // Convert to DTO
-                var device = new DeviceDTO
+                var device = new DeviceDto
                 {
                     HardwareIdentifier = d.HardwareIdentifier,
                     Status = d.Status,
@@ -229,26 +232,6 @@ namespace ProjectDaedalus.API.Controllers
                     UserId = d.UserId
                 };
                 return Ok(device);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-        //DELETE by deviceId
-        [HttpDelete("{deviceId}/status")]
-        public async Task<IActionResult> DeleteDeviceById(int deviceId)
-        {
-            try
-            {
-                var device = await _deviceRepository.GetByIdAsync(deviceId);
-                if (device == null)
-                {
-                    return NotFound($"Device with identifier '{deviceId}' not found");
-                }
-
-                await _deviceRepository.DeleteAsync(deviceId);
-                return NoContent();
             }
             catch (Exception ex)
             {
