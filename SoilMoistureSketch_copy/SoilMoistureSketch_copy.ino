@@ -115,7 +115,7 @@ void sendSensorData(int smoothedValue) {
   
   doc["hardwareidentifier"] = hardwareIdentifier;
   doc["timestamp"] = millis();
-  doc["moisture_raw"] = smoothedValue;
+  doc["moisturelevel"] = smoothedValue;
   
   serializeJson(doc, Serial);
   Serial.println();

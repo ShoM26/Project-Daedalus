@@ -24,7 +24,7 @@ namespace ProjectDaedalus.API.Controllers
 
         // POST: api/sensorreadings
         [HttpPost("internal")]
-        [InternalApi]
+        //[InternalApi]
         public async Task<IActionResult> CreateFromBridge([FromBody] SensorReadingInsertDto dto)
         {
             Console.WriteLine("=== API Method Hit ===");
@@ -47,7 +47,7 @@ namespace ProjectDaedalus.API.Controllers
             }
             // Look up device by identifier
             var device = await _context.Devices
-                .FirstAsync(d => d.HardwareIdentifier == dto.HardwareIdentifier);
+                .FirstOrDefaultAsync(d => d.HardwareIdentifier == dto.HardwareIdentifier);
 
             if (device == null)
             {

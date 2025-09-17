@@ -8,7 +8,7 @@ namespace ProjectDaeadalus.Bridge.Models
     {
         public string hardwareidentifier { get; set; }
         public long timestamp { get; set; }
-        public int? moisture_raw { get; set; }
+        public int? moisturelevel { get; set; }
         public string? error { get; set; }        // For error messages
         
         /// <summary>
@@ -19,7 +19,7 @@ namespace ProjectDaeadalus.Bridge.Models
             if (!string.IsNullOrEmpty(error))
                 return ArduinoMessageType.Error;
                 
-            if (moisture_raw.HasValue)
+            if (moisturelevel.HasValue)
                 return ArduinoMessageType.SensorReading;
                 
             return ArduinoMessageType.Unknown;

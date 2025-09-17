@@ -204,7 +204,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 var sensorReading = new SensorReadingInsertDto()
                 {
                     HardwareIdentifier = message.hardwareidentifier,
-                    MoistureLevel = message.moisture_raw.Value,
+                    MoistureLevel = message.moisturelevel.Value,
                     Timestamp = DateTime.UtcNow,
                 };
 
