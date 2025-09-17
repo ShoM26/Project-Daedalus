@@ -35,3 +35,5 @@
 9/11/25: Leaving for Cleveland for the weekend mid day today so got as much done as I could in the small time I was given. Did some structural shifts and changed some endpoints to be internal. Going to spend a while when I get back cleaning this up before I can add new "features" aka the front end.
 
 9/15/25: Back to the grind stone and very productive day. Got much closer to a functional bridge and I will be very happy when this thing works. Resolved tons of errors and probably many more to go.
+
+9/16/25: LETS GO! Absolutely crushed it today and resolved my errors. I now have a functioning bridge to get data from the Arduino to the repository. I am so glad I am over this hurdle because this is where I was stopped last year. Starting to look into frontends and react certificates. Will take a couple days to clean things up on the backend, update diagrams, and misc stuff. I am presenting for the honors brownbag tomorrow which should be fun and I got rejected by a company today. They dont know what their missing out on.
