@@ -219,6 +219,7 @@ namespace ProjectDaeadalus.Bridge.Services
         /// <summary>
         /// Register device when it is its first time logging in
         /// </summary>
+        /// TODO:Make sure to write this and be careful about what data you're allowing into the database
         public async Task RegisterNewDevice(string hardwareIdentifier, int userId)
         {
             var registerDto = new DeviceDto
@@ -246,6 +247,7 @@ namespace ProjectDaeadalus.Bridge.Services
             };
             await _internalApiService.PostAsync<object>("sensorreadings/internal", apiDto);
         }
+        //TODO: Is it a good idea to run other internal api calls here?
 
         #region Helper Methods
 
