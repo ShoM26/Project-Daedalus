@@ -4,15 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using ProjectDaeadalus.Scripts.Services;
 using ProjectDaedalus.Scripts.Services;
 using ProjectDaedalus.API.Dtos.Plant;
 
-namespace ProjectDaeadalus.Scripts.Scripts
+namespace ProjectDaedalus.Scripts.Scripts
 {
     public interface IBulkPlantRegistration
     {
-        Task<BulkRegistrationResult> ExecuteAsync(string csvFilePath);
+        Task<BulkInsertResult> ExecuteAsync(string csvFilePath);
     }
     public class BulkPlantRegistration : IBulkPlantRegistration
     {
@@ -25,7 +24,7 @@ namespace ProjectDaeadalus.Scripts.Scripts
             _logger = logger;
         }
         
-        public async Task<BulkRegistrationResult> ExecuteAsync(string csv)
+        public async Task<BulkInsertResult> ExecuteAsync(string csv)
         {
             _logger.LogInformation($"Starting Bulk plant registration on {csv}");
 
@@ -36,7 +35,7 @@ namespace ProjectDaeadalus.Scripts.Scripts
                 if (plantDtos.Count == 0)
                 {
                     _logger.LogWarning("No valid plants in csv");
-                    return new BulkRegistrationResult
+                    return new BulkInsertResult
                     {
                         TotalPlants = 0,
                         ErrorMessage = "No valid plants in csv"
@@ -45,7 +44,7 @@ namespace ProjectDaeadalus.Scripts.Scripts
 
                 _logger.LogInformation("Parsed {Count} plants from csv", plantDtos.Count);
 
-                var result = await _apiService.BulkRegisterPlantsAsync(plantDtos);
+                var result = await _apiService.BulkPlantRegisterAsync(plantDtos);
 
                 _logger.LogInformation("Bulk plant registration complete");
                 return result;
@@ -53,7 +52,7 @@ namespace ProjectDaeadalus.Scripts.Scripts
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Bulk plant registration failed");
-                return new BulkRegistrationResult
+                return new BulkInsertResult
                 {
                     TotalPlants = 0,
                     FailedRegistrations = 0,

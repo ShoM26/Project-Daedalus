@@ -5,9 +5,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ProjectDaedalus.Scripts.Servicies;
+using ProjectDaedalus.Scripts.Services;
 using Microsoft.Extensions.DependencyInjection;
-using ProjectDaeadalus.Scripts.Services;
+using ProjectDaedalus.Scripts.Scripts;
+using ProjectDaedalus.Scripts.Services;
 
 namespace ProjectDaeadalus.Scripts
 {
@@ -115,7 +116,18 @@ namespace ProjectDaeadalus.Scripts
                 }
 
                 Console.WriteLine($"Processing CSV file: {csvFilePath}");
-                //Actual method implementation
+                var script = serviceProvider.GetRequiredService<IBulkPlantRegistration>();
+                var result = await script.ExecuteAsync(csvFilePath);
+
+                Console.WriteLine("\n Registration Results:");
+                Console.WriteLine($"Total Plants: {result.TotalPlants}");
+                Console.WriteLine($"Successfully Registered: {result.SuccessfulRegistrations}");
+                Console.WriteLine($"Failed Registrations: {result.FailedRegistrations}");
+
+                if (result.ErrorMessage.Length > 0)
+                {
+                    Console.WriteLine(result.ErrorMessage);
+                }
             }
             catch (Exception ex)
             {

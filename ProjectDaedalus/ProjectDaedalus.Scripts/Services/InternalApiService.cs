@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using ProjectDaedalus.API.Dtos.Plant;
 
-namespace ProjectDaeadalus.Scripts.Services
+namespace ProjectDaedalus.Scripts.Services
 {
     public class ApiResponse<T>
     {
@@ -19,7 +19,7 @@ namespace ProjectDaeadalus.Scripts.Services
         public T Data { get; set; }
         public string ErrorMessage { get; set; }
     }
-    public class BulkRegistrationResult
+    public class BulkInsertResult
     {
         public int TotalPlants { get; set; }
         public int SuccessfulRegistrations { get; set; }
@@ -29,7 +29,7 @@ namespace ProjectDaeadalus.Scripts.Services
 
     public interface IInternalApiService
     {
-        Task<BulkRegistrationResult> BulkPlantRegisterAsync(List<PlantDto> plants);
+        Task<BulkInsertResult> BulkPlantRegisterAsync(List<PlantDto> plants);
         Task<bool> TestConnectionAsync();
     }
 
@@ -83,9 +83,9 @@ namespace ProjectDaeadalus.Scripts.Services
             }
         }
 
-        public async Task<BulkRegistrationResult> BulkPlantRegisterAsync(List<PlantDto> plants)
+        public async Task<BulkInsertResult> BulkPlantRegisterAsync(List<PlantDto> plants)
         {
-            var result = new BulkRegistrationResult
+            var result = new BulkInsertResult
             {
                 TotalPlants = plants.Count
             };
@@ -106,7 +106,7 @@ namespace ProjectDaeadalus.Scripts.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    var apiResponse = JsonSerializer.Deserialize<ApiResponse<BulkRegistrationResult>>(responseContent,
+                    var apiResponse = JsonSerializer.Deserialize<ApiResponse<BulkInsertResult>>(responseContent,
                         new JsonSerializerOptions
                         {
                             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
