@@ -58,7 +58,7 @@ namespace ProjectDaedalus.Scripts.Services
             {
                 _logger.LogInformation("Testing connection to {BaseUrl", _baseApiUrl);
 
-                var response = await _httpClient.GetAsync("api/health");
+                var response = await _httpClient.GetAsync("api/plants/1/byid");
                 if (response.IsSuccessStatusCode)
                 {
                     _logger.LogInformation("Successfully connected to {BaseUrl}", _baseApiUrl);
@@ -101,7 +101,7 @@ namespace ProjectDaedalus.Scripts.Services
 
                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync("api/plants/internal", httpContent);
+                var response = await _httpClient.PostAsync("api/plants/bulk-register", httpContent);
 
                 if (response.IsSuccessStatusCode)
                 {
