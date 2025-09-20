@@ -205,6 +205,96 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpPost("bulk-insert")]
+        public async Task<ActionResult<BulkRegistrationApiResponse>> BulkPlantInsert([FromBody] List<PlantDto> plantDtos)
+        {
+            try
+            {
+                if (plantDtos == null || plantDtos.Count == 0)
+                {
+                    return BadRequest(new BulkRegistrationApiResponse
+                    {
+                        Success = false,
+                        Message = "No plants were provided",
+                        Data = new BulkRegistrationResult
+                        {
+                            TotalPlants = 0,
+                            Message = "Plant list is null or empty"
+                        }
+                    });
+                }
+
+                var plants = plantDtos.Select(dto => new Plant
+                {
+                    ScientificName = dto.ScientificName?.Trim(),
+                    FamiliarName = dto.FamiliarName?.Trim(),
+                    MoistureHighRange = dto.MoistureHighRange,
+                    MoistureLowRange = dto.MoistureLowRange,
+                    FunFact = dto.FunFact?.Trim()
+                }).ToList();
+
+                var repositoryResult = await _plantRepository.BulkInsertAsync(plants);
+
+                var apiResult = new BulkRegistrationResult
+                {
+                    TotalPlants = repositoryResult.TotalPlants,
+                    SuccessfulRegistrations = repositoryResult.SuccessfulRegistrations,
+                    FailedRegistrations = repositoryResult.FailedRegistrations,
+                    Message = repositoryResult.ErrorMessage
+                };
+
+                var response = new BulkRegistrationApiResponse
+                {
+                    Success = apiResult.SuccessfulRegistrations == apiResult.TotalPlants,
+                    Message = apiResult.SuccessfulRegistrations > 0
+                        ? "Bulk Registration Complete with errors"
+                        : "Bulk Registration Complete",
+                    Data = apiResult
+                };
+
+                if (repositoryResult.HasErrors && repositoryResult.SuccessfulRegistrations == 0)
+                {
+                    return BadRequest(response);
+                }
+                else if (repositoryResult.HasErrors)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    return Ok(response);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new BulkRegistrationApiResponse
+                {
+                    Success = false,
+                    Message = $"Internal server error: {ex.Message}",
+                    Data = new BulkRegistrationResult
+                    {
+                        TotalPlants = plantDtos.Count,
+                        FailedRegistrations =  plantDtos.Count,
+                        Message = $"Server error: {ex.Message}"
+                    }
+                });
+            }
+        }
     }
+}
+
+public class BulkRegistrationApiResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; }
+    public BulkRegistrationResult Data { get; set; }
+}
+public class BulkRegistrationResult
+{
+    public int TotalPlants { get; set; }
+    public int SuccessfulRegistrations { get; set; }
+    public int FailedRegistrations { get; set; }
+    public string Message { get; set; }
 }
 
