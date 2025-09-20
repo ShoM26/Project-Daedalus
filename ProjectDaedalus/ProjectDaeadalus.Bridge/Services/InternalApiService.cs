@@ -13,8 +13,8 @@ namespace ProjectDaeadalus.Bridge.Services
             _httpClient = httpClient;
             _baseUrl = config["ApiSettings:BaseUrl"];
         
-            var apiKey = config["InternalApi:BridgeApiKey"];
-            _httpClient.DefaultRequestHeaders.Add("X-Internal-API-Key", apiKey);
+            var apiKey = config["ApiSettings:ApiKey"];
+            _httpClient.DefaultRequestHeaders.Add("X-API-Key", apiKey);
         }
 
         public async Task<T> PostAsync<T>(string endpoint, object data)
