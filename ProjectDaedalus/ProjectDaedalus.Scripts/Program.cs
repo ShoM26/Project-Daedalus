@@ -43,7 +43,9 @@ namespace ProjectDaeadalus.Scripts
                     Console.WriteLine("Could not connect to API");
                     return;
                 }
-
+                Console.WriteLine("Connected to API");
+                Console.WriteLine("Waiting for command: ");
+                args = [Console.ReadLine()];
                 await HandleCommandLineArgs(serviceProvider, args);
             }
             catch (Exception ex)
@@ -54,19 +56,19 @@ namespace ProjectDaeadalus.Scripts
 
         private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
+            services.AddSingleton<IConfiguration>(configuration);
             services.AddLogging(builder =>
             {
                 builder.AddConsole();
                 builder.AddConfiguration(configuration.GetSection("Logging"));
             });
             
-            services.AddSingleton<IInternalApiService, InternalApiService>();
-
             services.AddHttpClient<IInternalApiService, InternalApiService>();
             
             services.AddScoped<IInternalApiService, InternalApiService>();
             
             //Add scripts here
+            services.AddScoped<BulkPlantRegistration>();
         }
         
 

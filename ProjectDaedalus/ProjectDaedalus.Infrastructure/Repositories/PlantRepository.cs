@@ -23,7 +23,10 @@ public class PlantRepository : Repository<Plant>, IPlantRepository
 
     public async Task<BulkInsertResult<Plant>> BulkInsertAsync(IEnumerable<Plant> plants)
     {
-        var result = new BulkInsertResult<Plant>();
+        var result = new BulkInsertResult<Plant>
+        {
+            CreatedItems = new List<Plant>()
+        };
         var plantList = plants.ToList();
 
         result.TotalPlants = plantList.Count;
@@ -69,6 +72,7 @@ public class PlantRepository : Repository<Plant>, IPlantRepository
             result.SuccessfulRegistrations = 0;
             result.FailedRegistrations = plantList.Count;
             result.ErrorMessage = ex.Message;
+            result.CreatedItems = new List<Plant>();
             return result;
         }
     }

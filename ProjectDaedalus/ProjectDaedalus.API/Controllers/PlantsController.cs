@@ -20,6 +20,13 @@ namespace ProjectDaedalus.API.Controllers
             _context = context;
             _plantRepository = plantRepository;
         }
+        
+        [HttpGet("health")]
+        public IActionResult Health()
+        {
+            return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+        }
+        
         //GET all plants
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants()
@@ -211,8 +218,11 @@ namespace ProjectDaedalus.API.Controllers
         {
             try
             {
+                Console.WriteLine("Starting bulk insert");
+                
                 if (plantDtos == null || plantDtos.Count == 0)
                 {
+                    Console.WriteLine("No plants provided");
                     return BadRequest(new BulkRegistrationApiResponse
                     {
                         Success = false,
@@ -224,7 +234,8 @@ namespace ProjectDaedalus.API.Controllers
                         }
                     });
                 }
-
+                
+                Console.WriteLine($"Prcoessing {plantDtos.Count} plants");
                 var plants = plantDtos.Select(dto => new Plant
                 {
                     ScientificName = dto.ScientificName?.Trim(),
@@ -234,8 +245,19 @@ namespace ProjectDaedalus.API.Controllers
                     FunFact = dto.FunFact?.Trim()
                 }).ToList();
 
+                Console.WriteLine("About to call repo");
                 var repositoryResult = await _plantRepository.BulkInsertAsync(plants);
+                Console.WriteLine("Repo call complete");
 
+                if (repositoryResult == null)
+                {
+                    Console.WriteLine("Repo call returned null");
+                    throw new InvalidOperationException("Repo call returned null");
+                }
+
+                Console.WriteLine(
+                    $"Repo result: Total:{repositoryResult.TotalPlants}, Succeeded:{repositoryResult.SuccessfulRegistrations}, Failed:{repositoryResult.FailedRegistrations}");
+                
                 var apiResult = new BulkRegistrationResult
                 {
                     TotalPlants = repositoryResult.TotalPlants,
@@ -243,28 +265,45 @@ namespace ProjectDaedalus.API.Controllers
                     FailedRegistrations = repositoryResult.FailedRegistrations,
                     Message = repositoryResult.ErrorMessage
                 };
-
+                
+                Console.WriteLine("api result complete");
+                
                 var response = new BulkRegistrationApiResponse
                 {
                     Success = apiResult.SuccessfulRegistrations == apiResult.TotalPlants,
-                    Message = apiResult.SuccessfulRegistrations > 0
+                    Message = apiResult.FailedRegistrations > 0
                         ? "Bulk Registration Complete with errors"
                         : "Bulk Registration Complete",
                     Data = apiResult
                 };
+                
+                Console.WriteLine("About to return result");
 
-                if (repositoryResult.HasErrors && repositoryResult.SuccessfulRegistrations == 0)
+                
+                try 
                 {
-                    return BadRequest(response);
+                    Console.WriteLine($"repositoryResult is null: {repositoryResult == null}");
+                    Console.WriteLine($"repositoryResult.FailedRegistrations: {repositoryResult.FailedRegistrations}");
+                    Console.WriteLine($"repositoryResult.SuccessfulRegistrations: {repositoryResult.SuccessfulRegistrations}");
+    
+                    // Test the HasErrors property specifically
+                    Console.WriteLine("About to check HasErrors");
+                    bool hasErrors = repositoryResult.HasErrors;
+                    Console.WriteLine($"repositoryResult.HasErrors: {hasErrors}");
+    
+                    Console.WriteLine("About to check response object");
+                    Console.WriteLine($"response is null: {response == null}");
+                    Console.WriteLine($"response.Data is null: {response?.Data == null}");
+    
                 }
-                else if (repositoryResult.HasErrors)
+                catch (Exception ex)
                 {
-                    return Ok(response);
+                    Console.WriteLine($"Error in debugging: {ex.Message}");
+                    Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 }
-                else
-                {
-                    return Ok(response);
-                }
+
+// Simplified return for now
+                return Ok(response);
             }
             catch (Exception ex)
             {

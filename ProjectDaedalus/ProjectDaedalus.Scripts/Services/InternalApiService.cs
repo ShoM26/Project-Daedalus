@@ -25,6 +25,7 @@ namespace ProjectDaedalus.Scripts.Services
         public int SuccessfulRegistrations { get; set; }
         public int FailedRegistrations { get; set; }
         public string ErrorMessage  { get; set; }
+        public bool HasErrors => FailedRegistrations > 0 || (!string.IsNullOrEmpty(ErrorMessage) && ErrorMessage != null);
     }
 
     public interface IInternalApiService
@@ -56,9 +57,9 @@ namespace ProjectDaedalus.Scripts.Services
         {
             try
             {
-                _logger.LogInformation("Testing connection to {BaseUrl", _baseApiUrl);
+                _logger.LogInformation("Testing connection to {BaseUrl}", _baseApiUrl);
 
-                var response = await _httpClient.GetAsync("api/plants/1/byid");
+                var response = await _httpClient.GetAsync("api/plants/health");
                 if (response.IsSuccessStatusCode)
                 {
                     _logger.LogInformation("Successfully connected to {BaseUrl}", _baseApiUrl);
