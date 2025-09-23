@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,9 +45,7 @@ namespace ProjectDaeadalus.Scripts
                     return;
                 }
                 Console.WriteLine("Connected to API");
-                Console.WriteLine("Waiting for command: ");
-                args = [Console.ReadLine()];
-                await HandleCommandLineArgs(serviceProvider, args);
+                await CommandLineInterface(serviceProvider);
             }
             catch (Exception ex)
             {
@@ -68,40 +67,44 @@ namespace ProjectDaeadalus.Scripts
             services.AddScoped<IInternalApiService, InternalApiService>();
             
             //Add scripts here
-            services.AddScoped<BulkPlantRegistration>();
+            services.AddScoped<IBulkPlantRegistration, BulkPlantRegistration>();
         }
-        
 
-        private static async Task HandleCommandLineArgs(IServiceProvider serviceProvider, string[] args)
+        private static async Task CommandLineInterface(IServiceProvider serviceProvider)
         {
-            if (args.Length < 1)
+            var successfulCommand = false;
+            while (!successfulCommand)
             {
-                Console.WriteLine("Usage: dotnet run <command> <args>");
-                return;
-            }
-            
-            var command =  args[0].ToLower();
-
-            switch (command)
-            {
-                case "bulk-plants":
-                    if (args.Length > 1)
+                Console.Write("waiting for a command: ");
+                var command = Console.ReadLine();
+                if (command == null)
+                {
+                    Console.WriteLine("No command specified");
+                    continue;
+                }
+                command = command.Trim();
+                var words = command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (words.Length != 4)
+                {
+                    Console.WriteLine("Invalid command specified");
+                    continue;
+                }
+                if (words[0].ToLower() == "dotnet")
+                {
+                    if (words[1].ToLower() == "run")
                     {
-                        await RunBulkPlantRegistration(serviceProvider, args[1]);
+                        if (words[2].ToLower() == "bulk-plants")
+                        {
+                            await RunBulkPlantRegistration(serviceProvider, words[3]);
+                            successfulCommand = true;
+                        }
                     }
-                    else
-                    {
-                        Console.WriteLine("csv file path required for bulk insert");
-                        Console.WriteLine("Usage: dotnet run bulk-plants 'path/to/csv'");
-                    }
-                    break;
-                case "-help":case "-h":
-                    Console.WriteLine("Usage: dotnet run <command> <args>");
-                    break;
-                default:
-                    Console.WriteLine("Invalid command");
-                    Console.WriteLine("Usage: dotnet run <command> <args>");
-                    break;
+                }
+                if (successfulCommand == false)
+                {
+                    Console.WriteLine("Try again");
+                    Console.WriteLine("Usage: dotnet run <command> <csvpath>");
+                }
             }
         }
 
@@ -126,7 +129,7 @@ namespace ProjectDaeadalus.Scripts
                 Console.WriteLine($"Successfully Registered: {result.SuccessfulRegistrations}");
                 Console.WriteLine($"Failed Registrations: {result.FailedRegistrations}");
 
-                if (result.ErrorMessage.Length > 0)
+                if (result.ErrorMessage?.Length > 0)
                 {
                     Console.WriteLine(result.ErrorMessage);
                 }

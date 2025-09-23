@@ -102,7 +102,7 @@ namespace ProjectDaedalus.Scripts.Services
 
                 var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                var response = await _httpClient.PostAsync("api/plants/bulk-register", httpContent);
+                var response = await _httpClient.PostAsync("api/plants/bulk-insert", httpContent);
 
                 if (response.IsSuccessStatusCode)
                 {
