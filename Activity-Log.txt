@@ -43,3 +43,5 @@
 9/19/25: Applied for 4-5 more jobs in class and began a new feature. This is an internal script application in the project where I can run scripts. The first I am implementing is the mass plant registration one which inserts plant entities into the database given a properly formatted csv. I also had the role introduction for epic and it sounds like a great place to work. We will see what comes of all of this.
 
 9/20:25: Finished building the feature today. Spent from 12-7 working at it and it just requires testing. Should be fun(sarcastically)
+
+9/22/25: Began testing the new feature today and man it sucks. All the logging is not really helping and I'm going to remove it all when I finish testing. Found out I need a linkedin learning membership for the courses. I will use the free trial for my react basics and hopefully more. We will see how that goes
