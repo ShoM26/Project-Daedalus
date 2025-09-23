@@ -13,8 +13,8 @@ namespace ProjectDaeadalus.Bridge.Services
             _httpClient = httpClient;
             _baseUrl = config["ApiSettings:BaseUrl"];
         
-            var apiKey = config["InternalApi:BridgeApiKey"];
-            _httpClient.DefaultRequestHeaders.Add("X-Internal-API-Key", apiKey);
+            var apiKey = config["ApiSettings:ApiKey"];
+            _httpClient.DefaultRequestHeaders.Add("X-API-Key", apiKey);
         }
 
         public async Task<T> PostAsync<T>(string endpoint, object data)
@@ -27,21 +27,6 @@ namespace ProjectDaeadalus.Bridge.Services
         
             var responseJson = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(responseJson);
-        }
-
-        public async Task<T> GetAsync<T>(string endpoint)
-        {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/{endpoint}");
-            response.EnsureSuccessStatusCode();
-        
-            var responseJson = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(responseJson);
-        }
-
-        public async Task<bool> DeleteAsync(string endpoint)
-        {
-            var response = await _httpClient.DeleteAsync($"{_baseUrl}/{endpoint}");
-            return response.IsSuccessStatusCode;
         }
     }
 }

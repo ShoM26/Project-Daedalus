@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectDaedalus.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectDaeadalus.Bridge", "ProjectDaeadalus.Bridge\ProjectDaeadalus.Bridge.csproj", "{EC4A147D-BF64-4F87-9518-0D40334C3686}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectDaedalus.Scripts", "ProjectDaedalus.Scripts\ProjectDaedalus.Scripts.csproj", "{E72E11C5-8D97-413C-B79C-8A802356FC3A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,5 +33,9 @@ Global
 		{EC4A147D-BF64-4F87-9518-0D40334C3686}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC4A147D-BF64-4F87-9518-0D40334C3686}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC4A147D-BF64-4F87-9518-0D40334C3686}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E72E11C5-8D97-413C-B79C-8A802356FC3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E72E11C5-8D97-413C-B79C-8A802356FC3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E72E11C5-8D97-413C-B79C-8A802356FC3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E72E11C5-8D97-413C-B79C-8A802356FC3A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

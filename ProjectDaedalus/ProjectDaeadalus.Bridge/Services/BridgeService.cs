@@ -247,8 +247,6 @@ namespace ProjectDaeadalus.Bridge.Services
             };
             await _internalApiService.PostAsync<object>("sensorreadings/internal", apiDto);
         }
-        //TODO: Is it a good idea to run other internal api calls here?
-
         #region Helper Methods
 
         /// <summary>

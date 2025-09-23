@@ -20,6 +20,13 @@ namespace ProjectDaedalus.API.Controllers
             _context = context;
             _plantRepository = plantRepository;
         }
+        
+        [HttpGet("health")]
+        public IActionResult Health()
+        {
+            return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
+        }
+        
         //GET all plants
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Plant>>> GetAllPlants()
@@ -205,6 +212,128 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpPost("bulk-insert")]
+        public async Task<ActionResult<BulkRegistrationApiResponse>> BulkPlantInsert([FromBody] List<PlantDto> plantDtos)
+        {
+            try
+            {
+                Console.WriteLine("Starting bulk insert");
+                
+                if (plantDtos == null || plantDtos.Count == 0)
+                {
+                    Console.WriteLine("No plants provided");
+                    return BadRequest(new BulkRegistrationApiResponse
+                    {
+                        Success = false,
+                        Message = "No plants were provided",
+                        Data = new BulkRegistrationResult
+                        {
+                            TotalPlants = 0,
+                            Message = "Plant list is null or empty"
+                        }
+                    });
+                }
+                
+                Console.WriteLine($"Prcoessing {plantDtos.Count} plants");
+                var plants = plantDtos.Select(dto => new Plant
+                {
+                    ScientificName = dto.ScientificName?.Trim(),
+                    FamiliarName = dto.FamiliarName?.Trim(),
+                    MoistureHighRange = dto.MoistureHighRange,
+                    MoistureLowRange = dto.MoistureLowRange,
+                    FunFact = dto.FunFact?.Trim()
+                }).ToList();
+
+                Console.WriteLine("About to call repo");
+                var repositoryResult = await _plantRepository.BulkInsertAsync(plants);
+                Console.WriteLine("Repo call complete");
+
+                if (repositoryResult == null)
+                {
+                    Console.WriteLine("Repo call returned null");
+                    throw new InvalidOperationException("Repo call returned null");
+                }
+
+                Console.WriteLine(
+                    $"Repo result: Total:{repositoryResult.TotalPlants}, Succeeded:{repositoryResult.SuccessfulRegistrations}, Failed:{repositoryResult.FailedRegistrations}");
+                
+                var apiResult = new BulkRegistrationResult
+                {
+                    TotalPlants = repositoryResult.TotalPlants,
+                    SuccessfulRegistrations = repositoryResult.SuccessfulRegistrations,
+                    FailedRegistrations = repositoryResult.FailedRegistrations,
+                    Message = repositoryResult.ErrorMessage
+                };
+                
+                Console.WriteLine("api result complete");
+                
+                var response = new BulkRegistrationApiResponse
+                {
+                    Success = apiResult.SuccessfulRegistrations == apiResult.TotalPlants,
+                    Message = apiResult.FailedRegistrations > 0
+                        ? "Bulk Registration Complete with errors"
+                        : "Bulk Registration Complete",
+                    Data = apiResult
+                };
+                
+                Console.WriteLine("About to return result");
+
+                
+                try 
+                {
+                    Console.WriteLine($"repositoryResult is null: {repositoryResult == null}");
+                    Console.WriteLine($"repositoryResult.FailedRegistrations: {repositoryResult.FailedRegistrations}");
+                    Console.WriteLine($"repositoryResult.SuccessfulRegistrations: {repositoryResult.SuccessfulRegistrations}");
+    
+                    // Test the HasErrors property specifically
+                    Console.WriteLine("About to check HasErrors");
+                    bool hasErrors = repositoryResult.HasErrors;
+                    Console.WriteLine($"repositoryResult.HasErrors: {hasErrors}");
+    
+                    Console.WriteLine("About to check response object");
+                    Console.WriteLine($"response is null: {response == null}");
+                    Console.WriteLine($"response.Data is null: {response?.Data == null}");
+    
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error in debugging: {ex.Message}");
+                    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                }
+
+// Simplified return for now
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new BulkRegistrationApiResponse
+                {
+                    Success = false,
+                    Message = $"Internal server error: {ex.Message}",
+                    Data = new BulkRegistrationResult
+                    {
+                        TotalPlants = plantDtos.Count,
+                        FailedRegistrations =  plantDtos.Count,
+                        Message = $"Server error: {ex.Message}"
+                    }
+                });
+            }
+        }
     }
+}
+
+public class BulkRegistrationApiResponse
+{
+    public bool Success { get; set; }
+    public string Message { get; set; }
+    public BulkRegistrationResult Data { get; set; }
+}
+public class BulkRegistrationResult
+{
+    public int TotalPlants { get; set; }
+    public int SuccessfulRegistrations { get; set; }
+    public int FailedRegistrations { get; set; }
+    public string Message { get; set; }
 }
 
