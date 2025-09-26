@@ -45,3 +45,9 @@
 9/20:25: Finished building the feature today. Spent from 12-7 working at it and it just requires testing. Should be fun(sarcastically)
 
 9/22/25: Began testing the new feature today and man it sucks. All the logging is not really helping and I'm going to remove it all when I finish testing. Found out I need a linkedin learning membership for the courses. I will use the free trial for my react basics and hopefully more. We will see how that goes
+
+9/23/25: Finished testing on the bulk plant insert script. Creating this app will make it easier to add more scripts later but man its a heavy lift at first. Posted on linkedin today about the project #influencer.
+
+9/24/25: Build the project for the front end today. Created some mock data and a placeholder for the homepage to begin to understand react basics.
+
+9/25/25: Took the Epic skills assessment today and holy cow it was long. The 2 minute test I felt like I performed poorly on. the math and technical tests I feel like I nailed and the programming took forever and I was loosing hope as it went on. Not sure what to make of it. Also did my homework for the month(One assignment). Really nailed down the SQL basics.
