@@ -26,7 +26,7 @@ function PlantCard({ pairing }) {
       </div>
 
       {/*User Info */}
-      <div classname="user-info">
+      <div className="user-info">
         <p><strong>User:</strong>{user.username}</p>
         <p><strong>Email:</strong>{user.email}</p>
       </div>
