@@ -1,5 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ProjectDaedalus.API.Dtos.User;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
@@ -11,15 +15,13 @@ namespace ProjectDaedalus.API.Controllers
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly DaedalusContext _context;
         private readonly IUserRepository _userRepository;
-        private readonly IPlantRepository _plantRepository;
+        private readonly IConfiguration _configuration;
         public UsersController(DaedalusContext context, IUserRepository userRepository,
-            IPlantRepository plantRepository)
+            IConfiguration configuration)
         {
-            _context = context;
+            _configuration = configuration;
             _userRepository = userRepository;
-            _plantRepository = plantRepository;
         }
         //GET user profile
         [HttpGet("user/{userId}")]
@@ -179,6 +181,88 @@ namespace ProjectDaedalus.API.Controllers
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+        }
+        
+        //User sign in Request
+        [HttpPost("login")]
+        public async Task<IActionResult> UserSignIn([FromBody] LoginRequestDto request)
+        {
+            try
+            {
+                // Validate input
+                if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+                {
+                    return BadRequest(new LoginFailureDto 
+                    { 
+                        Success = false, 
+                        Message = "Username and password are required" 
+                    });
+                }
+
+                // Validate credentials against database
+                var user = await _userRepository.ValidateUserCredentialsAsync(request.Username, request.Password);
+            
+                if (user == null)
+                {
+                    return Unauthorized(new LoginFailureDto 
+                    { 
+                        Success = false, 
+                        Message = "Invalid username or password" 
+                    });
+                }
+
+                // Generate JWT token
+                var token = GenerateJwtToken(user);
+
+                // Return success response
+                return Ok(new LoginResponseDto
+                {
+                    Success = true,
+                    Token = token,
+                    UserId = user.UserId,
+                    Username = user.Username,
+                    Email = user.Email
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (add proper logging here)
+                Console.WriteLine($"Login error: {ex.Message}");
+            
+                return StatusCode(500, new LoginFailureDto 
+                { 
+                    Success = false, 
+                    Message = "An error occurred during login" 
+                });
+            }
+        }
+        private string GenerateJwtToken(User user)
+        {
+            // JWT configuration - reads from appsettings.json
+            var jwtKey = _configuration["Jwt:Key"] ?? "your-super-secret-jwt-key-for-development-minimum-32-characters";
+            var jwtIssuer = _configuration["Jwt:Issuer"] ?? "ProjectDaedalus";
+            var jwtExpireHours = int.Parse(_configuration["Jwt:ExpireHours"] ?? "24");
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(jwtKey);
+        
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim("userId", user.UserId.ToString()),
+                    new Claim("username", user.Username),
+                    new Claim("email", user.Email),
+                    new Claim(ClaimTypes.Name, user.Username)
+                }),
+                Expires = DateTime.UtcNow.AddHours(jwtExpireHours),
+                Issuer = jwtIssuer,
+                Audience = jwtIssuer,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+        
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

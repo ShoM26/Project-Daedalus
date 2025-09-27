@@ -6,7 +6,7 @@ namespace ProjectDaedalus.Core.Interfaces
     {
         Task<bool> EmailExistsAsync(string email);
         Task<User?> GetByUsernameAsync(string username);
-    
+        Task<User?> ValidateUserCredentialsAsync(string username, string password);
     }
 }
 
