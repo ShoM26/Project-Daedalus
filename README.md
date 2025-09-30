@@ -14,7 +14,7 @@ Frontend: React (Visual Studio Code)
 Backend: ASP.NET Core Web API (C# in JetBrains Rider)
 Database: MySQL (DataGrip)
 Hardware: Arduino Uno + soil moisture sensor (USB serial now, Bluetooth planned later)
-Authentication: JWT tokens (planned)
+Authentication: JWT tokens
 Environment: All components run locally during development
 
 **Database & Architecture Highlights**
@@ -52,7 +52,6 @@ Environment: All components run locally during development
 🔮 Planned Features
 
 - React frontend with real-time dashboards
-- JWT authentication for secure access
 - Bluetooth device connectivity
 - Watering alert system with notifications
 - Historical trend visualization
@@ -70,8 +69,8 @@ Environment: All components run locally during development
 ✅ Backend foundation complete and tested
 ✅ Database schema & cascading relationships configured
 ✅ Controllers implemented for all entities
-🔄 Preparing for frontend integration
-🔄 Refining hardware integration for reliable data streaming
+✅ Preparing for frontend integration
+🔄 Adding Features to frontend
 
 **Roadmap**
 
