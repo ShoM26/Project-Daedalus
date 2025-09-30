@@ -54,4 +54,6 @@
 
 9/26/25: Got a lot of work done today. Created the bridge between frontend and backend. Have a placeholder login page with JWT authentication and a placeholder dashboard both of which are calling backend endpoints to display data from the database. Really stoked about this and I think there is a lot of room to grow from here.
 
-9/29/2025: Made some solid changes to the dashboard to start to call the right endpoints. Much more work on that tomorrow
+9/29/25: Made some solid changes to the dashboard to start to call the right endpoints. Much more work on that tomorrow
+
+9/30/25: replaced the mock data for sensor reading and device information for the plant card. Front end is really coming along and I am excited
