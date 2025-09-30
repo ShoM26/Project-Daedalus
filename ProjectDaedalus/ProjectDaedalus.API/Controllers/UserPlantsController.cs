@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProjectDaedalus.API.Dtos.Plant;
 using ProjectDaedalus.API.Dtos.UserPlant;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
@@ -181,7 +182,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET all plants belonging to user
-        [HttpGet("userplants/{userId}/plants")]
+        [HttpGet("{userId}/plants")]
         public async Task<ActionResult<IEnumerable<UserPlantSelectDto>>> GetPlantsBelongingToUser(int userId)
         {
             try
@@ -195,7 +196,15 @@ namespace ProjectDaedalus.API.Controllers
                 var plantsDto = userPlants.Select(up => new UserPlantSelectDto
                 {
                     UserPlantId = up.UserPlantId,
-                    PlantId = up.PlantId
+                    PlantId = up.PlantId,
+                    Plant = new PlantDto
+                    {
+                        FamiliarName = up.Plant.FamiliarName,
+                        ScientificName = up.Plant.ScientificName,
+                        MoistureLowRange = up.Plant.MoistureLowRange,
+                        MoistureHighRange = up.Plant.MoistureHighRange,
+                        FunFact = up.Plant.FunFact
+                    }
                     
                 }).ToList();
                 return Ok(plantsDto);
