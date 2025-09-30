@@ -28,7 +28,7 @@ function PlantCard({ pairing }) {
 
       {/* Device Info */}
       <div className="device-info">
-        <p><strong>Device:</strong> {device.name}</p>
+        <p><strong>Device:</strong> {device.deviceId}</p>
         <p><strong>Battery:</strong> {currentReading.batteryLevel}%</p>
       </div>
 

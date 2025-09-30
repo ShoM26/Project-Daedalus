@@ -9,10 +9,9 @@ export const plantService = {
   // Get user's plants with full details (plant info, device info)
   getUserPlants: async (userId) => {
     return await apiService.get(`/UserPlants/${userId}/plants`);
-  }
-/*
+  },
   // Get latest sensor readings for a specific device
   getLatestReading: async (deviceId) => {
-    return await apiService.get(`/SensorReadings/device/${deviceId}/latest`);
-  }*/
+    return await apiService.get(`/SensorReadings/device/${deviceId}/reading`);
+  }
 };

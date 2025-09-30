@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PlantCard from '../components/PlantCard';
 import { plantService } from '../services/plantService';
-import  AuthService  from '../services/authService';
+import  authService  from '../services/authService';
 
 function Dashboard() {
   // STATE - data that can change and triggers re-renders
@@ -12,50 +12,94 @@ function Dashboard() {
 
   // FETCH DATA FROM API when component loads
   useEffect(() => {
-    const fetchPlants = async () => {
-      try {
-        setLoading(true);
-        const currentUser = AuthService.getCurrentUser();
-        const apiPlants = await plantService.getUserPlants(currentUser.userId);
-        
-        // Transform API data to match component expectations
-        const transformedPlants = apiPlants.map(userPlant => ({
-          id: userPlant.plantId,
-          plant: {
-            id: userPlant.plant.plantId,
-            scientificName: userPlant.plant.scientificName,
-            familiarName: userPlant.plant.familiarName,
-            idealMoistureMin: userPlant.plant.moistureLowRange,
-            idealMoistureMax: userPlant.plant.moistureHighRange,
-            funFact: userPlant.plant.funFact || "This plant is part of your monitoring system!"
-          },
-          // Mock device and sensor data since API doesn't provide it yet
-          device: {
-            id: `DEVICE_${userPlant.plant.plantId}`,
-            name: `${userPlant.plant.familiarName} Sensor`,
-            connectionType: "Bluetooth",
-            lastSeen: new Date().toISOString()
-          },
-          currentReading: {
-            moistureLevel: Math.floor(Math.random() * 100), // Random for now
-            timestamp: new Date().toISOString(),
-            batteryLevel: Math.floor(Math.random() * 30) + 70 // 70-100%
-          },
-          status: "healthy" // Default status for now
-        }));
-        
-        setPlants(transformedPlants);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch plants:', err);
-        setError('Failed to load plants. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchPlants = async () => {
+    try {
+      setLoading(true);
+      const currentUser = authService.getCurrentUser();
+      const apiPlants = await plantService.getUserPlants(currentUser.userId);
+      
+      const plantsWithReadings = await Promise.all(
+        apiPlants.map(async (userPlant) => {
+          let reading = null;
 
-    fetchPlants();
-  }, []);
+          if (userPlant.device && userPlant.device.deviceId) {
+            try {
+              reading = await plantService.getLatestReading(userPlant.device.deviceId);
+            } catch (err) {
+              console.error(`Failed to get reading for device ${userPlant.device.deviceId}`);
+            }
+          }
+
+          return {
+            ...userPlant,
+            latestReading: reading
+          };
+        })
+      );
+
+      // Transform API data to match component expectations
+      const transformedPlants = plantsWithReadings.map(userPlant => {
+        const reading = userPlant.latestReading;
+        const plant = userPlant.plant;
+        
+        // Calculate status based on reading
+        let status = "offline";
+        if (reading && reading.moistureLevel != null) {
+          if (reading.moistureLevel > plant.moistureHighRange) {
+            status = "overwatered";
+          } else if (reading.moistureLevel < plant.moistureLowRange) {
+            status = "needs_water";
+          } else {
+            status = "healthy";
+          }
+        }
+
+        return {
+          id: userPlant.userPlantId,
+          plant: {
+            id: plant.plantId,
+            scientificName: plant.scientificName,
+            familiarName: plant.familiarName,
+            idealMoistureMin: plant.moistureLowRange,
+            idealMoistureMax: plant.moistureHighRange,
+            funFact: plant.funFact || "This plant is part of your monitoring system!"
+          },
+          device: userPlant.device ? {
+            id: userPlant.device.deviceId,
+            name: userPlant.device.deviceName,
+            connectionType: userPlant.device.connectionType,
+            connectionAddress: userPlant.device.connectionAddress
+          } : {
+            id: null,
+            name: "No device assigned",
+            connectionType: "None",
+            connectionAddress: "None"
+          },
+          currentReading: reading ? {
+            moistureLevel: reading.moistureLevel,
+            timestamp: reading.timestamp,
+            batteryLevel: reading.batteryLevel || 100
+          } : {
+            moistureLevel: 0,
+            timestamp: null,
+            batteryLevel: 0
+          },
+          status: status
+        };
+      });
+      
+      setPlants(transformedPlants);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch plants:', err);
+      setError('Failed to load plants. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchPlants();
+}, []);
 
   // DERIVED STATE - calculated from existing state
   const healthyPlants = plants.filter(p => p.status === 'healthy').length;

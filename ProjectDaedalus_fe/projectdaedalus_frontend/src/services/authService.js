@@ -1,7 +1,7 @@
 // src/services/authService.js
 const BASE_URL = 'http://localhost:5278/api';
 
-class AuthService {
+class authService {
   // Call your C# login endpoint
   async login(username, password) {
     try {
@@ -85,4 +85,4 @@ class AuthService {
   }
 }
 
-export default new AuthService();
+export default new authService();
