@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PlantCard from '../components/PlantCard';
 import { plantService } from '../services/plantService';
+import  AuthService  from '../services/authService';
 
 function Dashboard() {
   // STATE - data that can change and triggers re-renders
@@ -14,23 +15,24 @@ function Dashboard() {
     const fetchPlants = async () => {
       try {
         setLoading(true);
-        const apiPlants = await plantService.getAllPlants();
+        const currentUser = AuthService.getCurrentUser();
+        const apiPlants = await plantService.getUserPlants(currentUser.userId);
         
         // Transform API data to match component expectations
-        const transformedPlants = apiPlants.map(plant => ({
-          id: plant.plantId,
+        const transformedPlants = apiPlants.map(userPlant => ({
+          id: userPlant.plantId,
           plant: {
-            id: plant.plantId,
-            scientificName: plant.scientificName,
-            familiarName: plant.familiarName,
-            idealMoistureMin: plant.moistureLowRange,
-            idealMoistureMax: plant.moistureHighRange,
-            funFact: plant.funFact || "This plant is part of your monitoring system!"
+            id: userPlant.plant.plantId,
+            scientificName: userPlant.plant.scientificName,
+            familiarName: userPlant.plant.familiarName,
+            idealMoistureMin: userPlant.plant.moistureLowRange,
+            idealMoistureMax: userPlant.plant.moistureHighRange,
+            funFact: userPlant.plant.funFact || "This plant is part of your monitoring system!"
           },
           // Mock device and sensor data since API doesn't provide it yet
           device: {
-            id: `DEVICE_${plant.plantId}`,
-            name: `${plant.familiarName} Sensor`,
+            id: `DEVICE_${userPlant.plant.plantId}`,
+            name: `${userPlant.plant.familiarName} Sensor`,
             connectionType: "Bluetooth",
             lastSeen: new Date().toISOString()
           },
