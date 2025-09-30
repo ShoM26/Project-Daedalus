@@ -51,3 +51,7 @@
 9/24/25: Build the project for the front end today. Created some mock data and a placeholder for the homepage to begin to understand react basics.
 
 9/25/25: Took the Epic skills assessment today and holy cow it was long. The 2 minute test I felt like I performed poorly on. the math and technical tests I feel like I nailed and the programming took forever and I was loosing hope as it went on. Not sure what to make of it. Also did my homework for the month(One assignment). Really nailed down the SQL basics.
+
+9/26/25: Got a lot of work done today. Created the bridge between frontend and backend. Have a placeholder login page with JWT authentication and a placeholder dashboard both of which are calling backend endpoints to display data from the database. Really stoked about this and I think there is a lot of room to grow from here.
+
+9/29/2025: Made some solid changes to the dashboard to start to call the right endpoints. Much more work on that tomorrow
