@@ -31,7 +31,15 @@ public class UserPlantRepository : Repository<UserPlant>, IUserPlantRepository
     {
         return await _context.UserPlants
             .Include(up => up.Plant)
+            .Include(up => up.Device)
             .Where(up => up.UserId == userId)
             .ToListAsync();
+    }
+    
+    public async Task<UserPlant?> GetByIdWithDeviceAsync(int userPlantId)
+    {
+        return await _context.UserPlants
+            .Include(up => up.Device)  // Load the device relationship
+            .FirstOrDefaultAsync(up => up.UserPlantId == userPlantId);
     }
 }

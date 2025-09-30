@@ -8,5 +8,7 @@ namespace ProjectDaedalus.Core.Interfaces
         Task<UserPlant?> GetUserPlantByDeviceIdAsync(int deviceId);
         Task<bool> UserPlantExistsAsync(int userId, int plantId, int deviceId);
         Task<IEnumerable<UserPlant>> GetUserPlantsByUserIdAsync(int userId);
+        Task<UserPlant?> GetByIdWithDeviceAsync(int userPlantId);
+
     }
 }
