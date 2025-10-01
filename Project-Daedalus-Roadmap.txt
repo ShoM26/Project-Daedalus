@@ -46,11 +46,6 @@ Week 5: Internal Script Service Creation:
 Week 6-8: Front end
 
 Features to add/Errors to fix:
-- Perfect looking card/dashboard
-	- Remove 'needs water' tab
-	- figure out why device id/name isn't showing
-	- figure out why last reading is invalid date
-	- Remove emoji? 
 - Test for normalized values
 - Bluetooth
 - Individual plant card with chart
