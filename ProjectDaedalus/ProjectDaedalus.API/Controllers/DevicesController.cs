@@ -23,7 +23,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET all devices for a user
         [HttpGet("user/{userId}/devices")]
-        public async Task<ActionResult<IEnumerable<Device>>> GetAllDevicesOfUser(int userId)
+        public async Task<ActionResult<IEnumerable<DeviceDto>>> GetAllDevicesOfUser(int userId)
         {
             try
             {

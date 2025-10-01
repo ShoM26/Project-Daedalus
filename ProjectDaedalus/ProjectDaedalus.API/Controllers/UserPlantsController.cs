@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ProjectDaedalus.API.Dtos.Device;
+using ProjectDaedalus.API.Dtos.Plant;
 using ProjectDaedalus.API.Dtos.UserPlant;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
@@ -181,7 +183,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET all plants belonging to user
-        [HttpGet("userplants/{userId}/plants")]
+        [HttpGet("{userId}/plants")]
         public async Task<ActionResult<IEnumerable<UserPlantSelectDto>>> GetPlantsBelongingToUser(int userId)
         {
             try
@@ -195,8 +197,23 @@ namespace ProjectDaedalus.API.Controllers
                 var plantsDto = userPlants.Select(up => new UserPlantSelectDto
                 {
                     UserPlantId = up.UserPlantId,
-                    PlantId = up.PlantId
-                    
+                    PlantId = up.PlantId,
+                    DeviceId = up.DeviceId,
+                    Plant = new PlantDto
+                    {
+                        FamiliarName = up.Plant.FamiliarName,
+                        ScientificName = up.Plant.ScientificName,
+                        MoistureLowRange = up.Plant.MoistureLowRange,
+                        MoistureHighRange = up.Plant.MoistureHighRange,
+                        FunFact = up.Plant.FunFact
+                    },
+                    Device = new DeviceDto
+                    {
+                        DeviceId = up.Device.DeviceId,
+                        HardwareIdentifier = up.Device.HardwareIdentifier,
+                        ConnectionType = up.Device.ConnectionType,
+                        ConnectionAddress = up.Device.ConnectionAddress
+                    }
                 }).ToList();
                 return Ok(plantsDto);
             }
@@ -205,5 +222,37 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        //Get the device associated with a particular userplantid
+        [HttpGet("{userplantId}/device")]
+        public async Task<ActionResult<UserPlantSelectDto>> GetDeviceOfUserplant(int userplantId)
+        {
+            try
+            {
+                var userPlant = await  _userPlantRepository.GetByIdWithDeviceAsync(userplantId);
+                if (userPlant == null)
+                {
+                    return NotFound($"Userplant with ID {userplantId} not found.");
+                }
+
+                var deviceDto = new UserPlantSelectDto
+                {
+                    UserPlantId = userPlant.UserPlantId,
+                    DeviceId = userPlant.DeviceId,
+                    Device = new DeviceDto
+                    {
+                        DeviceId = userPlant.Device.DeviceId,
+                        HardwareIdentifier = userPlant.Device.HardwareIdentifier,
+                        ConnectionType = userPlant.Device.ConnectionType,
+                        ConnectionAddress = userPlant.Device.ConnectionAddress
+                    }
+                };
+                return Ok(deviceDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        
     }
 }

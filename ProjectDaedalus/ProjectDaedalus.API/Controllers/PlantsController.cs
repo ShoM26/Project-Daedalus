@@ -47,7 +47,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET specific plant
-        [HttpGet("plants/{plantId}/byId")]
+        [HttpGet("{plantId}")]
         public async Task<IActionResult> GetPlantById(int plantId)
         {
             try

@@ -1,9 +1,10 @@
+// src/components/PlantCard.jsx
 import { getStatusColor } from '../data/mockData';
 
 // This is a React COMPONENT - a reusable piece of UI
 function PlantCard({ pairing }) {
   // DESTRUCTURING - extract data from the pairing object for easier use
-  const { plant, device, currentReading, user, status } = pairing;
+  const { plant, device, currentReading, status } = pairing;
   
   // HELPER FUNCTION - calculate if moisture is in ideal range
   const isInIdealRange = () => {
@@ -25,16 +26,10 @@ function PlantCard({ pairing }) {
         </span>
       </div>
 
-      {/*User Info */}
-      <div classname="user-info">
-        <p><strong>User:</strong>{user.username}</p>
-        <p><strong>Email:</strong>{user.email}</p>
-      </div>
-
       {/* Device Info */}
       <div className="device-info">
-        <p><strong>Device:</strong> {device.hardwareIdentifier}</p>
-        <p><strong>LastSeen:</strong> {currentReading.lastSeen}</p>
+        <p><strong>Device:</strong> {device.id}</p>
+        <p><strong>Battery:</strong> {currentReading.batteryLevel}%</p>
       </div>
 
       {/* Moisture Reading - the main data point */}

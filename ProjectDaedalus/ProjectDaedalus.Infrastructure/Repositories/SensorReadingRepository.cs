@@ -11,12 +11,10 @@ public class SensorReadingRepository : Repository<SensorHistory>, ISensorReading
 
     public async Task<SensorHistory?> GetLatestReadingByDeviceIdAsync(int deviceId)
     {
-        var deviceExists = _context.Devices.AnyAsync(s => s.DeviceId == deviceId);
-        if (deviceExists == null)
-        {
-            return null;
-        }
-        return await _dbSet.Where(s => s.DeviceId == deviceId).OrderByDescending(s => s.TimeStamp).FirstAsync();
+        return await _dbSet
+            .Where(s => s.DeviceId == deviceId)
+            .OrderByDescending(s => s.TimeStamp)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<IEnumerable<SensorHistory>> GetReadingsByDeviceIdAsync(int deviceId)
