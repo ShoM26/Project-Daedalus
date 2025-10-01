@@ -77,7 +77,7 @@ function Dashboard() {
           },
           currentReading: reading ? {
             moistureLevel: reading.moistureLevel,
-            timestamp: reading.timestamp,
+            timestamp: reading.timeStamp,
             batteryLevel: reading.batteryLevel || 100
           } : {
             moistureLevel: 0,
@@ -121,7 +121,7 @@ function Dashboard() {
     <div className="dashboard">
       {/* Dashboard Header */}
       <header className="dashboard-header">
-        <h1>🌱 Plant Monitor Dashboard</h1>
+        <h1>Plant Monitor Dashboard</h1>
         {loading ? (
           <p>Loading plants...</p>
         ) : error ? (
@@ -160,12 +160,6 @@ function Dashboard() {
             onClick={() => handleFilterChange('healthy')}
           >
             Healthy ({healthyPlants})
-          </button>
-          <button 
-            className={selectedFilter === 'needs_water' ? 'active' : ''}
-            onClick={() => handleFilterChange('needs_water')}
-          >
-            Needs Water
           </button>
           <button 
             className={selectedFilter === 'needs-attention' ? 'active' : ''}
