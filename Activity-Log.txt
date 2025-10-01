@@ -57,3 +57,5 @@
 9/29/25: Made some solid changes to the dashboard to start to call the right endpoints. Much more work on that tomorrow
 
 9/30/25: replaced the mock data for sensor reading and device information for the plant card. Front end is really coming along and I am excited
+
+10/1/25: Finished up making the plant card look clean then merged the branch into main. Found out the type of sensor I originally got last year is garbage. There are studies showing that they dissolve in water which is wild as a soil moisture sensor. Watched a youtube video where a guy bought 38 different sensors and found the best ones. I used that to hopefully get one that is not faulty. Also learned about crows foot notation in DBMS today so I will eventually be replacing my current diagrams with updated industry standard ones. Bluetooth maybe on the horizon, lots of time to work tomorrow and Friday.
