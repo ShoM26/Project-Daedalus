@@ -205,7 +205,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 {
                     HardwareIdentifier = message.hardwareidentifier,
                     MoistureLevel = message.moisturelevel.Value,
-                    Timestamp = DateTime.UtcNow,
+                    Timestamp = DateTime.Now,
                 };
 
                 await SendToApiAsync(sensorReading);
