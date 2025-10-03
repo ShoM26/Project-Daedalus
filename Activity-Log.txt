@@ -61,3 +61,5 @@
 10/1/25: Finished up making the plant card look clean then merged the branch into main. Found out the type of sensor I originally got last year is garbage. There are studies showing that they dissolve in water which is wild as a soil moisture sensor. Watched a youtube video where a guy bought 38 different sensors and found the best ones. I used that to hopefully get one that is not faulty. Also learned about crows foot notation in DBMS today so I will eventually be replacing my current diagrams with updated industry standard ones. Bluetooth maybe on the horizon, lots of time to work tomorrow and Friday.
 
 10/2/25: Spent literally all day messing around with Bluetooth and wiring. This stuff is crazy difficult when you know nothing about it. Going to try external battery source tomorrow hopefully that solves all my problems.
+
+10/3/25: Messed with Bluetooth a lot more today and nothing worked not even the wall power source. Going to take a step back from that a focus on the software for the time being. Also created an ER diagram for the database since we are learning about that in class
