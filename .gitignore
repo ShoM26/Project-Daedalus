@@ -3,12 +3,12 @@
 ############################
 
 # Build results
-bin/
-obj/
-out/
-Debug/
-Release/
-
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
 # Auto-generated files
 *.exe
 *.dll
@@ -37,10 +37,25 @@ Release/
 ############################
 .idea/
 *.iml
+*.sln.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.rider.project.model.nuget.info
+rider.project.restore.info
 
 ############################
 # Node / React frontend
 ############################
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
 
 # Node modules
 node_modules/
@@ -54,6 +69,16 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.assets.json
+project.packagespec.json
 
 # Environment files (keep secrets out of Git)
 .env
