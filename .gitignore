@@ -76,7 +76,11 @@ pnpm-debug.log*
 **/packages/*
 !**/packages/build/
 *.nuget.props
+*.nuget.g.props
 *.nuget.targets
+*.nuget.g.targets
+*.nuget.cache
+*.nuget.dgspec.json
 project.assets.json
 project.packagespec.json
 
