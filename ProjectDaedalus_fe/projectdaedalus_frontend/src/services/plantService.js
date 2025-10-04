@@ -13,5 +13,11 @@ export const plantService = {
   // Get latest sensor readings for a specific device
   getLatestReading: async (deviceId) => {
     return await apiService.get(`/SensorReadings/device/${deviceId}/reading`);
+  },
+  deleteUserPlant: async () => {
+    return await apiService.delete(`/UserPlants/${userPlantId}`);
+  },
+  getReadingsRange: async (deviceId, startDate, endDate) => {
+    return await apiService.get(`/SensorReadings/device/${deviceId}/range?startDate=${startDate}&endDate=${endDate}`);
   }
 };
