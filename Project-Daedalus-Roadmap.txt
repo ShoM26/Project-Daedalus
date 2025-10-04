@@ -46,16 +46,14 @@ Week 5: Internal Script Service Creation:
 Week 6-8: Front end
 
 Features to add/Errors to fix:
-- Test for normalized values
-- Bluetooth
 - Individual plant card with chart
 - Signup page
+- Test for normalized values
+- Bluetooth
 - Notifications
-- 
 
 
-
-Final Deliverable for Employers:
+Final Deliverables:
 
 Complete full-stack web application with database
 Real-time IoT device integration
