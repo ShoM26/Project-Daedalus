@@ -62,7 +62,7 @@ node_modules/
 
 # Build output
 build/
-dist/
+dist/ 
 
 # Logs
 npm-debug.log*
