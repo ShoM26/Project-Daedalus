@@ -2,8 +2,7 @@
 import { getStatusColor } from '../data/mockData';
 
 // This is a React COMPONENT - a reusable piece of UI
-function PlantCard({ pairing }) {
-  // DESTRUCTURING - extract data from the pairing object for easier use
+function PlantCard({ pairing, onClick }) {
   const { plant, device, currentReading, status } = pairing;
   
   // HELPER FUNCTION - calculate if moisture is in ideal range
@@ -12,10 +11,12 @@ function PlantCard({ pairing }) {
     return moistureLevel >= plant.idealMoistureMin && moistureLevel <= plant.idealMoistureMax;
   };
 
-  // JSX - this looks like HTML but it's actually JavaScript
   return (
-    <div className="plant-card">
+    <div className="plant-card"
+    onClick={onClick}  // ← Add this
+      style={{ cursor: 'pointer' }}>
       {/* Plant Name Header */}
+      
       <div className="plant-header">
         <h3>{plant.familiarName}</h3>
         <span 
