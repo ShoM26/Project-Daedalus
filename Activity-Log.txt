@@ -63,3 +63,7 @@
 10/2/25: Spent literally all day messing around with Bluetooth and wiring. This stuff is crazy difficult when you know nothing about it. Going to try external battery source tomorrow hopefully that solves all my problems.
 
 10/3/25: Messed with Bluetooth a lot more today and nothing worked not even the wall power source. Going to take a step back from that a focus on the software for the time being. Also created an ER diagram for the database since we are learning about that in class
+
+10/4/25: Shifted my focus to the frontend today and absolutely banged out a new feature in 4.5 hours today. Pretty much start to finish for the individual plant modal pop up with the linechart made using recharts. I think it'll look sick when the moisture data is normalized. Going to polish this up tomorrow and ship it.
+
+10/5/25: Cleaned up the plantcard modal creating a custom confirmation window for the delete this. stuck my toes in the water of css to clean up the messy claude styles. creating the pull request and merging probably tomorrow. Also I remembered I have the ESP32 that I could use as a second device. That would be cool.
