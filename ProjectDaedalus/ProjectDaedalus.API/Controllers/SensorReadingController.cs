@@ -134,12 +134,6 @@ namespace ProjectDaedalus.API.Controllers
 
                 var readings = await _sensorReadingRepository.GetReadingsForDeviceByRangeAsync(deviceId, startDate, endDate);
 
-                if (!readings.Any())
-                {
-                    return NotFound(
-                        $"No sensor readings found for device with ID {deviceId} during the requested time.");
-                }
-
                 var readingDtos = readings.Select(r => new SensorReadingSelectDto
                 {
                     DeviceId = r.DeviceId,

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import PlantCard from '../components/PlantCard';
 import { plantService } from '../services/plantService';
 import  authService  from '../services/authService';
+import Modal from '../components/Modal';
+import PlantDetailModal from '../components/PlantDetailModal';
 
 function Dashboard() {
   // STATE - data that can change and triggers re-renders
@@ -9,6 +11,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedPlant, setSelectedPlant] = useState(null);
 
   // FETCH DATA FROM API when component loads
   useEffect(() => {
@@ -110,6 +113,19 @@ function Dashboard() {
     setSelectedFilter(filter);
   };
 
+  const handleCardClick = (plant) => {
+    setSelectedPlant(plant);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedPlant(null);
+  };
+
+  const handlePlantDeleted = (deletedPlantId) => {
+    setUserPlants(userPlant.filter(plant => plant.id !== deltedPlantId));
+    setSelectedPlant(null);
+  };
+
   // FILTERED DATA - show only plants matching current filter
   const filteredPlants = plants.filter(plant => {
     if (selectedFilter === 'all') return true;
@@ -186,6 +202,7 @@ function Dashboard() {
               <PlantCard 
                 key={pairing.id}  // Required for React lists
                 pairing={pairing} // Pass entire pairing object as prop
+                onClick={() => handleCardClick(pairing)}
               />
             ))}
             
@@ -198,6 +215,15 @@ function Dashboard() {
           </>
         )}
       </div>
+      <Modal isOpen={selectedPlant !== null} onClose={handleCloseModal}>
+        {selectedPlant && (
+          <PlantDetailModal 
+            userPlant={selectedPlant}
+            onDelete={handlePlantDeleted}
+            onClose={handleCloseModal}
+          />
+        )}
+      </Modal>
     </div>
   );
 }
