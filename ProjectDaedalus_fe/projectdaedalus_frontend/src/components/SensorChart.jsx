@@ -4,7 +4,7 @@ import { plantService } from '../services/plantService';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import '../styles/SensorChart.css';
 
-function SensorChart({ deviceId }) {
+function SensorChart({ deviceId, moistureMin, moistureMax }) {
   const [timeRange, setTimeRange] = useState('24h');
   const [readings, setReadings] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -2,15 +2,15 @@
 import React, { useState } from 'react';
 import SensorChart from './SensorChart';
 import '../styles/PlantDetailModal.css';
+import ConfirmDialog from './ConfirmDialog';
+
 
 function PlantDetailModal({ userPlant, onDelete, onClose }) {
-console.log('Full userPlant object:', userPlant);
-const { plant, device, currentReading } = userPlant;
-  console.log('Device object:', device);
-  console.log('Device.deviceId:', device?.deviceId)
-
+  
+  const { plant, device, currentReading } = userPlant;
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // Destructure for cleaner code
   
@@ -18,37 +18,35 @@ const { plant, device, currentReading } = userPlant;
   // Handler for delete button
   const handleDelete = async () => {
     // Confirm before deleting
-    if (!window.confirm(`Are you sure you want to remove ${plant.familiarName} from your dashboard?`)) {
-      return;
-    }
+      setShowConfirm(true);
+    };
 
-    setDeleting(true);
-    setDeleteError(null);
+    const handleConfirmedDelete = async () => {
+      setShowConfirm(false); // Close the dialog
+      setDeleting(true);
+      setDeleteError(null);
 
-    try {
-      await apiService.delete(`/UserPlants/${userPlant.id}`);
-      onDelete(userPlant.id);
-      }catch(err){
+      try {
+        await plantService.deleteUserPlant(userPlant.id);
+        onDelete(userPlant.id);
+      } catch (err) {
         setDeleteError(err.message);
         setDeleting(false);
-    }
-};
+      }
+    };
+
+    const handleCancelDelete = () => {
+      setShowConfirm(false);
+    };
 
   return (
     <div className="plant-detail-modal">
       {/* Header Section */}
       <div className="modal-header">
         <div>
-          <h2>{plant.familiarName}</h2>
+          <h2 className="familiar-name">{plant.familiarName}</h2>
           <p className="scientific-name">{plant.scientificName}</p>
         </div>
-        <button 
-          className="delete-button" 
-          onClick={handleDelete}
-          disabled={deleting}
-        >
-          {deleting ? 'Deleting...' : 'Delete Plant'}
-        </button>
       </div>
 
       {deleteError && (
@@ -75,7 +73,7 @@ const { plant, device, currentReading } = userPlant;
 
         <div className="info-card">
           <h3>Device</h3>
-          <p>{device.id}</p>
+          <p className="large-number">{device.id}</p>
         </div>
       </div>
 
@@ -87,14 +85,27 @@ const { plant, device, currentReading } = userPlant;
         </div>
       )}
 
-      {/* Chart Section - we'll build this next */}
       <div className="chart-section">
-        <h3>Moisture History</h3>
         <SensorChart 
         deviceId={device.id}
         moistureMin={plant.idealMoistureMin}
         moistureMax={plant.idealMoistureMax} />
       </div>
+        <div className="modal-footer"><button 
+          className="delete-button" 
+          onClick={handleDelete}
+          disabled={deleting}
+          >
+          {deleting ? 'Deleting...' : 'Delete Plant'}
+        </button>
+      </div>
+       <ConfirmDialog
+        isOpen={showConfirm}
+        onConfirm={handleConfirmedDelete}
+        onCancel={handleCancelDelete}
+        title="Delete Plant"
+        message={`Are you sure you want to remove ${plant.familiarName} from your dashboard? This action cannot be undone.`}
+      />
     </div>
   );
 }
