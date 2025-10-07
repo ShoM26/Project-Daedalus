@@ -212,7 +212,6 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET check if device is online/connected
-        //TODO: 100% confident this doesnt do what I want it to
         [HttpGet("{deviceId}/status")]
         public async Task<IActionResult> IsDeviceOnline(int deviceId)
         {
