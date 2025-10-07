@@ -212,6 +212,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //GET check if device is online/connected
+        //TODO: 100% confident this doesnt do what I want it to
         [HttpGet("{deviceId}/status")]
         public async Task<IActionResult> IsDeviceOnline(int deviceId)
         {
@@ -225,8 +226,7 @@ namespace ProjectDaedalus.API.Controllers
 
                 // Convert to DTO
                 var device = new DeviceDto
-                {
-                    HardwareIdentifier = d.HardwareIdentifier,
+                { 
                     Status = d.Status,
                     LastSeen = d.LastSeen,
                     UserId = d.UserId
