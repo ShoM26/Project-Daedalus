@@ -218,20 +218,14 @@ namespace ProjectDaedalus.API.Controllers
         {
             try
             {
-                var d = await _deviceRepository.GetByIdAsync(deviceId);
-                if (d == null)
+                var device = await _deviceRepository.GetByIdAsync(deviceId);
+                if (device == null)
                 {
-                    return NotFound($"Device {deviceId} not found");
+                    return BadRequest($"Device with identifier '{deviceId}' not found");
                 }
-
-                // Convert to DTO
-                var device = new DeviceDto
-                { 
-                    Status = d.Status,
-                    LastSeen = d.LastSeen,
-                    UserId = d.UserId
-                };
-                return Ok(device);
+                
+                var online =  _deviceRepository.IsDeviceOnline(deviceId);
+                return Ok(online);
             }
             catch (Exception ex)
             {
