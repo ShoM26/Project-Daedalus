@@ -27,20 +27,20 @@ jobs:
       - name: Get PR diff
         id: diff
         run: |
-          # Get the diff for this PR
+          # Get the diff for this PR with file context
           git fetch origin ${{ github.base_ref }}
-          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
           
-          # Save to file to handle special characters
-          echo "$DIFF" > pr_diff.txt
+          # Get detailed diff with file names and line numbers
+          git diff -U3 origin/${{ github.base_ref }}...HEAD > pr_diff.txt
           
-          # Check if diff is too large (optional size limit)
+          # Also get list of changed files
+          git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
+          
+          # Check if diff is empty
           DIFF_SIZE=$(wc -c < pr_diff.txt)
           echo "diff_size=$DIFF_SIZE" >> $GITHUB_OUTPUT
           
-          # Skip if diff is empty
-          if [ -z "$DIFF" ]; then
-            echo "No changes to review"
+          if [ $DIFF_SIZE -eq 0 ]; then
             echo "skip=true" >> $GITHUB_OUTPUT
           else
             echo "skip=false" >> $GITHUB_OUTPUT
@@ -58,75 +58,188 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Read the diff
           DIFF=$(cat pr_diff.txt)
+          CHANGED_FILES=$(cat changed_files.txt)
           
           # Escape the diff for JSON
           DIFF_ESCAPED=$(echo "$DIFF" | jq -Rs .)
           
-          # Create the prompt
-          PROMPT="You are an expert code reviewer. Please review the following code changes and provide constructive feedback focusing on:
+          # Create the prompt for inline comments
+          PROMPT="You are an expert code reviewer. Analyze the following git diff and provide specific, actionable feedback.
+
+          IMPORTANT: Format your response as a JSON array of review comments. Each comment should have:
+          - \"path\": the file path
+          - \"line\": the line number in the new file (after changes)
+          - \"body\": your comment text
+
+          Only comment on issues that need attention (bugs, security, performance, best practices). If code is good, return an empty array.
+
+          Example format:
+          [
+            {
+              \"path\": \"src/app.js\",
+              \"line\": 15,
+              \"body\": \"Consider adding null check here to prevent potential runtime error.\"
+            },
+            {
+              \"path\": \"Controllers/DeviceController.cs\",
+              \"line\": 23,
+              \"body\": \"This could be more efficient using a Map instead of an array.\"
+            }
+          ]
+
+          Changed files:
+          $CHANGED_FILES
+
+          Git diff:
+          $DIFF
+
+          Respond ONLY with the JSON array, no other text."
           
-          1. Potential bugs or errors
-          2. Code quality and best practices
-          3. Performance concerns
-          4. Security issues
-          5. Suggestions for improvement
+          PROMPT_ESCAPED=$(echo "$PROMPT" | jq -Rs .)   
+              RESPONSE=$(curl -s -X POST \
+                "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d "{
+                  \"contents\": [{
+                    \"parts\": [{
+                      \"text\": $PROMPT_ESCAPED
+                    }]
+                  }],
+                  \"generationConfig\": {
+                    \"temperature\": 0.3,
+                    \"maxOutputTokens\": 4096
+                  }
+                }")
+              
+              ERROR=$(echo "$RESPONSE" | jq -r '.error.message // empty')
+              
+              if [ -z "$ERROR" ]; then
+                echo "SUCCESS with: $API_VERSION/models/$MODEL"
+                REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not extract review"')
+                SUCCESS=true
+                break 2
+              else
+                echo "Failed: $ERROR"
+              fi
+            done
+          done
           
-          Be concise but thorough. If the code looks good, say so briefly. Provide reasoning for changes
-          
-          Here are the changes:
-          
-          $DIFF"
-          
-          # Escape prompt for JSON
-          PROMPT_ESCAPED=$(echo "$PROMPT" | jq -Rs .)
-          
-          # Call Gemini API
-          RESPONSE=$(curl -s -X POST \
-            "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"contents\": [{
-                \"parts\": [{
-                  \"text\": $PROMPT_ESCAPED
-                }]
-              }],
-              \"generationConfig\": {
-                \"temperature\": 0.3,
-                \"maxOutputTokens\": 2048
-              }
-            }")
-          
-          # Debug: Print the raw response
-          echo "=== API Response ==="
-          echo "$RESPONSE" | jq '.'
-          echo "==================="
-          
-          # Check if there's an error in the response
-          ERROR=$(echo "$RESPONSE" | jq -r '.error.message // empty')
-          if [ ! -z "$ERROR" ]; then
-            echo "API Error: $ERROR"
-            REVIEW="⚠️ **AI Review Failed**\n\nAPI Error: $ERROR\n\nPlease check the workflow logs and verify your GEMINI_API_KEY is valid."
-          else
-            # Extract the review text
-            REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not extract review from response"')
+          if [ "$SUCCESS" = false ]; then
+            echo "All API attempts failed. Last error: $ERROR"
+            exit 1
           fi
           
-          # Save review to file
-          echo "$REVIEW" > review.txt
+          # Save the raw review
+          echo "$REVIEW" > review_raw.txt
           
-          # Post comment to PR using GitHub API
-          COMMENT_BODY=$(jq -Rs . < review.txt)
+          # Extract JSON from the response (handle markdown code blocks)
+          COMMENTS=$(echo "$REVIEW" | sed -n '/^\[/,/^\]/p' | jq -c '.')
           
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
-            -d "{\"body\": $COMMENT_BODY}"
+          # If extraction failed, try removing markdown code fences
+          if [ -z "$COMMENTS" ] || [ "$COMMENTS" == "null" ]; then
+            COMMENTS=$(echo "$REVIEW" | sed 's/```json//g' | sed 's/```//g' | sed -n '/^\[/,/^\]/p' | jq -c '.')
+          fi
+          
+          echo "Extracted comments: $COMMENTS"
+          
+          # Check if we got valid JSON array
+          if [ -z "$COMMENTS" ] || [ "$COMMENTS" == "null" ] || [ "$COMMENTS" == "[]" ]; then
+            echo "No inline comments to post (empty or invalid JSON)"
+            # Post a general comment instead
+            SUMMARY="Code review completed. No specific issues found."
+            SUMMARY_ESCAPED=$(echo "$SUMMARY" | jq -Rs .)
+            
+            curl -s -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
+              -d "{\"body\": $SUMMARY_ESCAPED}"
+          else
+            # Get the latest commit SHA
+            COMMIT_SHA=$(git rev-parse HEAD)
+            
+            # Build the review comments array for GitHub API
+            REVIEW_COMMENTS="[]"
+            
+            # Parse each comment and add to array
+            echo "$COMMENTS" | jq -c '.[]' | while read -r comment; do
+              PATH=$(echo "$comment" | jq -r '.path')
+              LINE=$(echo "$comment" | jq -r '.line')
+              BODY=$(echo "$comment" | jq -r '.body')
+              
+              # Verify the file exists in the PR
+              if grep -Fxq "$PATH" changed_files.txt; then
+                # Add comment to array
+                REVIEW_COMMENTS=$(echo "$REVIEW_COMMENTS" | jq --arg path "$PATH" --arg line "$LINE" --arg body "$BODY" \
+                  '. += [{
+                    "path": $path,
+                    "line": ($line | tonumber),
+                    "body": $body
+                  }]')
+              else
+                echo "Warning: File $PATH not in changed files, skipping comment"
+              fi
+            done > /tmp/comments_processed.txt
+            
+            # Read the processed comments
+            REVIEW_COMMENTS=$(cat /tmp/comments_processed.txt | tail -1)
+            
+            if [ "$REVIEW_COMMENTS" == "[]" ]; then
+              echo "No valid comments to post"
+              exit 0
+            fi
+            
+            # Create a review with inline comments
+            REVIEW_BODY=$(jq -n \
+              --arg commit_id "$COMMIT_SHA" \
+              --argjson comments "$REVIEW_COMMENTS" \
+              --arg event "COMMENT" \
+              --arg body "AI Code Review" \
+              '{
+                commit_id: $commit_id,
+                body: $body,
+                event: $event,
+                comments: $comments
+              }')
+            
+            echo "Posting review with inline comments..."
+            
+            REVIEW_RESPONSE=$(curl -s -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER/reviews" \
+              -d "$REVIEW_BODY")
+            
+            echo "Review response: $REVIEW_RESPONSE"
+            
+            # Check if review was created successfully
+            REVIEW_ID=$(echo "$REVIEW_RESPONSE" | jq -r '.id // empty')
+            
+            if [ -z "$REVIEW_ID" ]; then
+              echo "Failed to create review. Response:"
+              echo "$REVIEW_RESPONSE" | jq '.'
+              
+              # Fallback: post as general comment
+              FALLBACK_BODY="**AI Code Review**\n\nAttempted to post inline comments but encountered an error. Here are the findings:\n\n"
+              echo "$COMMENTS" | jq -r '.[] | "**\(.path):\(.line)** - \(.body)\n"' >> fallback.txt
+              FALLBACK_FULL=$(cat fallback.txt)
+              FALLBACK_ESCAPED=$(echo "$FALLBACK_FULL" | jq -Rs .)
+              
+              curl -s -X POST \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
+                -d "{\"body\": $FALLBACK_ESCAPED}"
+            else
+              echo "Review created successfully with ID: $REVIEW_ID"
+            fi
+          fi
 
       - name: Summary
         if: steps.diff.outputs.skip != 'true'
         run: |
-          echo "AI code review completed and posted to PR #${{ github.event.pull_request.number }}"
+          echo "AI code review completed for PR #${{ github.event.pull_request.number }}"
