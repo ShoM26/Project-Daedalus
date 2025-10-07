@@ -1,0 +1,120 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+    - '**.cs'
+    - '**.js'
+    - '**.jsx'
+    - '**.ino'
+    - '**.css'
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          # Get the diff for this PR
+          git fetch origin ${{ github.base_ref }}
+          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
+          
+          # Save to file to handle special characters
+          echo "$DIFF" > pr_diff.txt
+          
+          # Check if diff is too large (optional size limit)
+          DIFF_SIZE=$(wc -c < pr_diff.txt)
+          echo "diff_size=$DIFF_SIZE" >> $GITHUB_OUTPUT
+          
+          # Skip if diff is empty
+          if [ -z "$DIFF" ]; then
+            echo "No changes to review"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check diff size
+        if: steps.diff.outputs.diff_size > 50000
+        run: |
+          echo "::warning::Diff too large for AI review (>50KB). Skipping."
+          exit 0
+
+      - name: AI Code Review
+        if: steps.diff.outputs.skip != 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Read the diff
+          DIFF=$(cat pr_diff.txt)
+          
+          # Escape the diff for JSON
+          DIFF_ESCAPED=$(echo "$DIFF" | jq -Rs .)
+          
+          # Create the prompt
+          PROMPT="You are an expert code reviewer. Please review the following code changes and provide constructive feedback focusing on:
+          
+          1. Potential bugs or errors
+          2. Code quality and best practices
+          3. Performance concerns
+          4. Security issues
+          5. Suggestions for improvement
+          
+          Be concise but thorough. If the code looks good, say so briefly. Provide reasoning for changes
+          
+          Here are the changes:
+          
+          $DIFF"
+          
+          # Escape prompt for JSON
+          PROMPT_ESCAPED=$(echo "$PROMPT" | jq -Rs .)
+          
+          # Call Gemini API
+          RESPONSE=$(curl -s -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=$GEMINI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"contents\": [{
+                \"parts\": [{
+                  \"text\": $PROMPT_ESCAPED
+                }]
+              }],
+              \"generationConfig\": {
+                \"temperature\": 0.3,
+                \"maxOutputTokens\": 2048
+              }
+            }")
+          
+          # Extract the review text
+          REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not generate review"')
+          
+          # Save review to file
+          echo "$REVIEW" > review.txt
+          
+          # Post comment to PR using GitHub API
+          COMMENT_BODY=$(jq -Rs . < review.txt)
+          
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
+            -d "{\"body\": $COMMENT_BODY}"
+
+      - name: Summary
+        if: steps.diff.outputs.skip != 'true'
+        run: |
+          echo "AI code review completed and posted to PR #${{ github.event.pull_request.number }}"
