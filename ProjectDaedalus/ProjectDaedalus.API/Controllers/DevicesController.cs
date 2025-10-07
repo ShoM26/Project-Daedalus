@@ -220,7 +220,7 @@ namespace ProjectDaedalus.API.Controllers
                 var device = await _deviceRepository.GetByIdAsync(deviceId);
                 if (device == null)
                 {
-                    return BadRequest($"Device with identifier '{deviceId}' not found");
+                    return NotFound($"Device with identifier '{deviceId}' not found");
                 }
                 
                 var online =  _deviceRepository.IsDeviceOnline(deviceId);
