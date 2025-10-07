@@ -99,8 +99,20 @@ jobs:
               }
             }")
           
-          # Extract the review text
-          REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not generate review"')
+          # Debug: Print the raw response
+          echo "=== API Response ==="
+          echo "$RESPONSE" | jq '.'
+          echo "==================="
+          
+          # Check if there's an error in the response
+          ERROR=$(echo "$RESPONSE" | jq -r '.error.message // empty')
+          if [ ! -z "$ERROR" ]; then
+            echo "API Error: $ERROR"
+            REVIEW="⚠️ **AI Review Failed**\n\nAPI Error: $ERROR\n\nPlease check the workflow logs and verify your GEMINI_API_KEY is valid."
+          else
+            # Extract the review text
+            REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not extract review from response"')
+          fi
           
           # Save review to file
           echo "$REVIEW" > review.txt
