@@ -21,6 +21,6 @@ public class DeviceRepository : Repository<Device>,  IDeviceRepository
 
     public bool IsDeviceOnline(int deviceId)
     {
-        return _dbSet.First(d => d.DeviceId == deviceId).Status == "Online";
+        return _dbSet.FirstOrDefault(d => d.DeviceId == deviceId) is { Status: "Online" };
     }
 }
