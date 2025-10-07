@@ -18,4 +18,9 @@ public class DeviceRepository : Repository<Device>,  IDeviceRepository
     {
         return await _dbSet.FirstOrDefaultAsync(d => d.HardwareIdentifier == hardwareIdentifier);
     }
+
+    public bool IsDeviceOnline(int deviceId)
+    {
+        return _dbSet.First(d => d.DeviceId == deviceId).Status == "Online";
+    }
 }
