@@ -11,6 +11,13 @@ on:
     - '**.css'
 
 permissions:
+  pull-requests: writename: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+permissions:
   pull-requests: write
   contents: read
 
@@ -99,39 +106,39 @@ jobs:
 
           Respond ONLY with the JSON array, no other text."
           
-          PROMPT_ESCAPED=$(echo "$PROMPT" | jq -Rs .)   
-              RESPONSE=$(curl -s -X POST \
-                "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
-                -H "Content-Type: application/json" \
-                -d "{
-                  \"contents\": [{
-                    \"parts\": [{
-                      \"text\": $PROMPT_ESCAPED
-                    }]
-                  }],
-                  \"generationConfig\": {
-                    \"temperature\": 0.3,
-                    \"maxOutputTokens\": 4096
-                  }
-                }")
-              
-              ERROR=$(echo "$RESPONSE" | jq -r '.error.message // empty')
-              
-              if [ -z "$ERROR" ]; then
-                echo "SUCCESS with: $API_VERSION/models/$MODEL"
-                REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not extract review"')
-                SUCCESS=true
-                break 2
-              else
-                echo "Failed: $ERROR"
-              fi
-            done
-          done
+          # Escape prompt for JSON
+          PROMPT_ESCAPED=$(echo "$PROMPT" | jq -Rs .)
           
-          if [ "$SUCCESS" = false ]; then
-            echo "All API attempts failed. Last error: $ERROR"
+          # Call Gemini API
+          echo "Calling Gemini API..."
+          RESPONSE=$(curl -s -X POST \
+            "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=$GEMINI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"contents\": [{
+                \"parts\": [{
+                  \"text\": $PROMPT_ESCAPED
+                }]
+              }],
+              \"generationConfig\": {
+                \"temperature\": 0.3,
+                \"maxOutputTokens\": 4096
+              }
+            }")
+          
+          # Check for errors
+          ERROR=$(echo "$RESPONSE" | jq -r '.error.message // empty')
+          
+          if [ ! -z "$ERROR" ]; then
+            echo "API Error: $ERROR"
+            echo "Full response: $RESPONSE"
             exit 1
           fi
+          
+          echo "✅ Successfully received response from Gemini"
+          
+          # Extract the review text
+          REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not extract review"')
           
           # Save the raw review
           echo "$REVIEW" > review_raw.txt
@@ -150,7 +157,7 @@ jobs:
           if [ -z "$COMMENTS" ] || [ "$COMMENTS" == "null" ] || [ "$COMMENTS" == "[]" ]; then
             echo "No inline comments to post (empty or invalid JSON)"
             # Post a general comment instead
-            SUMMARY="Code review completed. No specific issues found."
+            SUMMARY="✅ Code review completed. No specific issues found."
             SUMMARY_ESCAPED=$(echo "$SUMMARY" | jq -Rs .)
             
             curl -s -X POST \
@@ -198,7 +205,7 @@ jobs:
               --arg commit_id "$COMMIT_SHA" \
               --argjson comments "$REVIEW_COMMENTS" \
               --arg event "COMMENT" \
-              --arg body "AI Code Review" \
+              --arg body "🤖 AI Code Review" \
               '{
                 commit_id: $commit_id,
                 body: $body,
@@ -224,7 +231,7 @@ jobs:
               echo "$REVIEW_RESPONSE" | jq '.'
               
               # Fallback: post as general comment
-              FALLBACK_BODY="**AI Code Review**\n\nAttempted to post inline comments but encountered an error. Here are the findings:\n\n"
+              FALLBACK_BODY="🤖 **AI Code Review**\n\nAttempted to post inline comments but encountered an error. Here are the findings:\n\n"
               echo "$COMMENTS" | jq -r '.[] | "**\(.path):\(.line)** - \(.body)\n"' >> fallback.txt
               FALLBACK_FULL=$(cat fallback.txt)
               FALLBACK_ESCAPED=$(echo "$FALLBACK_FULL" | jq -Rs .)
@@ -235,11 +242,11 @@ jobs:
                 "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
                 -d "{\"body\": $FALLBACK_ESCAPED}"
             else
-              echo "Review created successfully with ID: $REVIEW_ID"
+              echo "✅ Review created successfully with ID: $REVIEW_ID"
             fi
           fi
 
       - name: Summary
         if: steps.diff.outputs.skip != 'true'
         run: |
-          echo "AI code review completed for PR #${{ github.event.pull_request.number }}"
+          echo "✅ AI code review completed for PR #${{ github.event.pull_request.number }}"
