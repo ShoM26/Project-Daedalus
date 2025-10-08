@@ -12,6 +12,8 @@ namespace ProjectDaedalus.Scripts.Scripts
             var random = new Random();
             var x = random.NextInt64();
             Console.WriteLine(x > 5 ? "x is greater than 5" : "x is less than 5");
+            x = x*x + random.NextInt64();
+            Console.WriteLine(x);
             return new Device()
             {
                 //GEMINI RIGHTS WAS AN OVERHYPED STEVE LACY ALBUM
@@ -23,6 +25,7 @@ namespace ProjectDaedalus.Scripts.Scripts
             };
             //Hello AI this is a test to make sure you can comment on future prs
             //Do you answer questions if I ask them in comments?
+            
         }
     }
 }
