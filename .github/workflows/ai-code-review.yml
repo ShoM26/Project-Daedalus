@@ -141,44 +141,83 @@ jobs:
           
           echo "Successfully received response from Gemini"
           
-          # Extract the review text
-          REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not extract review"')
+          # Debug: Print full response structure
+          echo "=== Full API Response ==="
+          echo "$RESPONSE" | jq '.'
+          echo "========================"
+          
+          # Extract the review text - handle different response structures
+          REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // empty')
+          
+          if [ -z "$REVIEW" ]; then
+            echo "Could not extract text from standard location, trying alternatives..."
+            # Try alternative paths
+            REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].text // empty')
+            
+            if [ -z "$REVIEW" ]; then
+              REVIEW=$(echo "$RESPONSE" | jq -r '.text // empty')
+            fi
+            
+            if [ -z "$REVIEW" ]; then
+              echo "Error: Could not find review text in response"
+              echo "Response structure:"
+              echo "$RESPONSE" | jq 'keys'
+              
+              # Post error and exit
+              ERROR_MSG="AI Code Review Failed\n\nCould not extract review from Gemini response. Check workflow logs for details."
+              ERROR_ESCAPED=$(echo "$ERROR_MSG" | jq -Rs .)
+              
+              curl -s -X POST \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
+                -d "{\"body\": $ERROR_ESCAPED}"
+              
+              exit 0
+            fi
+          fi
+          
+          echo "Successfully extracted review text"
           
           # Save the raw review
           echo "$REVIEW" > review_raw.txt
-          echo "Raw review saved. First 500 chars:"
-          head -c 500 review_raw.txt
+          echo "=== Raw Review Content ==="
+          cat review_raw.txt
+          echo ""
+          echo "=========================="
           
           # Extract JSON from the response - try multiple methods
-          # Method 1: Look for JSON array between [ and ]
-          COMMENTS=$(echo "$REVIEW" | grep -oP '\[[\s\S]*\]' | head -1)
+          echo "Attempting to extract JSON..."
           
-          # Method 2: Remove markdown code blocks and extract
-          if [ -z "$COMMENTS" ] || [ "$COMMENTS" == "null" ]; then
-            COMMENTS=$(echo "$REVIEW" | sed 's/```json//g' | sed 's/```//g' | grep -oP '\[[\s\S]*\]' | head -1)
-          fi
-          
-          # Method 3: Try to find array start and extract everything to the end
-          if [ -z "$COMMENTS" ] || [ "$COMMENTS" == "null" ]; then
-            COMMENTS=$(echo "$REVIEW" | sed -n '/^\[/,/^\]/p')
-          fi
-          
-          # Validate it's proper JSON
-          if [ ! -z "$COMMENTS" ]; then
-            if echo "$COMMENTS" | jq empty 2>/dev/null; then
-              echo "Successfully extracted valid JSON"
+          # Method 1: Direct JSON parse if entire response is JSON
+          if echo "$REVIEW" | jq empty 2>/dev/null; then
+            COMMENTS=$(echo "$REVIEW" | jq -c '.')
+            echo "Method 1 success: Entire response is valid JSON"
+          else
+            # Method 2: Look for JSON array between [ and ]
+            COMMENTS=$(echo "$REVIEW" | grep -ozP '\[[\s\S]*\]' | tr -d '\0' | head -1)
+            
+            if [ ! -z "$COMMENTS" ] && echo "$COMMENTS" | jq empty 2>/dev/null; then
+              echo "Method 2 success: Extracted JSON array with grep"
               COMMENTS=$(echo "$COMMENTS" | jq -c '.')
             else
-              echo "Extracted text is not valid JSON, trying to fix..."
-              # Try to extract just the array portion
-              COMMENTS=$(echo "$REVIEW" | perl -0777 -ne 'print $1 if /(\[(?:[^[\]]|(?1))*\])/s' | head -1)
+              # Method 3: Remove markdown code blocks and extract
+              COMMENTS=$(echo "$REVIEW" | sed 's/```json//g' | sed 's/```//g' | grep -ozP '\[[\s\S]*\]' | tr -d '\0' | head -1)
               
-              if echo "$COMMENTS" | jq empty 2>/dev/null; then
-                echo "Fixed and extracted valid JSON"
+              if [ ! -z "$COMMENTS" ] && echo "$COMMENTS" | jq empty 2>/dev/null; then
+                echo "Method 3 success: Removed markdown and extracted"
                 COMMENTS=$(echo "$COMMENTS" | jq -c '.')
               else
-                echo "Could not extract valid JSON"
-                COMMENTS=""
+                # Method 4: Use sed to find array boundaries
+                COMMENTS=$(echo "$REVIEW" | sed -n '/\[/,/\]/p')
+                
+                if [ ! -z "$COMMENTS" ] && echo "$COMMENTS" | jq empty 2>/dev/null; then
+                  echo "Method 4 success: Used sed to extract"
+                  COMMENTS=$(echo "$COMMENTS" | jq -c '.')
+                else
+                  echo "All extraction methods failed"
+                  COMMENTS=""
+                fi
               fi
             fi
           fi
@@ -250,7 +289,8 @@ jobs:
             
             REVIEW_RESPONSE=$(curl -s -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.v3+json" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
               "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER/reviews" \
               -d "$REVIEW_BODY")
             
