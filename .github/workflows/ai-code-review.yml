@@ -115,7 +115,7 @@ jobs:
               }],
               \"generationConfig\": {
                 \"temperature\": 0.3,
-                \"maxOutputTokens\": 4096
+                \"maxOutputTokens\": 32768
               }
             }")
           
