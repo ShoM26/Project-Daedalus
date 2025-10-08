@@ -21,6 +21,8 @@ namespace ProjectDaedalus.Scripts.Scripts
                 DeviceId = 0,
                 UserId = 0,
             };
+            //Hello AI this is a test to make sure you can comment on future prs
+            //Do you answer questions if I ask them in comments?
         }
     }
 }
