@@ -12,7 +12,7 @@ namespace ProjectDaedalus.Scripts.Scripts
             var random = new Random();
             var x = random.NextInt64();
             Console.WriteLine(x > 5 ? "x is greater than 5" : "x is less than 5");
-            x = x*x + random.NextInt64();
+            x = x*(x + random.NextInt64());
             Console.WriteLine(x);
             return new Device()
             {
