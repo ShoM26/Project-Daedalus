@@ -8,7 +8,7 @@ namespace ProjectDaedalus.Scripts.Scripts
         {
             return new Device()
             {
-                
+                //GEMINI RIGHTS WAS AN OVERHYPED STEVE LACY ALBUM
             };
         }
     }
