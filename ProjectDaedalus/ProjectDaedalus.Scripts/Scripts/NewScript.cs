@@ -12,14 +12,18 @@ namespace ProjectDaedalus.Scripts.Scripts
             {
                 Console.WriteLine("x is greater than 5");
             }
+            else
+            {
+                Console.WriteLine("x is less than 5");
+            }
             return new Device()
             {
                 //GEMINI RIGHTS WAS AN OVERHYPED STEVE LACY ALBUM
                 HardwareIdentifier = "blank",
-                ConnectionAddress = ,
-                ConnectionType = ,
-                DeviceId = ,
-                UserId = ,
+                ConnectionAddress = "blank",
+                ConnectionType = "blank",
+                DeviceId = 0,
+                UserId = 0,
             };
         }
     }
