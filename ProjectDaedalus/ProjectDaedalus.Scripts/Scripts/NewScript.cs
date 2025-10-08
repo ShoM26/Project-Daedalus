@@ -1,4 +1,7 @@
 using ProjectDaedalus.Core.Entities;
+using ProjectDaedalus.Core.Interfaces;
+using ProjectDaedalus.Scripts.Services;
+
 
 namespace ProjectDaedalus.Scripts.Scripts
 {
@@ -8,14 +11,7 @@ namespace ProjectDaedalus.Scripts.Scripts
         {
             var random = new Random();
             var x = random.NextInt64();
-            if (x > 5)
-            {
-                Console.WriteLine("x is greater than 5");
-            }
-            else
-            {
-                Console.WriteLine("x is less than 5");
-            }
+            Console.WriteLine(x > 5 ? "x is greater than 5" : "x is less than 5");
             return new Device()
             {
                 //GEMINI RIGHTS WAS AN OVERHYPED STEVE LACY ALBUM
