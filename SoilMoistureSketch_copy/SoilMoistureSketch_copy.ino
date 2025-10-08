@@ -18,7 +18,7 @@ String getEEPROMDeviceID() {
   String id = "PLANT_";
   
   // Check if we've stored an ID in EEPROM before
-  if (EEPROM.read(0) == 0xFF) {  // First time setup
+  if (EEPROM.read(0) == 0xFF) {
     // Generate random ID and store it permanently
     randomSeed(analogRead(A1));  // Use unconnected pin for randomness
     long uniqueNum = random(10000, 99999);
@@ -44,7 +44,6 @@ int getAveragedReading() {
   long total = 0;
   int validReadings = 0;
   
-  // Take multiple readings
   for (int i = 0; i < SAMPLE_COUNT; i++) {
     int reading = analogRead(A0);
     
@@ -107,7 +106,7 @@ void loop() {
     lastSendTime = currentTime;
   }
   
-  delay(1000);
+  delay(3000);
 }
 
 void sendSensorData(int smoothedValue) {
