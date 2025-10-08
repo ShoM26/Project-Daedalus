@@ -11,13 +11,6 @@ on:
     - '**.css'
 
 permissions:
-  pull-requests: writename: AI Code Review
-
-on:
-  pull_request:
-    types: [opened, synchronize]
-
-permissions:
   pull-requests: write
   contents: read
 
@@ -54,13 +47,13 @@ jobs:
           fi
 
       - name: Check diff size
-        if: steps.diff.outputs.diff_size > 50000
+        if: ${{ steps.diff.outputs.diff_size > 50000 }}
         run: |
           echo "::warning::Diff too large for AI review (>50KB). Skipping."
           exit 0
 
       - name: AI Code Review
-        if: steps.diff.outputs.skip != 'true'
+        if: ${{ steps.diff.outputs.skip != 'true' }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -135,7 +128,7 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Successfully received response from Gemini"
+          echo "Successfully received response from Gemini"
           
           # Extract the review text
           REVIEW=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Error: Could not extract review"')
@@ -205,7 +198,7 @@ jobs:
               --arg commit_id "$COMMIT_SHA" \
               --argjson comments "$REVIEW_COMMENTS" \
               --arg event "COMMENT" \
-              --arg body "🤖 AI Code Review" \
+              --arg body "AI Code Review" \
               '{
                 commit_id: $commit_id,
                 body: $body,
@@ -231,7 +224,7 @@ jobs:
               echo "$REVIEW_RESPONSE" | jq '.'
               
               # Fallback: post as general comment
-              FALLBACK_BODY="🤖 **AI Code Review**\n\nAttempted to post inline comments but encountered an error. Here are the findings:\n\n"
+              FALLBACK_BODY="**AI Code Review**\n\nAttempted to post inline comments but encountered an error. Here are the findings:\n\n"
               echo "$COMMENTS" | jq -r '.[] | "**\(.path):\(.line)** - \(.body)\n"' >> fallback.txt
               FALLBACK_FULL=$(cat fallback.txt)
               FALLBACK_ESCAPED=$(echo "$FALLBACK_FULL" | jq -Rs .)
@@ -242,11 +235,11 @@ jobs:
                 "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
                 -d "{\"body\": $FALLBACK_ESCAPED}"
             else
-              echo "✅ Review created successfully with ID: $REVIEW_ID"
+              echo "Review created successfully with ID: $REVIEW_ID"
             fi
           fi
 
       - name: Summary
-        if: steps.diff.outputs.skip != 'true'
+        if: ${{ steps.diff.outputs.skip != 'true' }}
         run: |
-          echo "✅ AI code review completed for PR #${{ github.event.pull_request.number }}"
+          echo "AI code review completed for PR #${{ github.event.pull_request.number }}"
