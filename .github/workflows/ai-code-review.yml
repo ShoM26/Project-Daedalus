@@ -115,7 +115,7 @@ jobs:
               }],
               \"generationConfig\": {
                 \"temperature\": 0.3,
-                \"maxOutputTokens\": 32768
+                \"maxOutputTokens\": 8192
               }
             }")
           
@@ -186,39 +186,71 @@ jobs:
           echo ""
           echo "=========================="
           
+          # Check if response was truncated
+          FINISH_REASON=$(echo "$RESPONSE" | jq -r '.candidates[0].finishReason // "UNKNOWN"')
+          echo "Finish reason: $FINISH_REASON"
+          
+          if [ "$FINISH_REASON" == "MAX_TOKENS" ]; then
+            echo "WARNING: Response was truncated due to token limit. Attempting to salvage partial JSON..."
+          fi
+          
+          # Remove markdown code fences first
+          REVIEW_CLEAN=$(echo "$REVIEW" | sed 's/```json//g' | sed 's/```//g')
+          
           # Extract JSON from the response - try multiple methods
           echo "Attempting to extract JSON..."
           
-          # Method 1: Direct JSON parse if entire response is JSON
-          if echo "$REVIEW" | jq empty 2>/dev/null; then
-            COMMENTS=$(echo "$REVIEW" | jq -c '.')
+          # Method 1: Direct JSON parse if entire response is valid JSON
+          if echo "$REVIEW_CLEAN" | jq empty 2>/dev/null; then
+            COMMENTS=$(echo "$REVIEW_CLEAN" | jq -c '.')
             echo "Method 1 success: Entire response is valid JSON"
           else
-            # Method 2: Look for JSON array between [ and ]
-            COMMENTS=$(echo "$REVIEW" | grep -ozP '\[[\s\S]*\]' | tr -d '\0' | head -1)
+            # Method 2: Try to fix incomplete JSON by finding last complete object
+            # Find the start of the array
+            COMMENTS=$(echo "$REVIEW_CLEAN" | grep -ozP '\[[\s\S]*' | tr -d '\0')
             
-            if [ ! -z "$COMMENTS" ] && echo "$COMMENTS" | jq empty 2>/dev/null; then
-              echo "Method 2 success: Extracted JSON array with grep"
-              COMMENTS=$(echo "$COMMENTS" | jq -c '.')
-            else
-              # Method 3: Remove markdown code blocks and extract
-              COMMENTS=$(echo "$REVIEW" | sed 's/```json//g' | sed 's/```//g' | grep -ozP '\[[\s\S]*\]' | tr -d '\0' | head -1)
+            # If we have an opening bracket, try to close it properly
+            if [[ "$COMMENTS" == "["* ]]; then
+              # Remove any incomplete last object (anything after the last complete })
+              COMMENTS=$(echo "$COMMENTS" | sed 's/,[^}]*$//')
               
-              if [ ! -z "$COMMENTS" ] && echo "$COMMENTS" | jq empty 2>/dev/null; then
-                echo "Method 3 success: Removed markdown and extracted"
+              # Make sure it ends with ]
+              if [[ "$COMMENTS" != *"]" ]]; then
+                COMMENTS="${COMMENTS}]"
+              fi
+              
+              # Validate
+              if echo "$COMMENTS" | jq empty 2>/dev/null; then
+                echo "Method 2 success: Fixed incomplete JSON"
                 COMMENTS=$(echo "$COMMENTS" | jq -c '.')
               else
-                # Method 4: Use sed to find array boundaries
-                COMMENTS=$(echo "$REVIEW" | sed -n '/\[/,/\]/p')
+                echo "Method 2 failed: Could not fix incomplete JSON"
                 
-                if [ ! -z "$COMMENTS" ] && echo "$COMMENTS" | jq empty 2>/dev/null; then
-                  echo "Method 4 success: Used sed to extract"
-                  COMMENTS=$(echo "$COMMENTS" | jq -c '.')
+                # Method 3: Extract only complete objects
+                # Find all complete JSON objects between { and }
+                TEMP_COMMENTS="["
+                while IFS= read -r line; do
+                  OBJ=$(echo "$line" | grep -oP '\{[^}]*\}')
+                  if [ ! -z "$OBJ" ] && echo "$OBJ" | jq empty 2>/dev/null; then
+                    if [ "$TEMP_COMMENTS" != "[" ]; then
+                      TEMP_COMMENTS="${TEMP_COMMENTS},"
+                    fi
+                    TEMP_COMMENTS="${TEMP_COMMENTS}${OBJ}"
+                  fi
+                done <<< "$REVIEW_CLEAN"
+                TEMP_COMMENTS="${TEMP_COMMENTS}]"
+                
+                if echo "$TEMP_COMMENTS" | jq empty 2>/dev/null && [ "$TEMP_COMMENTS" != "[]" ]; then
+                  echo "Method 3 success: Extracted complete objects only"
+                  COMMENTS=$(echo "$TEMP_COMMENTS" | jq -c '.')
                 else
                   echo "All extraction methods failed"
                   COMMENTS=""
                 fi
               fi
+            else
+              echo "Could not find JSON array start"
+              COMMENTS=""
             fi
           fi
           
@@ -241,31 +273,33 @@ jobs:
             COMMIT_SHA=$(git rev-parse HEAD)
             
             # Build the review comments array for GitHub API
-            REVIEW_COMMENTS="[]"
+            # Process all comments at once instead of in a loop
+            REVIEW_COMMENTS=$(echo "$COMMENTS" | jq -c '[.[] | {
+              path: .path,
+              line: (.line | tonumber),
+              side: "RIGHT",
+              body: .body
+            } | select(.path != null and .line != null and .body != null)]')
             
-            # Parse each comment and add to array with side field
-            echo "$COMMENTS" | jq -c '.[]' | while read -r comment; do
-              PATH=$(echo "$comment" | jq -r '.path')
-              LINE=$(echo "$comment" | jq -r '.line')
-              BODY=$(echo "$comment" | jq -r '.body')
+            # Verify files exist in the PR
+            VALID_COMMENTS="[]"
+            COMMENT_COUNT=$(echo "$REVIEW_COMMENTS" | jq 'length')
+            
+            echo "Processing $COMMENT_COUNT comments..."
+            
+            for i in $(seq 0 $(($COMMENT_COUNT - 1))); do
+              PATH_FILE=$(echo "$REVIEW_COMMENTS" | jq -r ".[$i].path")
               
-              # Verify the file exists in the PR
-              if grep -Fxq "$PATH" changed_files.txt; then
-                # Add comment to array with side: RIGHT
-                REVIEW_COMMENTS=$(echo "$REVIEW_COMMENTS" | jq --arg path "$PATH" --arg line "$LINE" --arg body "$BODY" \
-                  '. += [{
-                    "path": $path,
-                    "line": ($line | tonumber),
-                    "side": "RIGHT",
-                    "body": $body
-                  }]')
+              if grep -Fxq "$PATH_FILE" changed_files.txt; then
+                COMMENT=$(echo "$REVIEW_COMMENTS" | jq -c ".[$i]")
+                VALID_COMMENTS=$(echo "$VALID_COMMENTS" | jq -c ". += [$COMMENT]")
+                echo "  ✓ $PATH_FILE"
               else
-                echo "Warning: File $PATH not in changed files, skipping comment"
+                echo "  ✗ Skipping $PATH_FILE (not in changed files)"
               fi
-            done > /tmp/comments_processed.txt
+            done
             
-            # Read the processed comments
-            REVIEW_COMMENTS=$(cat /tmp/comments_processed.txt | tail -1)
+            echo "Valid comments: $(echo "$VALID_COMMENTS" | jq 'length')"
             
             if [ "$REVIEW_COMMENTS" == "[]" ]; then
               echo "No valid comments to post"
