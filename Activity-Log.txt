@@ -67,3 +67,5 @@
 10/4/25: Shifted my focus to the frontend today and absolutely banged out a new feature in 4.5 hours today. Pretty much start to finish for the individual plant modal pop up with the linechart made using recharts. I think it'll look sick when the moisture data is normalized. Going to polish this up tomorrow and ship it.
 
 10/5/25: Cleaned up the plantcard modal creating a custom confirmation window for the delete this. stuck my toes in the water of css to clean up the messy claude styles. creating the pull request and merging probably tomorrow. Also I remembered I have the ESP32 that I could use as a second device. That would be cool.
+
+10/7/25: Decided I would hop on the hype train of AI implemented into my workflow. I am calling Gemini's public API to comment on my pull requests in GitHub. I got it so that it made a comment on the pr itself but it seems lack luster so I am aiming for it to leave comments of each line of code that it deems wrong. I think this can be wrapped up tomorrow
