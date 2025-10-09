@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-
-//GEMINI RIGHTS ALBUM WAS OVERHYPED
 namespace ProjectDaedalus.API.Controllers
 {
     [ApiController]
