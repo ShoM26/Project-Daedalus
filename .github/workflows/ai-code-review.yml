@@ -301,7 +301,7 @@ jobs:
             
             echo "Valid comments: $(echo "$VALID_COMMENTS" | jq 'length')"
             
-            if [ "$REVIEW_COMMENTS" == "[]" ]; then
+            if [ "$VALID_COMMENTS" == "[]" ]; then
               echo "No valid comments to post"
               exit 0
             fi
