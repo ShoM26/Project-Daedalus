@@ -270,7 +270,7 @@ jobs:
               -d "{\"body\": $SUMMARY_ESCAPED}"
           else
             # Get the latest commit SHA
-            COMMIT_SHA=$(git rev-parse HEAD)
+            COMMIT_SHA="${{ github.event.pull_request.head.sha }}"
             
             # Build the review comments array for GitHub API
             # Process all comments at once instead of in a loop
