@@ -69,3 +69,5 @@
 10/5/25: Cleaned up the plantcard modal creating a custom confirmation window for the delete this. stuck my toes in the water of css to clean up the messy claude styles. creating the pull request and merging probably tomorrow. Also I remembered I have the ESP32 that I could use as a second device. That would be cool.
 
 10/7/25: Decided I would hop on the hype train of AI implemented into my workflow. I am calling Gemini's public API to comment on my pull requests in GitHub. I got it so that it made a comment on the pr itself but it seems lack luster so I am aiming for it to leave comments of each line of code that it deems wrong. I think this can be wrapped up tomorrow
+
+10/8/25: I increased the logging and the prompt is working but parsing the json is difficult. Also worked on my database management system class project and I will be taking the lead as project manager which should be fun. I created an extensive roadmap and a git instruction doc for now.
