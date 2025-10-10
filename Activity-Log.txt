@@ -71,3 +71,5 @@
 10/7/25: Decided I would hop on the hype train of AI implemented into my workflow. I am calling Gemini's public API to comment on my pull requests in GitHub. I got it so that it made a comment on the pr itself but it seems lack luster so I am aiming for it to leave comments of each line of code that it deems wrong. I think this can be wrapped up tomorrow
 
 10/8/25: I increased the logging and the prompt is working but parsing the json is difficult. Also worked on my database management system class project and I will be taking the lead as project manager which should be fun. I created an extensive roadmap and a git instruction doc for now.
+
+10/9/25: I got the AI code reviewer to work and posted about it on linkedin also made some progress on how tos for group project. Its pretty freaking sweet that my request to Gemini's public api is a prompt to call multiple GitHub public apis
