@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectDaedalus.API.Attributes;
@@ -11,6 +12,7 @@ namespace ProjectDaedalus.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class DevicesController : ControllerBase
     {
         private readonly DaedalusContext _context;
