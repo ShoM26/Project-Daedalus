@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectDaedalus.API.Attributes;
@@ -10,6 +11,7 @@ namespace ProjectDaedalus.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PlantsController : ControllerBase
     {
         private readonly DaedalusContext _context;
@@ -22,6 +24,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         
         [HttpGet("health")]
+        [AllowAnonymous]
         public IActionResult Health()
         {
             return Ok(new { status = "healthy", timestamp = DateTime.UtcNow });
@@ -78,6 +81,7 @@ namespace ProjectDaedalus.API.Controllers
         //POST add new plant to database
         [HttpPost("internal")]
         [InternalApi]
+        [AllowAnonymous]
         public async Task<ActionResult<PlantDto>> AddPlant([FromBody] PlantDto dto)
         {
             if (dto == null)

@@ -86,6 +86,7 @@ namespace ProjectDaedalus.API.Controllers
         //POST register a new Device
         [HttpPost("internal/register")]
         [InternalApi]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterDevice([FromBody] DeviceDto dto)
         {
             if (dto == null)
