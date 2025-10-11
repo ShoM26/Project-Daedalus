@@ -8,7 +8,7 @@ using ProjectDaedalus.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using YourProjectName.Services;
+using ProjectDaedalus.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
