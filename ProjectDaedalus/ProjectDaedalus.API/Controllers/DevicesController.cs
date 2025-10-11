@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectDaedalus.API.Attributes;
@@ -11,6 +12,7 @@ namespace ProjectDaedalus.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class DevicesController : ControllerBase
     {
         private readonly DaedalusContext _context;
@@ -84,6 +86,7 @@ namespace ProjectDaedalus.API.Controllers
         //POST register a new Device
         [HttpPost("internal/register")]
         [InternalApi]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterDevice([FromBody] DeviceDto dto)
         {
             if (dto == null)

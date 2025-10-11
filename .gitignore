@@ -98,6 +98,9 @@ project.packagespec.json
 
 ############################
 # App Settings
+appsettings.*.json
+appsettings.Development.json
+
 ############################
 
 # Ignore local dev secrets
