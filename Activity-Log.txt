@@ -73,3 +73,5 @@
 10/8/25: I increased the logging and the prompt is working but parsing the json is difficult. Also worked on my database management system class project and I will be taking the lead as project manager which should be fun. I created an extensive roadmap and a git instruction doc for now.
 
 10/9/25: I got the AI code reviewer to work and posted about it on linkedin also made some progress on how tos for group project. Its pretty freaking sweet that my request to Gemini's public api is a prompt to call multiple GitHub public apis
+
+10/11/25: Did security cleanup today. Rotated keys and added files to git ignore added authorization to certain endpoints or controllers. This is great practice for the class project where I will be creating rulesets and environment configurations.
