@@ -4,6 +4,7 @@ import { plantService } from '../services/plantService';
 import  authService  from '../services/authService';
 import Modal from '../components/Modal';
 import PlantDetailModal from '../components/PlantDetailModal';
+import AddPairingModal from '../components/AddPairingModal';
 
 function Dashboard() {
   // STATE - data that can change and triggers re-renders
@@ -12,6 +13,8 @@ function Dashboard() {
   const [error, setError] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+
 
   // FETCH DATA FROM API when component loads
   useEffect(() => {
@@ -183,6 +186,13 @@ function Dashboard() {
           >
             Needs Attention ({needsAttention})
           </button>
+          <button onClick={() => setShowAddModal(true)}>+ Add Plant Pairing</button>
+   
+          <AddPairingModal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onSuccess={null}
+          />
         </div>
       </div>
 

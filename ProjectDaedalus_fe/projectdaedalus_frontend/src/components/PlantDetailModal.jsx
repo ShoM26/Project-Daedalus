@@ -1,4 +1,3 @@
-// src/components/PlantDetailModal.jsx
 import React, { useState } from 'react';
 import SensorChart from './SensorChart';
 import '../styles/PlantDetailModal.css';
@@ -12,17 +11,12 @@ function PlantDetailModal({ userPlant, onDelete, onClose }) {
   const [deleteError, setDeleteError] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Destructure for cleaner code
-  
-
-  // Handler for delete button
   const handleDelete = async () => {
-    // Confirm before deleting
       setShowConfirm(true);
     };
 
     const handleConfirmedDelete = async () => {
-      setShowConfirm(false); // Close the dialog
+      setShowConfirm(false);
       setDeleting(true);
       setDeleteError(null);
 
@@ -41,7 +35,6 @@ function PlantDetailModal({ userPlant, onDelete, onClose }) {
 
   return (
     <div className="plant-detail-modal">
-      {/* Header Section */}
       <div className="modal-header">
         <div>
           <h2 className="familiar-name">{plant.familiarName}</h2>
@@ -54,8 +47,6 @@ function PlantDetailModal({ userPlant, onDelete, onClose }) {
           Error: {deleteError}
         </div>
       )}
-
-      {/* Plant Info Grid */}
       <div className="plant-info-grid">
         <div className="info-card">
           <h3>Current Moisture</h3>
@@ -76,8 +67,6 @@ function PlantDetailModal({ userPlant, onDelete, onClose }) {
           <p className="large-number">{device.id}</p>
         </div>
       </div>
-
-      {/* Fun Fact Section */}
       {plant.funFact && (
         <div className="fun-fact">
           <h3>🌱 Did you know?</h3>
