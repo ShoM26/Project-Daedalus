@@ -132,16 +132,16 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         // PUT update device assignment
-        [HttpPut("{id}/device")]
-        public async Task<ActionResult> UpdateDeviceAssignment(int id, UserPlantCreateDto dto)
+        [HttpPut("device/{deviceId}")]
+        public async Task<ActionResult> UpdateDeviceAssignment(UserPlantCreateDto dto)
         {
             try
             {
-                var existingUserPlant = await _userPlantRepository.GetByIdAsync(id);
+                var existingUserPlant = await _userPlantRepository.GetUserPlantByDeviceIdAsync(dto.DeviceId);
 
                 if (existingUserPlant == null)
                 {
-                    return NotFound($"User plant with ID {id} not found.");
+                    return NotFound($"No pairing with device Id {dto.DeviceId} found.");
                 }
 
                 // Check if the new device assignment would create a duplicate
@@ -157,6 +157,7 @@ namespace ProjectDaedalus.API.Controllers
                 existingUserPlant.DeviceId = dto.DeviceId;
                 existingUserPlant.UserId = dto.UserId;
                 existingUserPlant.PlantId = dto.PlantId;
+                existingUserPlant.DateAdded = DateTime.Now;
                 await _userPlantRepository.UpdateAsync(existingUserPlant);
                 return Ok(existingUserPlant);
             }
