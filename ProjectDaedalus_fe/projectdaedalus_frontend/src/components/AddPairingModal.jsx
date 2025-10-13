@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import ConfirmDialog from './ConfirmDialog';
 import { plantService } from '../services/plantService';
+import '../styles/AddPairingModal.css';
+
 
 function AddPairingModal({ isOpen, onClose, onSuccess }) {
   const [devices, setDevices] = useState([]);
@@ -16,7 +18,7 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [confirmMessage, setConfirmMessage] = useState('');
 
-  const userId = parseInt(localStorage.getItem('userId'));
+  const userId = JSON.parse(localStorage.getItem('user')).userId;
 
   useEffect(() => {
     if (isOpen) {
@@ -172,13 +174,13 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
             >
               <option value="">-- Choose a device --</option>
               {devices.map((device) => {
-                const pairing = getExistingPairing(device.id);
+                const pairing = getExistingPairing(device.deviceId);
                 const label = pairing
-                  ? `Device ${device.id} (currently: ${getPlantName(pairing.plant.id)})`
-                  : `Device ${device.id}`;
+                  ? `Device ${device.deviceId} (currently: ${getPlantName(pairing.plant.plantId)})`
+                  : `Device ${device.deviceId}`;
                 
                 return (
-                  <option key={device.id} value={device.id}>
+                  <option key={device.deviceId} value={device.deviceId}>
                     {label}
                   </option>
                 );
@@ -196,7 +198,7 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
             >
               <option value="">-- Choose a plant --</option>
               {plants.map((plant) => (
-                <option key={plant.id} value={plant.id}>
+                <option key={plant.plantId} value={plant.plantId}>
                   {plant.familiarName} ({plant.scientificName})
                 </option>
               ))}

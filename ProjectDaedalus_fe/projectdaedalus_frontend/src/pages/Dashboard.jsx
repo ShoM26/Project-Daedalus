@@ -116,6 +116,11 @@ function Dashboard() {
     setSelectedFilter(filter);
   };
 
+  const handlePairingSuccess = () => {
+    // Refresh your dashboard data
+    setSelectedPlant(null); // or whatever function reloads your user plants
+  };
+
   const handleCardClick = (plant) => {
     setSelectedPlant(plant);
   };
@@ -159,6 +164,12 @@ function Dashboard() {
               <span className="stat-number">{needsAttention}</span>
               <span className="stat-label">Need Attention</span>
             </div>
+            <button 
+              className="add-pairing-button" 
+              onClick={() => setShowAddModal(true)}
+            >
+              + Add Plant Pairing
+            </button>
           </div>
         )}
       </header>
@@ -191,7 +202,7 @@ function Dashboard() {
           <AddPairingModal
             isOpen={showAddModal}
             onClose={() => setShowAddModal(false)}
-            onSuccess={null}
+            onSuccess={handlePairingSuccess}
           />
         </div>
       </div>
