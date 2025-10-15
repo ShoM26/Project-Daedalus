@@ -36,6 +36,9 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
         plantService.getAllPlants(),
         plantService.getUserPlants(userId)
       ]);
+
+      console.log('Existing Pairings:', pairingsData); // ADD THIS
+      console.log('Devices:', devicesData);
       
       setDevices(devicesData);
       setPlants(plantsData);
@@ -48,12 +51,12 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
   };
 
   const getExistingPairing = (deviceId) => {
-    return existingPairings.find(p => p.device.id === parseInt(deviceId));
+    return existingPairings.find(p => p.deviceId === parseInt(deviceId));
   };
 
   // Helper to get plant name by id
   const getPlantName = (plantId) => {
-    const plant = plants.find(p => p.id === plantId);
+    const plant = plants.find(p => p.plantId === plantId);
     return plant ? plant.familiarName : 'Unknown Plant';
   };
 
@@ -63,10 +66,16 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
       return;
     }
 
+    console.log('Selected Device ID:', selectedDeviceId, typeof selectedDeviceId); // CHECK TYPE
+    console.log('All Existing Pairings:', existingPairings);
+
     const existingPairing = getExistingPairing(selectedDeviceId);
 
+      console.log('Existing Pairing Found:', existingPairing);
+
+
     if (existingPairing) {
-      const currentPlantName = getPlantName(existingPairing.plant.id);
+      const currentPlantName = getPlantName(existingPairing.plantId);
       const newPlantName = getPlantName(parseInt(selectedPlantId));
       
       setConfirmMessage(
@@ -114,33 +123,30 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
     setError(null);
 
     try {
-      const deleteResult = await plantService.deleteSensorReadingsByDevice(
-        parseInt(selectedDeviceId)
-      );
 
-      if (!deleteResult.success) {
-        setError('Failed to delete sensor readings');
-        setLoading(false);
-        return;
+      try {
+        await plantService.deleteSensorReadingsByDevice(parseInt(selectedDeviceId));
+      } catch(deleteError){
+        console.log('No sensor readings to delete or delete failed:', deleteError);
       }
 
-      const updateResult = await plantService.putUserPlant(
+        const updateResult = await plantService.putUserPlant(
         parseInt(selectedDeviceId),
         userId,
         parseInt(selectedPlantId)
       );
 
       if (updateResult.success) {
-        onSuccess();
+        onSuccess(); // Refresh dashboard
         resetAndClose();
       } else {
         setError(updateResult.message || 'Failed to update pairing');
       }
-    } catch (err) {
-      setError('Error updating pairing: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
+      } catch (err) {
+        setError('Error updating pairing: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
   };
 
   const resetAndClose = () => {
@@ -176,7 +182,7 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
               {devices.map((device) => {
                 const pairing = getExistingPairing(device.deviceId);
                 const label = pairing
-                  ? `Device ${device.deviceId} (currently: ${getPlantName(pairing.plant.plantId)})`
+                  ? `Device ${device.deviceId} (currently: ${getPlantName(pairing.plantId)})`
                   : `Device ${device.deviceId}`;
                 
                 return (

@@ -117,8 +117,8 @@ function Dashboard() {
   };
 
   const handlePairingSuccess = () => {
-    // Refresh your dashboard data
-    setSelectedPlant(null); // or whatever function reloads your user plants
+    fetchPlants();
+    setShowAddModal(false);
   };
 
   const handleCardClick = (plant) => {
@@ -202,7 +202,7 @@ function Dashboard() {
           <AddPairingModal
             isOpen={showAddModal}
             onClose={() => setShowAddModal(false)}
-            onSuccess={handlePairingSuccess}
+            onSuccess={() => handlePairingSuccess()}
           />
         </div>
       </div>
