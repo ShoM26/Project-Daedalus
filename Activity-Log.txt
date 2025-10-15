@@ -77,3 +77,5 @@
 10/11/25: Did security cleanup today. Rotated keys and added files to git ignore added authorization to certain endpoints or controllers. This is great practice for the class project where I will be creating rulesets and environment configurations.
 
 10/13/25: Created a new feature branch for the add pairing button. Not sure how the edit will be working but that is a problem for another day. Along with maybe handling the 404 no sensor readings found. very good day
+
+10/14/25: Worked more on the add/edit device pairings. Lots of intertwined endpoints called and sometimes difficult to imagine the route but thats why we're doing it
