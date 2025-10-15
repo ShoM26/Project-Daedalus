@@ -55,7 +55,6 @@ namespace ProjectDaedalus.Infrastructure.Migrations
                         .HasColumnName("last_seen");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("enum('Active','Inactive','Disconnected')")
                         .HasColumnName("status");
 
