@@ -5,6 +5,7 @@ import  authService  from '../services/authService';
 import Modal from '../components/Modal';
 import PlantDetailModal from '../components/PlantDetailModal';
 import AddPairingModal from '../components/AddPairingModal';
+import '../styles/Dashboard.css';
 
 function Dashboard() {
   const [plants, setPlants] = useState([]);
@@ -30,7 +31,12 @@ function Dashboard() {
             try {
               reading = await plantService.getLatestReading(userPlant.device.deviceId);
             } catch (err) {
-              console.error(`Failed to get reading for device ${userPlant.device.deviceId}`);
+              if(reading === null){
+
+              }
+              else{
+                console.error(`Failed to get reading for device ${userPlant.device.deviceId}`);
+                }
             }
           }
 
