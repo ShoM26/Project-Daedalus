@@ -40,6 +40,7 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task<T> UpdateAsync(T entity)
     {
         _dbSet.Update(entity);
+        await _context.SaveChangesAsync();
         return await Task.FromResult(entity);
     }
 
