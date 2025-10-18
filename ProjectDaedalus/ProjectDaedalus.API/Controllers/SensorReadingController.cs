@@ -110,7 +110,7 @@ namespace ProjectDaedalus.API.Controllers
                 var reading = await _sensorReadingRepository.GetLatestReadingByDeviceIdAsync(deviceId);
                 if (reading == null)
                 {
-                    return NotFound($"Device with ID {deviceId} not found.");
+                    return NoContent(); //204 handled by front end
                 }
                 
                 return Ok(reading);
@@ -131,9 +131,12 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return BadRequest("Start date cannot be after end date");
                 }
-
                 var readings = await _sensorReadingRepository.GetReadingsForDeviceByRangeAsync(deviceId, startDate, endDate);
-
+                Console.WriteLine("Made it past the readings");
+                if (readings.Any())
+                {
+                    return NoContent(); //204 which front end looks for
+                }
                 var readingDtos = readings.Select(r => new SensorReadingSelectDto
                 {
                     DeviceId = r.DeviceId,
