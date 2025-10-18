@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
+import '../styles/Login.css';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -35,7 +36,6 @@ function Login() {
         console.log('Login successful:', result.user);
         navigate('/dashboard');
       } else {
-        // Show error message
         setError(result.message || 'Login failed');
       }
     } catch (error) {

@@ -4,23 +4,25 @@ import { plantService } from '../services/plantService';
 import  authService  from '../services/authService';
 import Modal from '../components/Modal';
 import PlantDetailModal from '../components/PlantDetailModal';
+import AddPairingModal from '../components/AddPairingModal';
+import '../styles/Dashboard.css';
 
 function Dashboard() {
-  // STATE - data that can change and triggers re-renders
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedPlant, setSelectedPlant] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  // FETCH DATA FROM API when component loads
-  useEffect(() => {
+
+
   const fetchPlants = async () => {
     try {
       setLoading(true);
       const currentUser = authService.getCurrentUser();
       const apiPlants = await plantService.getUserPlants(currentUser.userId);
-      
+
       const plantsWithReadings = await Promise.all(
         apiPlants.map(async (userPlant) => {
           let reading = null;
@@ -29,7 +31,12 @@ function Dashboard() {
             try {
               reading = await plantService.getLatestReading(userPlant.device.deviceId);
             } catch (err) {
-              console.error(`Failed to get reading for device ${userPlant.device.deviceId}`);
+              if(reading === null){
+
+              }
+              else{
+                console.error(`Failed to get reading for device ${userPlant.device.deviceId}`);
+                }
             }
           }
 
@@ -40,12 +47,10 @@ function Dashboard() {
         })
       );
 
-      // Transform API data to match component expectations
       const transformedPlants = plantsWithReadings.map(userPlant => {
         const reading = userPlant.latestReading;
         const plant = userPlant.plant;
         
-        // Calculate status based on reading
         let status = "offline";
         if (reading && reading.moistureLevel != null) {
           if (reading.moistureLevel > plant.moistureHighRange) {
@@ -101,16 +106,20 @@ function Dashboard() {
     }
   };
 
-  fetchPlants();
+  useEffect(() => {
+    fetchPlants();
 }, []);
 
-  // DERIVED STATE - calculated from existing state
   const healthyPlants = plants.filter(p => p.status === 'healthy').length;
   const needsAttention = plants.filter(p => p.status !== 'healthy').length;
 
-  // EVENT HANDLER - function that responds to user actions
   const handleFilterChange = (filter) => {
     setSelectedFilter(filter);
+  };
+
+  const handlePairingSuccess = () => {
+    fetchPlants();
+    setShowAddModal(false);
   };
 
   const handleCardClick = (plant) => {
@@ -122,11 +131,10 @@ function Dashboard() {
   };
 
   const handlePlantDeleted = (deletedPlantId) => {
-    setUserPlants(userPlant.filter(plant => plant.id !== deltedPlantId));
+    setPlants(userPlant.filter(plant => plant.plantId !== deletedPlantId));
     setSelectedPlant(null);
   };
 
-  // FILTERED DATA - show only plants matching current filter
   const filteredPlants = plants.filter(plant => {
     if (selectedFilter === 'all') return true;
     if (selectedFilter === 'needs-attention') return plant.status !== 'healthy';
@@ -135,7 +143,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Dashboard Header */}
       <header className="dashboard-header">
         <h1>Plant Monitor Dashboard</h1>
         {loading ? (
@@ -156,15 +163,19 @@ function Dashboard() {
               <span className="stat-number">{needsAttention}</span>
               <span className="stat-label">Need Attention</span>
             </div>
+            <button 
+              className="add-pairing-button" 
+              onClick={() => setShowAddModal(true)}
+            >
+              + Add Plant Pairing
+            </button>
           </div>
         )}
       </header>
 
-      {/* Filter Controls */}
       <div className="filter-controls">
         <h3>Filter Plants:</h3>
         <div className="filter-buttons">
-          {/* Each button calls handleFilterChange with different values */}
           <button 
             className={selectedFilter === 'all' ? 'active' : ''}
             onClick={() => handleFilterChange('all')}
@@ -183,6 +194,12 @@ function Dashboard() {
           >
             Needs Attention ({needsAttention})
           </button>
+   
+          <AddPairingModal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onSuccess={() => handlePairingSuccess()}
+          />
         </div>
       </div>
 
