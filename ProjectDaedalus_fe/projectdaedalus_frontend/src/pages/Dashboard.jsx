@@ -7,7 +7,6 @@ import PlantDetailModal from '../components/PlantDetailModal';
 import AddPairingModal from '../components/AddPairingModal';
 
 function Dashboard() {
-  // STATE - data that can change and triggers re-renders
   const [plants, setPlants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,14 +15,13 @@ function Dashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
 
 
-  // FETCH DATA FROM API when component loads
-  useEffect(() => {
+
   const fetchPlants = async () => {
     try {
       setLoading(true);
       const currentUser = authService.getCurrentUser();
       const apiPlants = await plantService.getUserPlants(currentUser.userId);
-      
+
       const plantsWithReadings = await Promise.all(
         apiPlants.map(async (userPlant) => {
           let reading = null;
@@ -43,12 +41,10 @@ function Dashboard() {
         })
       );
 
-      // Transform API data to match component expectations
       const transformedPlants = plantsWithReadings.map(userPlant => {
         const reading = userPlant.latestReading;
         const plant = userPlant.plant;
         
-        // Calculate status based on reading
         let status = "offline";
         if (reading && reading.moistureLevel != null) {
           if (reading.moistureLevel > plant.moistureHighRange) {
@@ -104,14 +100,13 @@ function Dashboard() {
     }
   };
 
-  fetchPlants();
+  useEffect(() => {
+    fetchPlants();
 }, []);
 
-  // DERIVED STATE - calculated from existing state
   const healthyPlants = plants.filter(p => p.status === 'healthy').length;
   const needsAttention = plants.filter(p => p.status !== 'healthy').length;
 
-  // EVENT HANDLER - function that responds to user actions
   const handleFilterChange = (filter) => {
     setSelectedFilter(filter);
   };
@@ -130,11 +125,10 @@ function Dashboard() {
   };
 
   const handlePlantDeleted = (deletedPlantId) => {
-    setUserPlants(userPlant.filter(plant => plant.id !== deltedPlantId));
+    setPlants(userPlant.filter(plant => plant.plantId !== deletedPlantId));
     setSelectedPlant(null);
   };
 
-  // FILTERED DATA - show only plants matching current filter
   const filteredPlants = plants.filter(plant => {
     if (selectedFilter === 'all') return true;
     if (selectedFilter === 'needs-attention') return plant.status !== 'healthy';
@@ -143,7 +137,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Dashboard Header */}
       <header className="dashboard-header">
         <h1>Plant Monitor Dashboard</h1>
         {loading ? (
@@ -174,11 +167,9 @@ function Dashboard() {
         )}
       </header>
 
-      {/* Filter Controls */}
       <div className="filter-controls">
         <h3>Filter Plants:</h3>
         <div className="filter-buttons">
-          {/* Each button calls handleFilterChange with different values */}
           <button 
             className={selectedFilter === 'all' ? 'active' : ''}
             onClick={() => handleFilterChange('all')}
@@ -197,7 +188,6 @@ function Dashboard() {
           >
             Needs Attention ({needsAttention})
           </button>
-          <button onClick={() => setShowAddModal(true)}>+ Add Plant Pairing</button>
    
           <AddPairingModal
             isOpen={showAddModal}

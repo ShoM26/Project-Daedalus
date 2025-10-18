@@ -1,11 +1,9 @@
 // src/components/PlantCard.jsx
 import { getStatusColor } from '../data/mockData';
 
-// This is a React COMPONENT - a reusable piece of UI
 function PlantCard({ pairing, onClick }) {
   const { plant, device, currentReading, status } = pairing;
   
-  // HELPER FUNCTION - calculate if moisture is in ideal range
   const isInIdealRange = () => {
     const { moistureLevel } = currentReading;
     return moistureLevel >= plant.idealMoistureMin && moistureLevel <= plant.idealMoistureMax;
@@ -13,10 +11,9 @@ function PlantCard({ pairing, onClick }) {
 
   return (
     <div className="plant-card"
-    onClick={onClick}  // ← Add this
+    onClick={onClick} 
       style={{ cursor: 'pointer' }}>
-      {/* Plant Name Header */}
-      
+
       <div className="plant-header">
         <h3>{plant.familiarName}</h3>
         <span 
@@ -27,20 +24,17 @@ function PlantCard({ pairing, onClick }) {
         </span>
       </div>
 
-      {/* Device Info */}
       <div className="device-info">
         <p><strong>Device:</strong> {device.id}</p>
         <p><strong>Battery:</strong> {currentReading.batteryLevel}%</p>
       </div>
 
-      {/* Moisture Reading - the main data point */}
       <div className="moisture-section">
         <div className="moisture-reading">
           <span className="moisture-value">{currentReading.moistureLevel}%</span>
           <span className="moisture-label">Soil Moisture</span>
         </div>
         
-        {/* Ideal Range Bar */}
         <div className="ideal-range">
           <span>Ideal: {plant.idealMoistureMin}% - {plant.idealMoistureMax}%</span>
           <div className="range-bar">
@@ -55,7 +49,6 @@ function PlantCard({ pairing, onClick }) {
         </div>
       </div>
 
-      {/* Scientific name and fun fact */}
       <div className="plant-details">
         <p className="scientific-name">
           <em>{plant.scientificName}</em>
@@ -63,7 +56,6 @@ function PlantCard({ pairing, onClick }) {
         <p className="fun-fact">{plant.funFact}</p>
       </div>
 
-      {/* Last updated timestamp */}
       <div className="timestamp">
         Last reading: {new Date(currentReading.timestamp).toLocaleString()}
       </div>
@@ -71,5 +63,4 @@ function PlantCard({ pairing, onClick }) {
   );
 }
 
-// EXPORT - makes this component available to other files
 export default PlantCard;

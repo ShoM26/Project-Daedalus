@@ -36,9 +36,6 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
         plantService.getAllPlants(),
         plantService.getUserPlants(userId)
       ]);
-
-      console.log('Existing Pairings:', pairingsData); // ADD THIS
-      console.log('Devices:', devicesData);
       
       setDevices(devicesData);
       setPlants(plantsData);
@@ -66,13 +63,7 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
       return;
     }
 
-    console.log('Selected Device ID:', selectedDeviceId, typeof selectedDeviceId); // CHECK TYPE
-    console.log('All Existing Pairings:', existingPairings);
-
     const existingPairing = getExistingPairing(selectedDeviceId);
-
-      console.log('Existing Pairing Found:', existingPairing);
-
 
     if (existingPairing) {
       const currentPlantName = getPlantName(existingPairing.plantId);
@@ -121,7 +112,6 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
   const updatePairing = async () => {
     setLoading(true);
     setError(null);
-
     try {
 
       try {
@@ -137,6 +127,7 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
       );
 
       if (updateResult.success) {
+
         onSuccess(); // Refresh dashboard
         resetAndClose();
       } else {
