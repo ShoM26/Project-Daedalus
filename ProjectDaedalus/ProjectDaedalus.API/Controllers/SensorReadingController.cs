@@ -178,7 +178,7 @@ namespace ProjectDaedalus.API.Controllers
                 var readings = await _sensorReadingRepository.GetReadingsByDeviceIdAsync(deviceId);
                 if (!readings.Any())
                 {
-                    return NotFound($"No sensor readings found for device {deviceId}");
+                    return NoContent(); //allows it to be gracefully handled on the frontend
                 }
 
                 await _sensorReadingRepository.DeleteManyAsync(readings);
