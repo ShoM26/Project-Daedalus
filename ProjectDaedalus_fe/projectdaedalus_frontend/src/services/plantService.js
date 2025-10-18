@@ -11,11 +11,7 @@ export const plantService = {
   },
   // Get latest sensor readings for a specific device
   getLatestReading: async (deviceId) => {
-    const response =  await apiService.get(`/SensorReadings/device/${deviceId}/reading`);
-    if (response.NoContent){
-      return null;
-    }
-    return response;
+    return await apiService.get(`/SensorReadings/device/${deviceId}/reading`);
   },
   deleteUserPlant: async () => {
     return await apiService.delete(`/UserPlants/${userPlantId}`);
@@ -58,7 +54,6 @@ export const plantService = {
       await apiService.delete(`/SensorReadings/${deviceId}`);
       return { success: true };
     } catch (error) {
-      console.error('Error updating pairing:', error);
       console.error('Error deleting sensor readings:', error);
       return { success: false, message: error.message };
     }
