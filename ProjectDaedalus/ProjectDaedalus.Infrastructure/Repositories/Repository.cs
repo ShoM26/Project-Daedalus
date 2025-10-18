@@ -14,6 +14,7 @@ public class Repository<T> : IRepository<T> where T : class
 {
     protected readonly DaedalusContext _context;
     protected readonly DbSet<T> _dbSet;
+    protected readonly IUnitOfWork _unitOfWork;
 
     public Repository(DaedalusContext context)
     {
@@ -40,7 +41,7 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task<T> UpdateAsync(T entity)
     {
         _dbSet.Update(entity);
-        await _context.SaveChangesAsync();
+        await _unitOfWork.SaveChangesAsync();
         return await Task.FromResult(entity);
     }
 

@@ -27,9 +27,9 @@ namespace ProjectDaedalus.Infrastructure.UnitOfWork
             SensorReadings = sensorReadings;
         }
 
-        public Task<int> SaveChangesAsync()
+        public async Task<int> SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            return await _context.SaveChangesAsync();
         }
 
         public async Task<int> CompleteAsync() => await _context.SaveChangesAsync();
