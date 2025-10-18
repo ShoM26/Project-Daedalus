@@ -1,0 +1,184 @@
+/* Dashboard styles */
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.dashboard-header {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dashboard-header h1 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat {
+  text-align: center;
+  padding: 10px;
+  border-radius: 4px;
+  background: #ecf0f1;
+}
+
+.stat-number {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+/* Filter controls */
+.filter-controls {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-buttons button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: grey;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filter-buttons button.active {
+  background: #3498db;
+  color: white;
+  border-color: #3498db;
+}
+
+/* Plants grid */
+.plants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+/* Plant card styles */
+.plant-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-left: 4px solid #3498db;
+}
+
+.plant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.plant-header h3 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.status-indicator {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: white;
+  text-transform: capitalize;
+}
+
+.device-info {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.moisture-section {
+  margin-bottom: 15px;
+}
+
+.moisture-reading {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.moisture-value {
+  display: block;
+  font-size: 36px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.moisture-label {
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.ideal-range {
+  margin-top: 10px;
+}
+
+.range-bar {
+  height: 8px;
+  background: #ecf0f1;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 5px;
+}
+
+.current-level {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.plant-details {
+  margin-bottom: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ecf0f1;
+}
+
+.scientific-name {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 8px;
+}
+
+.fun-fact {
+  font-size: 13px;
+  color: #95a5a6;
+  line-height: 1.4;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #bdc3c7;
+  text-align: right;
+}
+
+.no-plants {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: #7f8c8d;
+}
