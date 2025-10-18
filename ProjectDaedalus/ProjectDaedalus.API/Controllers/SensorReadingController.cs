@@ -132,8 +132,7 @@ namespace ProjectDaedalus.API.Controllers
                     return BadRequest("Start date cannot be after end date");
                 }
                 var readings = await _sensorReadingRepository.GetReadingsForDeviceByRangeAsync(deviceId, startDate, endDate);
-                Console.WriteLine("Made it past the readings");
-                if (readings.Any())
+                if (!readings.Any())
                 {
                     return NoContent(); //204 which front end looks for
                 }
