@@ -79,3 +79,7 @@
 10/13/25: Created a new feature branch for the add pairing button. Not sure how the edit will be working but that is a problem for another day. Along with maybe handling the 404 no sensor readings found. very good day
 
 10/14/25: Worked more on the add/edit device pairings. Lots of intertwined endpoints called and sometimes difficult to imagine the route but thats why we're doing it
+
+10/16/25: Did more work on add/edit device pairings. Claude has been giving less tokens lately. that's kinda rude but luckily I am not dependent on it anymore. I think I have a solution to my issue that AI doesn't think it is.
+
+10/18/25: Finished working on add/edit device pairing feature and merged it into main. I was right about my change. Not sure where I'll head after this. will take a day to do some document restructuring and I need to do a skills assessment. Got the new sensor in the mail so I could work on that next or actually registering the device could work too. Making progress on connecting. trying to get 2 letters of recommendation by the end of the month and speaking with more hiring managers and such.
