@@ -51,6 +51,8 @@ Features to add/Errors to fix:
 - Device Registration(automatic or )
 - Signup page
 - Notifications
+- Store backend on S3
+- Put it on the web
 
 
 Final Deliverables:
