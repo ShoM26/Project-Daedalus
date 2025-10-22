@@ -1,0 +1,85 @@
+8/18/25: Project Daedalus: The aim of this task is to build something impressive. Something equal to the Labyrinth to show future employers that I have the necessary skills and if I don't have them this is my attempt to build them. I will log each days work in this note as documentation to show myself and others the progress I have made and how one could replicate it.
+
+8/19/25: My focus today was on increasing my presence on LinkedIn and revamping my resume. With the absence of Nikane I was wondering if there would be a void of committed computer science students that I could surround myself with. Today Felix Prewitt and I talked about the path he plans to take to secure an internship and then eventually a job. He may not have the same skills I do right now but it is nice to have other people actively working towards their goals outside of the classroom. This will be a good year for us. I need to look into getting my GitHub looking more professional but I have a basis to start applying to jobs now that I have the first impression factor. Shout-out LinkedIn Projects section, subsided some of my imposter syndrome today. Hoping to get better about that this year.
+
+8/20/25: Downloaded Rider, DataGrip, updated my github a bit(trying to get the student developer package), Created a general roadmap that I will have to expand on soon tomorrow will probably be the first day where I am writing code. Also generated a context prompt that I will use when starting new chats with claude/gpt, will need to keep updating it as I iron out the specifics of my project.
+
+8/21/25: Created the backend project, made my simple hello world controller, designed the database schema and updated other repos in my GitHub to look more professional
+
+8/25/25: Back from New York with recharged and ready to tackle the database. I built the project files today and created the sql scripts to create the tables. Connected the DB and scaffolded which is a cool concept to save the lift of writing entities and messing up things along the way. Going to start branching now that everything is built out. Need to update context prompt, move parts of it into the about me section of AI profile and The next plan is to draw out the backend architecture.
+
+8/26/25: Put in some work today. Sorted out EF core and migrations which should prove helpful in the coming months. Made a diagram of the backend and worked on the repository layer. The project feels 65% setup right now and I am going to start getting into the meat of the Repository method writing. CRUD for generic repo then once those are inherited I will work on the specific repo methods. Then it is on to Arduino facing APIs(I think GET). Excited and energized.
+
+8/27/25: Accomplished a good amount today. Ran an EF core migration while in database management systems class lol. wrote the CRUD and specific methods for repository layer and began working on the Data Ingestion service. For that I downloaded postman to test my newly created DTO and controller method for sensor readings. Not fully working yet but I will lock that down tomorrow and see what the next steps are. Need to be better about smaller branches because I completely forgot to merge after the repository changes.
+
+8/28/25: Didnt do much today. Controller method fixed itself or something and merged into main. Nothing beyond this. Work life balance or something
+
+8/29/25: Also not much progress gained today but created the shells for the controllers and wrote out the SensorReading controllers. Lots of work to do this weekend
+
+8/30/25: Lots done today. Wrote many api requests. Basic CRUD ones and some specific. Only one more controller to write before I merge that branch into main. Also ran an ef core migration and wrote a repository method. Got to get on top of this so I can move onto the hardware element soon. I believe itll be one of the more challenging things.
+
+8/31/25: Work-life balance kinda day. Learned more about the relationship between controller and repo today. With that new knowledge I cleaned up the controllers a bit. Just a couple more methods to write before I test and merge the branch with main
+
+9/1/25: Finished up writing the APIs today and merged into main. Going to begin testing tomorrow then may table this project for a week to focus on my honors project. I think the hardest part of this may be the hardware which is on the horizon and I am worried it will all crash and burn like it did last time.
+
+9/2/25: Tested all of the POST API requests and began testing other API requests today. a few architectural changes were made and forgot to make a separate branch for this.
+
+9/3/25: Tested the rest of the API requests, created a gitignore file to hide the build files and Development.json. This project is going to take a backseat for the next two weeks. Still planning on doing something for the project everyday but I need to focus on my honors project because I ambitiously would like to knock that out before the end of the semester so I can focus on getting it published during the spring. I have an interview today for an internship position for the fall we will see what that has in store too.
+
+9/8/25: I got the internship position as an IT intern and it didn't really sound interesting so I declined it to put my effort into this project and my honors project. Currently waiting on a meeting for my honors project so I will be working on this for now
+
+9/9/25: Thrown back into the fire of this project. Built the device again and made major changes to the script file downloaded onto it. Ordered the Bluetooth add on and it ill arrive on the 18th supposedly. Until then I have some more script, DTO and API work to do to make sure the data transfer is smooth. Exciting time to work on this but also this is where I failed last year so hopefully all of the work I did on the backend pays off. I created the bridge to transfer the serial data to the apis. Will continue with that tomorrow and begin testing that. Once that is in place I will feel incredibly relieved.
+
+9/10/25: rethought some of my design choices I made yesterday so I changed that up and began testing the Arduino bridge. This will probably be the biggest part where I am hitting my head against a wall for a bit. I have to run an ef core migration tomorrow to update the database and look at how the controllers handle the json package transfer.
+
+9/11/25: Leaving for Cleveland for the weekend mid day today so got as much done as I could in the small time I was given. Did some structural shifts and changed some endpoints to be internal. Going to spend a while when I get back cleaning this up before I can add new "features" aka the front end.
+
+9/15/25: Back to the grind stone and very productive day. Got much closer to a functional bridge and I will be very happy when this thing works. Resolved tons of errors and probably many more to go.
+
+9/16/25: LETS GO! Absolutely crushed it today and resolved my errors. I now have a functioning bridge to get data from the Arduino to the repository. I am so glad I am over this hurdle because this is where I was stopped last year. Starting to look into frontends and react certificates. Will take a couple days to clean things up on the backend, update diagrams, and misc stuff. I am presenting for the honors brownbag tomorrow which should be fun and I got rejected by a company today. They dont know what their missing out on.
+
+9/17/25: Good day, Applied to 4 jobs, updated my backend diagram, context prompt, and feature roll out order. Presented at the brownbag today. Going to make a linkedin post about that and then a linkedin post about this project. I had a meeting with my professors today about the next steps for the honors project so I will be splitting my time with that but they were impressed by the Arduino and would like to present it at the choose ohio first conference or something. My professor wants me to entertain the idea of shipping it as a product but I couldn't bare to go through the work of that.
+
+9/19/25: Applied for 4-5 more jobs in class and began a new feature. This is an internal script application in the project where I can run scripts. The first I am implementing is the mass plant registration one which inserts plant entities into the database given a properly formatted csv. I also had the role introduction for epic and it sounds like a great place to work. We will see what comes of all of this.
+
+9/20:25: Finished building the feature today. Spent from 12-7 working at it and it just requires testing. Should be fun(sarcastically)
+
+9/22/25: Began testing the new feature today and man it sucks. All the logging is not really helping and I'm going to remove it all when I finish testing. Found out I need a linkedin learning membership for the courses. I will use the free trial for my react basics and hopefully more. We will see how that goes
+
+9/23/25: Finished testing on the bulk plant insert script. Creating this app will make it easier to add more scripts later but man its a heavy lift at first. Posted on linkedin today about the project #influencer.
+
+9/24/25: Build the project for the front end today. Created some mock data and a placeholder for the homepage to begin to understand react basics.
+
+9/25/25: Took the Epic skills assessment today and holy cow it was long. The 2 minute test I felt like I performed poorly on. the math and technical tests I feel like I nailed and the programming took forever and I was loosing hope as it went on. Not sure what to make of it. Also did my homework for the month(One assignment). Really nailed down the SQL basics.
+
+9/26/25: Got a lot of work done today. Created the bridge between frontend and backend. Have a placeholder login page with JWT authentication and a placeholder dashboard both of which are calling backend endpoints to display data from the database. Really stoked about this and I think there is a lot of room to grow from here.
+
+9/29/25: Made some solid changes to the dashboard to start to call the right endpoints. Much more work on that tomorrow
+
+9/30/25: replaced the mock data for sensor reading and device information for the plant card. Front end is really coming along and I am excited
+
+10/1/25: Finished up making the plant card look clean then merged the branch into main. Found out the type of sensor I originally got last year is garbage. There are studies showing that they dissolve in water which is wild as a soil moisture sensor. Watched a youtube video where a guy bought 38 different sensors and found the best ones. I used that to hopefully get one that is not faulty. Also learned about crows foot notation in DBMS today so I will eventually be replacing my current diagrams with updated industry standard ones. Bluetooth maybe on the horizon, lots of time to work tomorrow and Friday.
+
+10/2/25: Spent literally all day messing around with Bluetooth and wiring. This stuff is crazy difficult when you know nothing about it. Going to try external battery source tomorrow hopefully that solves all my problems.
+
+10/3/25: Messed with Bluetooth a lot more today and nothing worked not even the wall power source. Going to take a step back from that a focus on the software for the time being. Also created an ER diagram for the database since we are learning about that in class
+
+10/4/25: Shifted my focus to the frontend today and absolutely banged out a new feature in 4.5 hours today. Pretty much start to finish for the individual plant modal pop up with the linechart made using recharts. I think it'll look sick when the moisture data is normalized. Going to polish this up tomorrow and ship it.
+
+10/5/25: Cleaned up the plantcard modal creating a custom confirmation window for the delete this. stuck my toes in the water of css to clean up the messy claude styles. creating the pull request and merging probably tomorrow. Also I remembered I have the ESP32 that I could use as a second device. That would be cool.
+
+10/7/25: Decided I would hop on the hype train of AI implemented into my workflow. I am calling Gemini's public API to comment on my pull requests in GitHub. I got it so that it made a comment on the pr itself but it seems lack luster so I am aiming for it to leave comments of each line of code that it deems wrong. I think this can be wrapped up tomorrow
+
+10/8/25: I increased the logging and the prompt is working but parsing the json is difficult. Also worked on my database management system class project and I will be taking the lead as project manager which should be fun. I created an extensive roadmap and a git instruction doc for now.
+
+10/9/25: I got the AI code reviewer to work and posted about it on linkedin also made some progress on how tos for group project. Its pretty freaking sweet that my request to Gemini's public api is a prompt to call multiple GitHub public apis
+
+10/11/25: Did security cleanup today. Rotated keys and added files to git ignore added authorization to certain endpoints or controllers. This is great practice for the class project where I will be creating rulesets and environment configurations.
+
+10/13/25: Created a new feature branch for the add pairing button. Not sure how the edit will be working but that is a problem for another day. Along with maybe handling the 404 no sensor readings found. very good day
+
+10/14/25: Worked more on the add/edit device pairings. Lots of intertwined endpoints called and sometimes difficult to imagine the route but thats why we're doing it
+
+10/16/25: Did more work on add/edit device pairings. Claude has been giving less tokens lately. that's kinda rude but luckily I am not dependent on it anymore. I think I have a solution to my issue that AI doesn't think it is.
+
+10/18/25: Finished working on add/edit device pairing feature and merged it into main. I was right about my change. Not sure where I'll head after this. will take a day to do some document restructuring and I need to do a skills assessment. Got the new sensor in the mail so I could work on that next or actually registering the device could work too. Making progress on connecting. trying to get 2 letters of recommendation by the end of the month and speaking with more hiring managers and such.

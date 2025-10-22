@@ -1,0 +1,137 @@
+# Project Daedalus - Plant Monitoring System
+**Senior Computer Science Capstone Project**
+
+A full-stack IoT plant monitoring system that uses Arduino soil moisture sensors connected to a web application. Users can register plants, monitor real-time soil moisture, and receive alerts when plants need watering. This project demonstrates full-stack development skills, IoT integration, and professional software architecture.
+
+## Tech Stack
+- **Frontend**: React (Visual Studio Code) - *Learning Phase*
+- **Backend**: C# ASP.NET Core Web API (JetBrains Rider)
+- **Database**: MySQL (DataGrip)
+- **Hardware**: Arduino Uno with soil moisture sensor
+- **Authentication**: JWT tokens (planned implementation)
+- **Environment**: All components running locally during development
+
+## Current Status - Backend Complete, Hardware Bridge Functional
+
+### Completed Backend Foundation
+**Database & Infrastructure**
+- Database schema created and deployed with EF Core migrations
+- Repository pattern implemented with generic base repository
+- All core repository methods completed (CRUD + specialized queries)
+- Database cascading deletes configured and working
+
+**API Controllers Completed**
+- SensorReadings Controller: Full CRUD + date range queries + cleanup methods
+- UserPlants Controller: Complete CRUD with device assignment management  
+- Users Controller: CRUD + cascading delete (removes all user data safely)
+- Additional controllers for Plants and Devices
+
+**Advanced Repository Features**
+- DeleteManyAsync methods for batch operations
+- Date range querying for sensor data
+- Specialized methods like GetLatestReadingByDeviceId
+- Data cleanup methods for old sensor readings
+
+**Database Architecture**
+- Multi-user scalable design from the start
+- Proper foreign key relationships with cascade deletes
+- Optimized for IoT data ingestion and retrieval
+
+### Hardware Integration Complete
+**Arduino Bridge Status**
+- **Data Flow**: Arduino → Serial → Bridge Service → API → Database
+- Real sensor data successfully flowing into database
+- Connection string issues resolved, database connectivity stable
+- Testing with single device (more devices planned for scalability demonstration)
+- JSON payload formatting and API integration working correctly
+
+**Current Hardware Setup**
+- Arduino Uno with soil moisture sensor via USB serial
+- C# bridge service handling serial communication and API calls
+- Bluetooth module arriving within 2 days for wireless upgrade
+
+### Database Schema (Core Tables)
+- **Users**: authentication and profile info  
+- **Devices**: device ID, name, connection type/address, user_id
+- **Plants**: scientific/familiar names, ideal moisture ranges, optional fun facts
+- **UserPlants**: links users, plants, and devices with proper constraints
+- **SensorHistory**: timestamped soil moisture values with composite primary key
+
+## Next Phase - Frontend Development & Authentication
+
+### Immediate Development Sequence
+1. **Automatic Device Registration** - Implement auto-detection when new hardware connects
+2. **Plant Registration Script** - Internal API call to register a batch of plants
+3. **React Fundamentals** - Complete LinkedIn Learning React course
+4. **Simple Authentication Pages** - Login/register UI (mock JWT initially)
+5. **Plant-Device Management Page** - List and manage device/plant pairings
+6. **Dashboard Implementation** - Real-time monitoring interface
+7. **Polling Integration** - Live data updates every 30-60 seconds
+8. **Browser Notifications** - Alerts when plants need watering
+
+### Frontend Vision
+**User Experience Flow**
+- Simple JWT-based login system
+- Dashboard showing list of user's device/plant pairings
+- Click pairing → detailed dashboard with:
+  - Real-time line chart of moisture levels
+  - Current moisture reading (large number display)
+  - Plant information and care details
+  - Browser notifications when readings fall outside ideal range
+
+**Technical Approach**
+- React with standard charting library (Chart.js or Recharts)
+- Polling-based real-time updates (30-60 second intervals)
+- Browser notification API for watering alerts
+- Responsive design for potential mobile usage
+
+### Hardware Evolution Goals
+**Short-term (Next 2 Days)**
+- Migrate from USB serial to Bluetooth connectivity
+- Maintain single device testing while keeping architecture scalable
+
+**Device Registration System**
+- Automatic detection and registration when new devices connect
+- Scalable design to impress potential employers
+- Unique device identification and pairing workflow
+
+---
+
+## Learning Objectives Progress
+
+### Completed Skills
+- ASP.NET Core Web API development with EF Core ORM
+- Clean architecture and repository pattern implementation
+- Database design with complex relationships and cascading operations
+- IoT hardware-to-web integration and serial communication
+- JSON API development and testing
+
+### Current Learning Focus
+- **React fundamentals** - Building modern web interfaces
+- **JWT authentication** - Secure token-based auth implementation
+- **Real-time web applications** - Polling and live data updates
+- **Browser APIs** - Notification system implementation
+- **Hardware auto-discovery** - Automatic device registration workflows
+
+### Future Enhancements
+- WebSocket implementation for truly real-time updates
+- Mobile responsiveness optimization  
+- Historical trend analysis and visualization
+- Multi-device support demonstration
+- Advanced alerting system (email integration)
+
+## Development Philosophy
+
+**Capstone Project Goals**
+- Create a fully functional product demonstrating end-to-end development skills
+- Learn new technologies (React, JWT) while building
+- Maintain professional, scalable architecture for employer demonstration
+- Balance learning opportunities with practical functionality
+
+**Architecture Decisions**
+- Multi-user design even for single-user testing (scalability demonstration)
+- API-first development enabling future mobile app development
+- Clean separation of concerns between hardware, API, and frontend
+- Professional development practices and code organization
+
+**Next Milestone**: Complete automatic device registration system, then begin React learning and frontend development.
