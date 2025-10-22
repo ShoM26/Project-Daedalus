@@ -46,9 +46,8 @@ Week 5: Internal Script Service Creation:
 Week 6-8: Front end
 
 Features to add/Errors to fix:
-- Test for normalized values
 - Bluetooth
-- Device Registration(automatic or )
+- Automatic Device Registration
 - Signup page
 - Notifications
 - Store backend on S3

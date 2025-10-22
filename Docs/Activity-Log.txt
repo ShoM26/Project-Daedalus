@@ -83,3 +83,7 @@
 10/16/25: Did more work on add/edit device pairings. Claude has been giving less tokens lately. that's kinda rude but luckily I am not dependent on it anymore. I think I have a solution to my issue that AI doesn't think it is.
 
 10/18/25: Finished working on add/edit device pairing feature and merged it into main. I was right about my change. Not sure where I'll head after this. will take a day to do some document restructuring and I need to do a skills assessment. Got the new sensor in the mail so I could work on that next or actually registering the device could work too. Making progress on connecting. trying to get 2 letters of recommendation by the end of the month and speaking with more hiring managers and such.
+
+10/21/25: Wired the Arduino with the new sensor and got baseline values so I can send percentage values. Much better accuracy than the previous one. Starting to think about automatic device registration and things to do to put this online
+
+10/22/25: Fixed my unit of work pattern, took a linkedin learning course, received a message from a professor, shifted documents and seriously looked into automatic device registration. I have my pathway through that. I need to figure out the Bluetooth bs that is going on
