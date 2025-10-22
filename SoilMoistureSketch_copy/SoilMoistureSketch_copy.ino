@@ -5,6 +5,9 @@
 const String hardwareIdentifier;
 int prevReading = 0;
 
+const int dry=536;
+const int wet=350;
+
 const int SAMPLE_COUNT = 10;
 const int SAMPLE_DELAY = 100;
 int sampleBuffer[SAMPLE_COUNT];
@@ -89,7 +92,7 @@ void setup() {
 
 void loop() {
   int rawValue = getAveragedReading();  
-
+  int percentageValue;
   if(rawValue < 0){
     sendErrorMessage("Sensor reading failed");
     delay(5000);
@@ -102,6 +105,7 @@ void loop() {
   int valueDifference = abs(smoothedValue - prevReading);
 
   if(valueDifference > 5 || (currentTime - lastSendTime) > 30000) {
+    percentageValue = map(smoothedValue, wet, dry, 100, 0);
     sendSensorData(smoothedValue);
     prevReading = smoothedValue;
     lastSendTime = currentTime;
@@ -110,12 +114,12 @@ void loop() {
   delay(1000);
 }
 
-void sendSensorData(int smoothedValue) {
+void sendSensorData(int value) {
   StaticJsonDocument<200> doc;
   
   doc["hardwareidentifier"] = hardwareIdentifier;
   doc["timestamp"] = millis();
-  doc["moisturelevel"] = smoothedValue;
+  doc["moisturelevel"] = value;
   
   serializeJson(doc, Serial);
   Serial.println();
