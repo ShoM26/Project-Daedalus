@@ -17,9 +17,11 @@ namespace ProjectDaedalus.API.Controllers
     {
         private readonly DaedalusContext _context;
         private readonly IUserPlantRepository _userPlantRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserPlantsController(DaedalusContext context, IUserPlantRepository userPlantRepository)
+        public UserPlantsController(DaedalusContext context, IUserPlantRepository userPlantRepository, IUnitOfWork unitOfWork)
         {
+            _unitOfWork = unitOfWork;
             _context = context;
             _userPlantRepository = userPlantRepository;
         }
@@ -159,6 +161,7 @@ namespace ProjectDaedalus.API.Controllers
                 existingUserPlant.PlantId = dto.PlantId;
                 existingUserPlant.DateAdded = DateTime.Now;
                 await _userPlantRepository.UpdateAsync(existingUserPlant);
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(existingUserPlant);
             }
             catch (Exception ex)
