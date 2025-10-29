@@ -87,3 +87,9 @@
 10/21/25: Wired the Arduino with the new sensor and got baseline values so I can send percentage values. Much better accuracy than the previous one. Starting to think about automatic device registration and things to do to put this online
 
 10/22/25: Fixed my unit of work pattern, took a linkedin learning course, received a message from a professor, shifted documents and seriously looked into automatic device registration. I have my pathway through that. I need to figure out the Bluetooth bs that is going on
+
+10/23/25: Tried the Bluetooth and got some interesting data from it however I am not sure how to get around this
+
+10/28/25: Laid the plans for the signup page for when I will have more time to work on it tomorrow.
+
+10/29/25: Got a functioning feature working in 3 hours. Needs a bit of cleaning since I originally built off the existing login page however I am happy with how this has come along. Also refactored so that there is a landing page that takes the user to either singup or login.
