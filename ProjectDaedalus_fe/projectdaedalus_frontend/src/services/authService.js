@@ -37,6 +37,38 @@ class authService {
     }
   }
 
+  async Signup(username, password, email){
+    try{
+      const response = await fetch(`${BASE_URL}/Users`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+          email: email,
+        })
+      });
+
+      const data = await response.json();
+      if(response.ok && data.success){
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify({
+          userId: data.userId,
+          username: data.username,
+          email: data.email
+        }));
+        return { success: true, user: data};
+      } else{
+        return { success: false, message: data.message };
+      }
+    } catch(error){
+      console.error('Signup error: ', error);
+      return { success: false, message: 'Network error occured' };
+    }
+  }
+
   // Logout - clear stored data
   logout() {
     localStorage.removeItem('token');
