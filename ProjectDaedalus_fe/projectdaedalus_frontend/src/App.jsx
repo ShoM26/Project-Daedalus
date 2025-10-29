@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import authService from './services/authService';
 import './App.css';
 
@@ -15,9 +16,12 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          {/* Login page - accessible to everyone */}
-          <Route path="/login" element={<Login />} />
           
+          <Route path="/signup" element={<Signup/>} />
+          
+          {/* Login page - accessible to everyone */}
+          {<Route path="/login" element={<Login />} />}
+
           {/* Dashboard - protected route, requires authentication */}
           <Route 
             path="/dashboard" 
@@ -34,7 +38,7 @@ function App() {
             element={
               authService.isAuthenticated() ? 
                 <Navigate to="/dashboard" /> : 
-                <Navigate to="/login" />
+                <Navigate to="/signup" />
             } 
           />
           
