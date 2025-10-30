@@ -6,7 +6,7 @@ import '../styles/Login.css';
 
 function Login() {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: ''
   });
   const [loading, setLoading] = useState(false);
@@ -29,11 +29,9 @@ function Login() {
     setLoading(true);
 
     try {
-      const result = await authService.login(formData.username, formData.password);
+      const result = await authService.login(formData.email, formData.password);
       
       if (result.success) {
-        // Login successful, redirect to dashboard
-        console.log('Login successful:', result.user);
         navigate('/dashboard');
       } else {
         setError(result.message || 'Login failed');
@@ -61,15 +59,15 @@ function Login() {
           )}
 
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="email">Email</label>
             <input
               type="text"
-              id="username"
-              name="username"
-              value={formData.username}
+              id="email"
+              name="email"
+              value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your username"
+              placeholder="Enter your email"
               disabled={loading}
             />
           </div>
@@ -98,7 +96,7 @@ function Login() {
         </form>
 
         <div className="login-footer">
-          <p>Test credentials: username "test", password "123"</p>
+          <p>Test credentials: email "email@email.com", password "123"</p>
         </div>
       </div>
     </div>

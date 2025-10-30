@@ -186,24 +186,24 @@ namespace ProjectDaedalus.API.Controllers
             try
             {
                 // Validate input
-                if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+                if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
                 {
                     return BadRequest(new LoginFailureDto 
                     { 
                         Success = false, 
-                        Message = "Username and password are required" 
+                        Message = "Email and Password are required" 
                     });
                 }
 
                 // Validate credentials against database
-                var user = await _userRepository.ValidateUserCredentialsAsync(request.Username, request.Password);
+                var user = await _userRepository.ValidateUserCredentialsAsync(request.Email, request.Password);
             
                 if (user == null)
                 {
                     return Unauthorized(new LoginFailureDto 
                     { 
                         Success = false, 
-                        Message = "Invalid username or password" 
+                        Message = "Invalid email or password" 
                     });
                 }
 
@@ -222,7 +222,6 @@ namespace ProjectDaedalus.API.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (add proper logging here)
                 Console.WriteLine($"Login error: {ex.Message}");
             
                 return StatusCode(500, new LoginFailureDto 

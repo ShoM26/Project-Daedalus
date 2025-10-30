@@ -18,9 +18,9 @@ public class UserRepository : Repository<User>, IUserRepository
     {
         return  await _dbSet.FirstOrDefaultAsync(p => p.Username == username);
     }
-    public async Task<User?> ValidateUserCredentialsAsync(string username, string password)
+    public async Task<User?> ValidateUserCredentialsAsync(string email, string password)
     {
         return await _context.Users
-            .FirstOrDefaultAsync(u => u.Username == username && u.Password == password);
+            .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
     }
 }
