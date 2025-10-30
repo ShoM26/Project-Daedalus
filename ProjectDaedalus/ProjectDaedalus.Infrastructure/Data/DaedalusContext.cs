@@ -124,9 +124,7 @@ public partial class DaedalusContext : DbContext
             entity.ToTable("users");
 
             entity.HasIndex(e => e.Email, "email").IsUnique();
-
-            entity.HasIndex(e => new { e.Username, e.Password }, "username").IsUnique();
-
+            
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
