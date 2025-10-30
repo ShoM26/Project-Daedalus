@@ -3,12 +3,19 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import LandingPage from './pages/LandingPage';
 import authService from './services/authService';
 import './App.css';
 
 // Protected Route component - only shows content if user is logged in
 function ProtectedRoute({ children }) {
-  return authService.isAuthenticated() ? children : <Navigate to="/login" />;
+  return authService.isAuthenticated() ? children : <Navigate to="/landingpage" replace />;
+}
+
+function AuthRoute({ children }) {
+  return authService.isAuthenticated() ? 
+    <Navigate to="/dashboard" replace /> : 
+    children;
 }
 
 function App() {
@@ -16,11 +23,10 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          
-          <Route path="/signup" element={<Signup/>} />
-          
+          <Route path="/" element={<AuthRoute><LandingPage/></AuthRoute>}/>
+          <Route path="/signup" element={<AuthRoute><Signup/></AuthRoute>}/>
           {/* Login page - accessible to everyone */}
-          {<Route path="/login" element={<Login />} />}
+          {<Route path="/login" element={<AuthRoute><Login/></AuthRoute>} />}
 
           {/* Dashboard - protected route, requires authentication */}
           <Route 
@@ -32,18 +38,8 @@ function App() {
             } 
           />
           
-          {/* Default route - redirect based on auth status */}
-          <Route 
-            path="/" 
-            element={
-              authService.isAuthenticated() ? 
-                <Navigate to="/dashboard" /> : 
-                <Navigate to="/signup" />
-            } 
-          />
-          
           {/* Catch all other routes - redirect to home */}
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </div>

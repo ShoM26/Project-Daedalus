@@ -57,7 +57,7 @@ function Signup() {
       <div className="login-card">
         <div className="login-header">
           <h1>Plant Monitor</h1>
-          <p>Sign in to your account</p>
+          <p>Sign up for an account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
