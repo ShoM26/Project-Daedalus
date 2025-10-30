@@ -68,8 +68,8 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return StatusCode(500, new {message = "UserRepository is not injected"});
                 }
-                var existingUser = await _userRepository.EmailExistsAsync(dto.Email);
-                if (existingUser)
+                var emailExists = await _userRepository.EmailExistsAsync(dto.Email);
+                if (emailExists)
                 {
                     return Conflict(new {message = "User with that email already exists"});
                 }
