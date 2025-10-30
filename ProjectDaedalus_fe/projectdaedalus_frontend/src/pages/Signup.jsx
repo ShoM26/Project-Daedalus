@@ -32,6 +32,7 @@ function Signup() {
 
     if (formData.password !== formData.retypePassword){
         setError("Passwords Do not match");
+        setLoading(false);
         return;
     }
 
@@ -39,11 +40,9 @@ function Signup() {
       const result = await authService.Signup(formData.username, formData.password, formData.email);
       
       if (result.success) {
-        // Login successful, redirect to dashboard
-        console.log('Signup successful:', result.user);
         navigate('/login');
       } else {
-        setError(result.message || 'Login failed');
+        setError(result.message || 'Signup failed');
       }
     } catch (error) {
       setError('An unexpected error occurred');
@@ -98,7 +97,7 @@ function Signup() {
           <div className="form-group">
             <label htmlFor="retype-password">Retype-Password</label>
             <input
-              type="retypePassword"
+              type="password"
               id="retypePassword"
               name="retypePassword"
               value={formData.retypePassword}
@@ -128,7 +127,7 @@ function Signup() {
             className="login-button"
             disabled={loading}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
 

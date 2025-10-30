@@ -18,8 +18,8 @@ function LandingPage() {
                     <h1>Welcome</h1>
                 </div>
                 <div className="landing-body">
-                    <button className="landing-button" onClick={(handleLogin)} type="button">Login</button>
-                    <button className="landing-button" onClick={(handleSignup)} type="button">Sign up</button>
+                    <button className="landing-button" onClick={handleLogin} type="button">Login</button>
+                    <button className="landing-button" onClick={handleSignup} type="button">Sign up</button>
                 </div>
             </div>
         </div>

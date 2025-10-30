@@ -25,10 +25,7 @@ function App() {
         <Routes>
           <Route path="/" element={<AuthRoute><LandingPage/></AuthRoute>}/>
           <Route path="/signup" element={<AuthRoute><Signup/></AuthRoute>}/>
-          {/* Login page - accessible to everyone */}
           {<Route path="/login" element={<AuthRoute><Login/></AuthRoute>} />}
-
-          {/* Dashboard - protected route, requires authentication */}
           <Route 
             path="/dashboard" 
             element={
@@ -37,7 +34,6 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          
           {/* Catch all other routes - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
