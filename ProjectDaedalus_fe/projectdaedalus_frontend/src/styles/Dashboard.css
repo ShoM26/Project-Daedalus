@@ -182,3 +182,17 @@
   padding: 40px;
   color: #7f8c8d;
 }
+
+.signout-button {
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.signout-button:hover {
+  background-color: #c82333;
+}

@@ -17,11 +17,13 @@ namespace ProjectDaedalus.API.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IUnitOfWork _unitOfWork;
         public UsersController(DaedalusContext context, IUserRepository userRepository,
-            IConfiguration configuration)
+            IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _configuration = configuration;
             _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
         //GET user profile
         [HttpGet("user/{userId}")]
@@ -57,25 +59,19 @@ namespace ProjectDaedalus.API.Controllers
         {
             if (dto == null)
             {
-                return BadRequest("Invalid Payload");
+                return BadRequest(new{ message = "Invalid Payload"});
             }
 
             try
             {
                 if (_userRepository == null)
                 {
-                    return StatusCode(500, "UserRepository is not injected");
+                    return StatusCode(500, new {message = "UserRepository is not injected"});
                 }
-                var existingUser = await _userRepository.GetByUsernameAsync(dto.Username);
-                if (existingUser != null)
-                {
-                    return Conflict($"User with username {dto.Username} already exists");
-                }
-                
                 var emailExists = await _userRepository.EmailExistsAsync(dto.Email);
                 if (emailExists)
                 {
-                    return Conflict($"Email {dto.Email} already exists");
+                    return Conflict(new {message = "User with that email already exists"});
                 }
 
                 var user = new User
@@ -87,19 +83,19 @@ namespace ProjectDaedalus.API.Controllers
                 };
                 var createdUser = await _userRepository.AddAsync(user);
 
-                var resultDto = new UserDto
+                var resultDto = new LoginResponseDto
                 {
                     UserId = createdUser.UserId,
                     Username = createdUser.Username,
                     Email = createdUser.Email,
-                    Password = createdUser.Password,
-                    CreatedAt = createdUser.CreatedAt
+                    Success = true
                 };
+                await _unitOfWork.SaveChangesAsync();
                 return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.UserId }, resultDto);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new {message = $"Internal server error: {ex.Message}"});
             }
         }
         //PUT update a user
@@ -190,24 +186,24 @@ namespace ProjectDaedalus.API.Controllers
             try
             {
                 // Validate input
-                if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
+                if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
                 {
                     return BadRequest(new LoginFailureDto 
                     { 
                         Success = false, 
-                        Message = "Username and password are required" 
+                        Message = "Email and Password are required" 
                     });
                 }
 
                 // Validate credentials against database
-                var user = await _userRepository.ValidateUserCredentialsAsync(request.Username, request.Password);
+                var user = await _userRepository.ValidateUserCredentialsAsync(request.Email, request.Password);
             
                 if (user == null)
                 {
                     return Unauthorized(new LoginFailureDto 
                     { 
                         Success = false, 
-                        Message = "Invalid username or password" 
+                        Message = "Invalid email or password" 
                     });
                 }
 
@@ -226,7 +222,6 @@ namespace ProjectDaedalus.API.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception (add proper logging here)
                 Console.WriteLine($"Login error: {ex.Message}");
             
                 return StatusCode(500, new LoginFailureDto 

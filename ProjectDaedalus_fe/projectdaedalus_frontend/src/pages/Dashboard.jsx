@@ -6,6 +6,7 @@ import Modal from '../components/Modal';
 import PlantDetailModal from '../components/PlantDetailModal';
 import AddPairingModal from '../components/AddPairingModal';
 import '../styles/Dashboard.css';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const [plants, setPlants] = useState([]);
@@ -112,6 +113,13 @@ function Dashboard() {
 
   const healthyPlants = plants.filter(p => p.status === 'healthy').length;
   const needsAttention = plants.filter(p => p.status !== 'healthy').length;
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    authService.logout();
+    navigate('/landingpage');
+  };
+
 
   const handleFilterChange = (filter) => {
     setSelectedFilter(filter);
@@ -169,6 +177,7 @@ function Dashboard() {
             >
               + Add Plant Pairing
             </button>
+            
           </div>
         )}
       </header>
@@ -194,6 +203,9 @@ function Dashboard() {
           >
             Needs Attention ({needsAttention})
           </button>
+          <button
+            className="signout-button"
+            onClick={handleSignOut}>Sign Out</button>
    
           <AddPairingModal
             isOpen={showAddModal}

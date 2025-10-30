@@ -3,7 +3,7 @@ const BASE_URL = 'http://localhost:5278/api';
 
 class authService {
   // Call your C# login endpoint
-  async login(username, password) {
+  async login(email, password) {
     try {
       const response = await fetch(`${BASE_URL}/Users/login`, {
         method: 'POST',
@@ -11,7 +11,7 @@ class authService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: username,
+          email: email,
           password: password
         })
       });
@@ -33,6 +33,38 @@ class authService {
       }
     } catch (error) {
       console.error('Login error:', error);
+      return { success: false, message: 'Network error occurred' };
+    }
+  }
+
+  async Signup(username, password, email){
+    try{
+      const response = await fetch(`${BASE_URL}/Users`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+          email: email,
+        })
+      });
+
+      const data = await response.json();
+      if(response.ok && data.success){
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify({
+          userId: data.userId,
+          username: data.username,
+          email: data.email
+        }));
+        return { success: true, user: data};
+      } else{
+        return { success: false, message: data.message };
+      }
+    } catch(error){
+      console.error('Signup error: ', error);
       return { success: false, message: 'Network error occurred' };
     }
   }

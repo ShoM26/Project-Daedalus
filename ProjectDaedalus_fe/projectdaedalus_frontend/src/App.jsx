@@ -2,12 +2,20 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
+import LandingPage from './pages/LandingPage';
 import authService from './services/authService';
 import './App.css';
 
 // Protected Route component - only shows content if user is logged in
 function ProtectedRoute({ children }) {
-  return authService.isAuthenticated() ? children : <Navigate to="/login" />;
+  return authService.isAuthenticated() ? children : <Navigate to="/landingpage" replace />;
+}
+
+function AuthRoute({ children }) {
+  return authService.isAuthenticated() ? 
+    <Navigate to="/dashboard" replace /> : 
+    children;
 }
 
 function App() {
@@ -15,10 +23,9 @@ function App() {
     <div className="App">
       <Router>
         <Routes>
-          {/* Login page - accessible to everyone */}
-          <Route path="/login" element={<Login />} />
-          
-          {/* Dashboard - protected route, requires authentication */}
+          <Route path="/" element={<AuthRoute><LandingPage/></AuthRoute>}/>
+          <Route path="/signup" element={<AuthRoute><Signup/></AuthRoute>}/>
+          {<Route path="/login" element={<AuthRoute><Login/></AuthRoute>} />}
           <Route 
             path="/dashboard" 
             element={
@@ -27,19 +34,8 @@ function App() {
               </ProtectedRoute>
             } 
           />
-          
-          {/* Default route - redirect based on auth status */}
-          <Route 
-            path="/" 
-            element={
-              authService.isAuthenticated() ? 
-                <Navigate to="/dashboard" /> : 
-                <Navigate to="/login" />
-            } 
-          />
-          
           {/* Catch all other routes - redirect to home */}
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </div>
