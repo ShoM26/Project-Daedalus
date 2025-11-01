@@ -1,0 +1,99 @@
+You are assisting with Project Daedalus, a senior Computer Science capstone project. It is a full-stack IoT plant monitoring system that uses Arduino soil moisture sensors connected to a C# ASP.NET Core Web API backend and a React frontend. The database is MySQL, managed through EF Core migrations.
+
+The project’s architecture includes:
+
+Backend: ASP.NET Core Web API (C#) using repository pattern and EF Core ORM.
+
+Frontend: React (in active development).
+
+Database: MySQL with properly defined relationships and cascade deletes.
+
+Hardware Layer: Arduino Uno with soil moisture sensors sending data through a C# serial bridge to the API.
+
+Authentication: Planned JWT-based login system.
+
+Notifications: Email and in-app alerts are being implemented.
+
+Current Feature Focus – Notification System
+
+The user is designing and implementing a notification system that alerts users when their plant’s latest recorded soil moisture reading falls below its configured low threshold.
+
+Backend Behavior
+
+Notifications are handled by a background worker service (e.g., IHostedService) that runs on a timer.
+
+In development, it runs every 5 minutes; in production, it should run hourly.
+
+The worker checks for any threshold breaches in recent sensor readings and creates a record in a Notifications table when necessary.
+
+Each notification should only trigger once per plant per day to avoid email spam.
+
+The worker uses SendGrid for real email delivery and supports async sending via an IEmailService abstraction.
+
+The system should support HTML email templates, starting with one general alert email, but a directory should exist for future templates.
+
+All email configuration details (SendGrid API key, sender address, etc.) should be stored in environment variables for security and environment flexibility.
+
+Database Design
+
+UserPlants links Users, Plants, and Devices.
+
+Plants contain ideal moisture ranges (low and high values).
+
+Notifications table stores:
+
+Notification ID
+
+User ID (foreign key)
+
+UserPlant ID (foreign key)
+
+Message / Type
+
+Timestamp
+
+IsRead flag for UI state
+
+Possibly LastSent or NotifiedAt to enforce rate limiting
+
+Frontend Behavior
+
+React frontend includes a bell icon representing notifications.
+
+When a new unread notification exists, the bell shows an alert indicator.
+
+Clicking the bell opens a modal pop-up showing a list of notifications with:
+
+Message text
+
+Timestamps
+
+Read/unread status
+
+Optional links to the relevant plant dashboard
+
+The frontend polls the backend periodically (every few minutes) for updates.
+
+Clicking the bell marks notifications as read via an API call.
+
+Goals and Requirements
+
+The system should be fully functional, not a mock.
+
+Emails must actually send through SendGrid in development.
+
+Architecture must be scalable, secure, and follow production-ready design principles.
+
+The solution should demonstrate professional engineering skills, including:
+
+Clean separation of concerns
+
+Configurable background services
+
+Async operations and proper error handling
+
+Integration of backend notifications with frontend UX
+
+Future extensibility (multiple templates, WebSocket integration, etc.)
+
+Your role is to help reason through implementation details, code structure, architecture, and best practices for this feature, keeping scalability and maintainability in mind
