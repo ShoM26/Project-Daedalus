@@ -97,3 +97,7 @@
 10/30/25: Did some cleaning of the UI, added the landing page where you can login or signup, ran a migration to remove the username and password uniqueness then refactored the front and backend to use email and password to log in as email is unique. Really happy with where this is at now. Merged the pr and noticed the pr review bot is not commenting on the files anymore. Will have to check that out soon. Also had the idea to make a feature description and AC workflow but I will have to think about how to implement that. Maybe something with a txt file
 
 11/1/25: Thought really hard today about the device registration. talked rough plans with gpt and ironed out some options. This will be a massive feature that will display a lot of skills. gotta make a post about it when it goes through
+
+11/3/25: Creating the project for device registration and assessed the path I am taking through it starting with the migration to the database.
+
+11/4/25: Built the entities, added to the DBcontext, created, and ran the migration. Now we have the Notifications and Notifications History tables from which we will build this feature.
