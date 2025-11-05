@@ -73,6 +73,92 @@ namespace ProjectDaedalus.Infrastructure.Migrations
                     b.ToTable("devices", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectDaedalus.Core.Entities.Notification", b =>
+                {
+                    b.Property<int>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("notification_id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("NotificationId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_read");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("message");
+
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("int")
+                        .HasColumnName("notification_type");
+
+                    b.Property<int>("UserPlantId")
+                        .HasColumnType("int")
+                        .HasColumnName("userplant_id");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("idx_notifications_created");
+
+                    b.HasIndex("UserPlantId", "IsRead", "CreatedAt")
+                        .HasDatabaseName("idx_notifications_userplant_read_created");
+
+                    b.ToTable("notification");
+                });
+
+            modelBuilder.Entity("ProjectDaedalus.Core.Entities.NotificationHistory", b =>
+                {
+                    b.Property<int>("NotificationHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("notification_history_id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("NotificationHistoryId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("MoistureValue")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)")
+                        .HasColumnName("moisture_value");
+
+                    b.Property<int>("NotificationType")
+                        .HasColumnType("int")
+                        .HasColumnName("notification_type");
+
+                    b.Property<decimal>("ThresholdValue")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)")
+                        .HasColumnName("threshold_value");
+
+                    b.Property<int>("UserPlantId")
+                        .HasColumnType("int")
+                        .HasColumnName("user_plant_id");
+
+                    b.HasKey("NotificationHistoryId");
+
+                    b.HasIndex("UserPlantId", "NotificationType")
+                        .HasDatabaseName("idx_notification_history_dedup");
+
+                    b.HasIndex("UserPlantId", "NotificationType", "CreatedAt")
+                        .HasDatabaseName("idx_notification_history_userplant_type_created");
+
+                    b.ToTable("notification_history");
+                });
+
             modelBuilder.Entity("ProjectDaedalus.Core.Entities.Plant", b =>
                 {
                     b.Property<int>("PlantId")
@@ -235,6 +321,28 @@ namespace ProjectDaedalus.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ProjectDaedalus.Core.Entities.Notification", b =>
+                {
+                    b.HasOne("ProjectDaedalus.Core.Entities.UserPlant", "UserPlant")
+                        .WithMany("Notifications")
+                        .HasForeignKey("UserPlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserPlant");
+                });
+
+            modelBuilder.Entity("ProjectDaedalus.Core.Entities.NotificationHistory", b =>
+                {
+                    b.HasOne("ProjectDaedalus.Core.Entities.UserPlant", "UserPlant")
+                        .WithMany("NotificationHistories")
+                        .HasForeignKey("UserPlantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserPlant");
+                });
+
             modelBuilder.Entity("ProjectDaedalus.Core.Entities.SensorHistory", b =>
                 {
                     b.HasOne("ProjectDaedalus.Core.Entities.Device", "Device")
@@ -293,6 +401,13 @@ namespace ProjectDaedalus.Infrastructure.Migrations
                     b.Navigation("Devices");
 
                     b.Navigation("UserPlants");
+                });
+
+            modelBuilder.Entity("ProjectDaedalus.Core.Entities.UserPlant", b =>
+                {
+                    b.Navigation("NotificationHistories");
+
+                    b.Navigation("Notifications");
                 });
 #pragma warning restore 612, 618
         }

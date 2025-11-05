@@ -20,4 +20,8 @@ public partial class UserPlant
     public virtual Plant Plant { get; set; }
 
     public virtual User User { get; set; }
+    
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public ICollection<NotificationHistory> NotificationHistories { get; set; } = new List<NotificationHistory>();
+    
 }

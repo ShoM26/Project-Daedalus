@@ -175,9 +175,101 @@ public partial class DaedalusContext : DbContext
                 .HasForeignKey(d => d.UserId).OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_userplants_user");
         });
+        
+        modelBuilder.Entity<Notification>(entity =>
+    {
+        // Primary Key
+        entity.HasKey(n => n.NotificationId);
+        
+        // Properties
+        entity.Property(n => n.NotificationId)
+            .HasColumnName("notification_id")
+            .ValueGeneratedOnAdd();
+        
+        entity.Property(n => n.UserPlantId)
+            .HasColumnName("userplant_id")
+            .IsRequired();
+        
+        entity.Property(n => n.Message)
+            .HasColumnName("message")
+            .HasMaxLength(255)
+            .IsRequired();
+        
+        entity.Property(n => n.NotificationType)
+            .HasColumnName("notification_type")
+            .HasConversion<int>() // Store enum as int
+            .IsRequired();
+        
+        entity.Property(n => n.IsRead)
+            .HasColumnName("is_read")
+            .HasDefaultValue(false)
+            .IsRequired();
+        
+        entity.Property(n => n.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        
+        // Foreign Key Relationship
+        entity.HasOne(n => n.UserPlant)
+            .WithMany(up => up.Notifications)
+            .HasForeignKey(n => n.UserPlantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // Indexes for Performance
+        entity.HasIndex(n => new { n.UserPlantId, n.IsRead, n.CreatedAt })
+            .HasDatabaseName("idx_notifications_userplant_read_created");
+        
+        entity.HasIndex(n => n.CreatedAt)
+            .HasDatabaseName("idx_notifications_created");
+    });
 
-        OnModelCreatingPartial(modelBuilder);
-    }
-
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    // ===== NotificationHistory Configuration =====
+    modelBuilder.Entity<NotificationHistory>(entity =>
+    {
+        // Primary Key
+        entity.HasKey(nh => nh.NotificationHistoryId);
+        
+        // Properties
+        entity.Property(nh => nh.NotificationHistoryId)
+            .HasColumnName("notification_history_id")
+            .ValueGeneratedOnAdd();
+        
+        entity.Property(nh => nh.UserPlantId)
+            .HasColumnName("user_plant_id")
+            .IsRequired();
+        
+        entity.Property(nh => nh.NotificationType)
+            .HasColumnName("notification_type")
+            .HasConversion<int>() // Store enum as int
+            .IsRequired();
+        
+        entity.Property(nh => nh.MoistureValue)
+            .HasColumnName("moisture_value")
+            .HasPrecision(5, 2) // e.g., 100.00
+            .IsRequired();
+        
+        entity.Property(nh => nh.ThresholdValue)
+            .HasColumnName("threshold_value")
+            .HasPrecision(5, 2)
+            .IsRequired();
+        
+        entity.Property(nh => nh.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+        
+        // Foreign Key Relationship
+        entity.HasOne(nh => nh.UserPlant)
+            .WithMany(up => up.NotificationHistories)
+            .HasForeignKey(nh => nh.UserPlantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // Indexes for Performance
+        entity.HasIndex(nh => new { nh.UserPlantId, nh.NotificationType, nh.CreatedAt })
+            .HasDatabaseName("idx_notification_history_userplant_type_created");
+        
+        // Index for daily deduplication check
+        entity.HasIndex(nh => new { nh.UserPlantId, nh.NotificationType })
+            .HasDatabaseName("idx_notification_history_dedup");
+    });
+    } 
 }
