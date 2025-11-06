@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ProjectDaedalus.Core.Entities;
 
-public partial class Device
+public class Device
 {
     public int DeviceId { get; set; }
 

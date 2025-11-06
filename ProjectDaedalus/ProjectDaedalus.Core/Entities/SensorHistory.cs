@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ProjectDaedalus.Core.Entities;
 
-public partial class SensorHistory
+public class SensorHistory
 {
     public int DeviceId { get; set; } //fk
     public DateTime TimeStamp { get; set; }
