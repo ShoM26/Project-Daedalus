@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ProjectDaedalus.Core.Entities;
 
-public partial class Plant
+public class Plant
 {
     public int PlantId { get; set; }
 
