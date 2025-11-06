@@ -22,4 +22,10 @@
       <ProjectReference Include="..\ProjectDaedalus.Infrastructure\ProjectDaedalus.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <None Update="EmailTemplates\**\*.html">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
 </Project>
