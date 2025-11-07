@@ -103,3 +103,5 @@
 11/4/25: Built the entities, added to the DBcontext, created, and ran the migration. Now we have the Notifications and Notifications History tables from which we will build this feature.
 
 11/5/25: Made the html template part which looks pretty sweet and tested it in the morning. Took a break to work on honors project stuff then in the evening created the email service part. Got signed up with SendGrid and tested it out. currently showing in the spam folder but we move from here. Massive progress made. Set up a meeting with my dad's headhunter for tomorrow so that is good.
+
+11/7/25: created the notification worker on the backend today, controller and tested. headed to the frontend tomorrow.
