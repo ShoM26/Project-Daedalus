@@ -26,7 +26,7 @@ namespace ProjectDaedalus.Core.Entities
         public DateTime CreatedAt { get; set; }
         
         //Navigation properties
-        public required UserPlant UserPlant { get; set; }
+        public UserPlant UserPlant { get; set; }
     }
 }
 
