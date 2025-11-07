@@ -17,15 +17,17 @@ public partial class DaedalusContext : DbContext
     {
     }
 
-    public virtual DbSet<Device> Devices { get; set; }
+    public DbSet<Device> Devices { get; set; }
 
-    public virtual DbSet<Plant> Plants { get; set; }
+    public DbSet<Plant> Plants { get; set; }
 
-    public virtual DbSet<SensorHistory> SensorHistories { get; set; }
+    public DbSet<SensorHistory> SensorHistories { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public DbSet<User> Users { get; set; }
 
-    public virtual DbSet<UserPlant> UserPlants { get; set; }
+    public DbSet<UserPlant> UserPlants { get; set; }
+    public DbSet<Notification> Notifications { get; set; }
+    public DbSet<NotificationHistory> NotificationHistory { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
