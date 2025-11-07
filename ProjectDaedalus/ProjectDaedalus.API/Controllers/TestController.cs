@@ -21,7 +21,7 @@ public class TestController : ControllerBase
             { "CurrentMoisture", "12" },
             { "ThresholdValue", "30" },
             { "DeviceName", "PLANT_99999" },
-            { "DashboardUrl", "https://localhost:7001/plants/1" },
+            { "DashboardUrl", "http://localhost:5172/dashboard" },
             { "Timestamp", DateTime.Now.ToString("MMMM d, yyyy 'at' h:mm tt") }
         });
 
