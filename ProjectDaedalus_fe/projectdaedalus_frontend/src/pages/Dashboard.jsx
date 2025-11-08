@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import PlantCard from '../components/PlantCard';
 import { plantService } from '../services/plantService';
 import  authService  from '../services/authService';
@@ -7,6 +7,9 @@ import PlantDetailModal from '../components/PlantDetailModal';
 import AddPairingModal from '../components/AddPairingModal';
 import '../styles/Dashboard.css';
 import { useNavigate } from 'react-router-dom';
+import { notificationService } from '../services/notificationService';
+import NotificationBell from '../components/NotificationBell';
+import NotificationModal from '../components/NotificationModal';
 
 function Dashboard() {
   const [plants, setPlants] = useState([]);
@@ -15,8 +18,10 @@ function Dashboard() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
-
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
+  const bellRef = useRef(null);
 
   const fetchPlants = async () => {
     try {
@@ -107,6 +112,73 @@ function Dashboard() {
     }
   };
 
+  const fetchUnreadCount = useCallback(async () =>{
+    try{
+      const data = await notificationService.getUnreadCount();
+      setUnreadCount(data.unreadCount || 0);
+    } catch(error){
+      console.error('Error fetching unread count: ', error);
+    }
+  }, []);
+
+  const fetchNotifications = useCallback(async (unreadOnly = false)=>{
+    setLoading(true);
+    try{
+      const data = await notificationService.getNotifications(unreadOnly);
+      setNotifications(data);
+    }catch(error){
+      console.error('Error fetching notifications:', error);
+    } finally{
+      setLoading(false);
+    }
+  }, []);
+
+  const markAsRead = async (notificationId) => {
+    try {
+      await notificationService.markAsRead(notificationId);
+      setNotifications(prev => 
+        prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking as read:', error);
+      await fetchNotifications();
+      await fetchUnreadCount();
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await notificationService.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      await fetchNotifications();
+      await fetchUnreadCount();
+    }
+  };
+
+  // Polling effect - every 2 minutes
+  useEffect(() => {
+    fetchUnreadCount(); // Initial fetch
+    
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchUnreadCount();
+      }
+    }, 2 * 60 * 1000); // 2 minutes
+
+    return () => clearInterval(intervalId);
+  }, [fetchUnreadCount]);
+
+  // Fetch notifications when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen) {
+      fetchNotifications();
+    }
+  }, [isDropdownOpen, fetchNotifications]);
+
   useEffect(() => {
     fetchPlants();
 }, []);
@@ -177,6 +249,23 @@ function Dashboard() {
             >
               + Add Plant Pairing
             </button>
+            <div ref={bellRef} className='relative'>
+              <NotificationBell 
+              unreadCount={unreadCount}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              />
+              <NotificationModal
+                isOpen={isDropdownOpen}
+                onClose={() => setIsDropdownOpen(false)}
+                notifications={notifications}
+                loading={loading}
+                onMarkAsRead={markAsRead}
+                onMarkAllAsRead = {markAllAsRead}
+                onRefresh={fetchNotifications}
+                anchorRef={bellRef}
+              />
+            </div>
+            
             
           </div>
         )}
@@ -253,6 +342,7 @@ function Dashboard() {
           />
         )}
       </Modal>
+      
     </div>
   );
 }
