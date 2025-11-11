@@ -3,42 +3,42 @@ import { Bell, X, CheckCheck } from 'lucide-react';
 import Notification from './Notification';
 
 function NotificationModal({ isOpen, onClose, notifications, loading, onMarkAsRead, onMarkAllAsRead, onRefresh, anchorRef }) {
-        const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+    const [showUnreadOnly, setShowUnreadOnly] = useState(false);
 
     useEffect(() => {
     if (isOpen) {
-      onRefresh(showUnreadOnly);
+      onRefresh();
     }
-  }, [isOpen, showUnreadOnly, onRefresh]);
+  }, [isOpen, showUnreadOnly]);
 
   // Close on outside click
   useEffect(() => {
-    if (!isOpen) return;
+  if (!isOpen) return;
 
-    const handleClickOutside = (event) => {
-      if (anchorRef?.current && !anchorRef.current.contains(event.target)) {
-        onClose();
-      }
-    };
+  const handleClickOutside = (event) => {
+    if (anchorRef?.current && !anchorRef.current.contains(event.target)) {
+      onClose();
+    }
+  };
 
+  // Small delay to prevent immediate closing on open click
+  const timeoutId = setTimeout(() => {
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, onClose, anchorRef]);
+  }, 10);
 
-  useEffect(() =>{
-    if (!isOpen) return;
-    const handleEscape = (event) =>{
-        if(event.key === 'Escape'){
-            onClose();
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, onClose]);
+  return () => {
+    clearTimeout(timeoutId);
+    document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, [isOpen, onClose, anchorRef]);
   
   if (!isOpen) return null;
 
-  const hasUnread = notifications.some(n => !n.isRead);
+  const hasUnread = notifications?.some(n => !n.isRead) ?? false;
+
+  const displayedNotifications = showUnreadOnly 
+    ? (notifications || []).filter(n => !n.isRead)
+    : (notifications || []);
 
   return (
     <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-50 max-h-[600px] flex flex-col">
@@ -68,7 +68,7 @@ function NotificationModal({ isOpen, onClose, notifications, loading, onMarkAsRe
         
         {hasUnread && (
           <button
-            onClick={markAllAsRead}
+            onClick={onMarkAllAsRead}
             className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
             <CheckCheck className="w-4 h-4" />
@@ -84,7 +84,7 @@ function NotificationModal({ isOpen, onClose, notifications, loading, onMarkAsRe
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
             Loading notifications...
           </div>
-        ) : notifications.length === 0 ? (
+        ) : notifications === null ? <p>Null</p> : notifications.length === 0 ? (
           <div className="p-8 text-center text-gray-500">
             <Bell className="w-12 h-12 mx-auto mb-2 text-gray-300" />
             <p>No notifications</p>
@@ -93,11 +93,11 @@ function NotificationModal({ isOpen, onClose, notifications, loading, onMarkAsRe
             )}
           </div>
         ) : (
-          notifications.map(notification => (
+          notifications.map(displayedNotifications => (
             <Notification
-              key={notification.id}
-              notification={notification}
-              onMarkAsRead={markAsRead}
+              key={displayedNotifications.notificationId}
+              notification={displayedNotifications}
+              onMarkAsRead={displayedNotifications}
             />
           ))
         )}

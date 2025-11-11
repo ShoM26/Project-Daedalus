@@ -113,31 +113,56 @@ function Dashboard() {
   };
 
   const fetchUnreadCount = useCallback(async () =>{
+    setLoading(true);
+    const currentUser = authService.getCurrentUser();
     try{
-      const data = await notificationService.getUnreadCount();
+      const data = await notificationService.getUnreadCount(currentUser.userId);
       setUnreadCount(data.unreadCount || 0);
     } catch(error){
       console.error('Error fetching unread count: ', error);
-    }
-  }, []);
-
-  const fetchNotifications = useCallback(async (unreadOnly = false)=>{
-    setLoading(true);
-    try{
-      const data = await notificationService.getNotifications(unreadOnly);
-      setNotifications(data);
-    }catch(error){
-      console.error('Error fetching notifications:', error);
     } finally{
       setLoading(false);
     }
   }, []);
 
-  const markAsRead = async (notificationId) => {
+  const fetchNotifications = useCallback(async () => {
     try {
-      await notificationService.markAsRead(notificationId);
+      setLoading(true);
+      const currentUser = authService.getCurrentUser();
+      const apiNotifications = await notificationService.getNotifications(currentUser.userId);
+
+       if (!apiNotifications || !Array.isArray(apiNotifications)) {
+        setNotifications([]);
+        setError(null);
+        return;
+      }
+
+      const transformedNotifications = apiNotifications.map(notification => ({
+        notificationId: notification.notificationId,
+        message: notification.message,
+        notificationType: notification.notificationType,
+        isRead: notification.isRead,
+        createdAt: notification.createdAt,
+        userPlantId: notification.userPlantId,
+        userPlantName: notification.userPlantName
+      }));
+      
+      setNotifications(transformedNotifications);
+      setError(null);
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+      setError('Failed to load notifications. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  },[]);
+
+  const markAsRead = async (notificationId) => {
+    const currentUser = authService.getCurrentUser();
+    try {
+      await notificationService.markAsRead(notificationId, currentUser.userId);
       setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+        prev.map(n => n.notificationId === notificationId ? { ...n, isRead: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
@@ -171,13 +196,6 @@ function Dashboard() {
 
     return () => clearInterval(intervalId);
   }, [fetchUnreadCount]);
-
-  // Fetch notifications when dropdown opens
-  useEffect(() => {
-    if (isDropdownOpen) {
-      fetchNotifications();
-    }
-  }, [isDropdownOpen, fetchNotifications]);
 
   useEffect(() => {
     fetchPlants();
@@ -252,7 +270,10 @@ function Dashboard() {
             <div ref={bellRef} className='relative'>
               <NotificationBell 
               unreadCount={unreadCount}
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDropdownOpen(!isDropdownOpen);
+              }}
               />
               <NotificationModal
                 isOpen={isDropdownOpen}

@@ -107,7 +107,34 @@ class ApiService {
     console.error('API Error:', error);
     throw error;
   }
-}
+  }
+  async patch(endpoint, data) {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch(`${this.baseURL}${endpoint}`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+      return await response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  }
 }
 
 export default new ApiService();
