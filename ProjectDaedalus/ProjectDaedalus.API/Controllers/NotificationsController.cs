@@ -1,8 +1,9 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProjectDaedalus.Infrastructure.Data;
+using ProjectDaedalus.API.Dtos.Notification;
+using ProjectDaedalus.Core.Entities;
+using ProjectDaedalus.Core.Interfaces;
+using ProjectDaedalus.Infrastructure.UnitOfWork;
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -12,46 +13,35 @@ namespace ProjectDaedalus.API.Controllers
 
     public class NotificationsController : ControllerBase
     {
-        private readonly DaedalusContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<NotificationsController> _logger;
+        private readonly INotificationRepository _notificationRepository;
 
         public NotificationsController(
-            DaedalusContext context,
-            ILogger<NotificationsController> logger)
+            IUnitOfWork unitOfWork,
+            ILogger<NotificationsController> logger,
+            INotificationRepository notificationRepository)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _logger = logger;
-        }
-        
-        private int GetAuthenticatedUserId()
-        {
-            var userIdClaim = User.FindFirst("UserId")?.Value 
-                              ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
-            {
-                throw new UnauthorizedAccessException("User ID not found in token");
-            }
-
-            return userId;
+            _notificationRepository = notificationRepository;
         }
 
         /// <summary>
         /// Get count of unread notifications for the current user
         /// Called by frontend polling (every 2 minutes)
         /// </summary>
-        [HttpGet("unread-count")]
-        public async Task<IActionResult> GetUnreadCount()
+        [HttpGet("{userId}/unread-count")]
+        public async Task<IActionResult> GetUnreadCount(int userId)
         {
             try
             {
-                var userId = GetAuthenticatedUserId();
-                var count = await _context.Notifications
-                    .Include(n => n.UserPlant)
-                    .Where(n => n.UserPlant.UserId == userId && !n.IsRead)
-                    .CountAsync();
-
-                return Ok(new { count });
+                var count = await _notificationRepository.GetNotificationsCountAsync(userId);
+                if (count == 0)
+                {
+                    return  NoContent();
+                }
+                return Ok(new {count});
             }
             catch (Exception ex)
             {
@@ -64,38 +54,29 @@ namespace ProjectDaedalus.API.Controllers
         /// Get list of notifications for the current user
         /// Called when user opens the notification modal
         /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> GetNotifications(
-            [FromQuery] bool unreadOnly = false,
-            [FromQuery] int limit = 50)
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetNotifications(int userId)
         {
             try
             {
-                var userId = GetAuthenticatedUserId(); 
-                var query = _context.Notifications
-                    .Include(n => n.UserPlant)
-                        .ThenInclude(up => up.Plant)
-                    .Where(n => n.UserPlant.UserId == userId);
+                var query = await _notificationRepository.GetNotificationsByUserIdAsync(userId);
 
-                if (unreadOnly)
+                if (query.Any())
                 {
-                    query = query.Where(n => !n.IsRead);
+                    return NoContent();
                 }
 
-                var notifications = await query
+                var notifications = query
                     .OrderByDescending(n => n.CreatedAt)
-                    .Take(limit)
-                    .Select(n => new
-                    {
-                        id = n.NotificationId,
-                        message = n.Message,
-                        type = n.NotificationType.ToString(),
-                        isRead = n.IsRead,
-                        createdAt = n.CreatedAt,
-                        userPlantId = n.UserPlantId,
-                        plantName = n.UserPlant.Plant.FamiliarName
-                    })
-                    .ToListAsync();
+                    .Take(100)
+                    .Select(n => new NotificationResponseDto{
+                        NotificationId = n.NotificationId,
+                        Message = n.Message,
+                        NotificationType = n.NotificationType.ToString(),
+                        IsRead = n.IsRead,
+                        CreatedAt = n.CreatedAt,
+                        UserPlantId = n.UserPlantId,
+                        UserPlantName = n.UserPlant.Plant.FamiliarName}).ToList();
 
                 return Ok(notifications);
             }
@@ -110,15 +91,12 @@ namespace ProjectDaedalus.API.Controllers
         /// Mark a specific notification as read
         /// Called when user clicks "mark as read" on individual notification
         /// </summary>
-        [HttpPatch("{id}/read")]
-        public async Task<IActionResult> MarkAsRead(int id)
+        [HttpPatch("{userId}/{notificationId}/read")]
+        public async Task<IActionResult> MarkAsRead(int notificationId, int userId)
         {
             try
             {
-                var userId = GetAuthenticatedUserId();
-                var notification = await _context.Notifications
-                    .Include(n => n.UserPlant)
-                    .FirstOrDefaultAsync(n => n.NotificationId == id && n.UserPlant.UserId == userId);
+                var notification = await _notificationRepository.GetByIdAsync(notificationId);
 
                 if (notification == null)
                 {
@@ -131,18 +109,18 @@ namespace ProjectDaedalus.API.Controllers
                 }
 
                 notification.IsRead = true;
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation(
                     "Marked notification {NotificationId} as read for user {UserId}", 
-                    id, 
+                    notificationId, 
                     userId);
 
                 return Ok(new { success = true, message = "Notification marked as read" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to mark notification {NotificationId} as read", id);
+                _logger.LogError(ex, "Failed to mark notification {NotificationId} as read", notificationId);
                 return StatusCode(500, new { error = "Failed to update notification" });
             }
         }
@@ -151,33 +129,29 @@ namespace ProjectDaedalus.API.Controllers
         /// Mark all notifications as read for the current user
         /// Optional convenience endpoint
         /// </summary>
-        [HttpPatch("mark-all-read")]
-        public async Task<IActionResult> MarkAllAsRead()
+        [HttpPatch("{userId}/mark-all-read")]
+        public async Task<IActionResult> MarkAllAsRead(int userId)
         {
             try
             {
-                var userId = GetAuthenticatedUserId();
-                var unreadNotifications = await _context.Notifications
-                    .Include(n => n.UserPlant)
-                    .Where(n => n.UserPlant.UserId == userId && !n.IsRead)
-                    .ToListAsync();
-
+                var unreadNotifications = await _notificationRepository.GetUnreadNotificationsByUserIdAsync(userId);
+                var count =  unreadNotifications.Count();
                 foreach (var notification in unreadNotifications)
                 {
                     notification.IsRead = true;
                 }
 
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation(
                     "Marked {Count} notifications as read for user {UserId}", 
-                    unreadNotifications.Count, 
+                    count, 
                     userId);
 
                 return Ok(new { 
                     success = true, 
-                    count = unreadNotifications.Count,
-                    message = $"Marked {unreadNotifications.Count} notifications as read" 
+                    count = count,
+                    message = $"Marked {count} notifications as read" 
                 });
             }
             catch (Exception ex)
