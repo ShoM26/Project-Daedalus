@@ -105,3 +105,7 @@
 11/5/25: Made the html template part which looks pretty sweet and tested it in the morning. Took a break to work on honors project stuff then in the evening created the email service part. Got signed up with SendGrid and tested it out. currently showing in the spam folder but we move from here. Massive progress made. Set up a meeting with my dad's headhunter for tomorrow so that is good.
 
 11/7/25: created the notification worker on the backend today, controller and tested. headed to the frontend tomorrow.
+
+11/8/25: created a rough front end with no function, we can work from here though. will definitely be coming back to change how this was implemented before I created a pr for the feature.
+
+11/10/15: first snow of the year. made a lot of ground in cleaning up the execution of the feature on all fronts. on the backend I moved to the repository style to ensure integrity. Also looked into a bit of front end architecture that I will be diving into and implementing soon.
