@@ -2,45 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { Bell, X, CheckCheck } from 'lucide-react';
 import Notification from './Notification';
 
-function NotificationModal({ isOpen, onClose, notifications, loading, onMarkAsRead, onMarkAllAsRead, onRefresh, anchorRef }) {
+function NotificationModal({ 
+  isOpen, 
+  onClose, 
+  notifications, 
+  loading,
+  error,
+  onMarkAsRead, 
+  onMarkAllAsRead, 
+  onRefresh 
+}) {
     const [showUnreadOnly, setShowUnreadOnly] = useState(false);
 
-    useEffect(() => {
-    if (isOpen) {
-      onRefresh();
-    }
-  }, [isOpen, showUnreadOnly]);
+    if(!isOpen) return null;
 
-  // Close on outside click
-  useEffect(() => {
-  if (!isOpen) return;
+    const displayedNotifications = showUnreadOnly ?
+      notifications.filter(n => !n.isRead)
+      : notifications;
 
-  const handleClickOutside = (event) => {
-    if (anchorRef?.current && !anchorRef.current.contains(event.target)) {
-      onClose();
-    }
-  };
-
-  // Small delay to prevent immediate closing on open click
-  const timeoutId = setTimeout(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-  }, 10);
-
-  return () => {
-    clearTimeout(timeoutId);
-    document.removeEventListener('mousedown', handleClickOutside);
-  };
-}, [isOpen, onClose, anchorRef]);
-  
-  if (!isOpen) return null;
-
-  const hasUnread = notifications?.some(n => !n.isRead) ?? false;
-
-  const displayedNotifications = showUnreadOnly 
-    ? (notifications || []).filter(n => !n.isRead)
-    : (notifications || []);
-
-  return (
+      const hasUnread = notifications.some(n => !n.isRead);
+    return (
     <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-lg shadow-2xl border border-gray-200 z-50 max-h-[600px] flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-200 flex items-center justify-between bg-gray-50 rounded-t-lg">
@@ -93,11 +74,11 @@ function NotificationModal({ isOpen, onClose, notifications, loading, onMarkAsRe
             )}
           </div>
         ) : (
-          notifications.map(displayedNotifications => (
+          displayedNotifications.map(notification => (
             <Notification
-              key={displayedNotifications.notificationId}
-              notification={displayedNotifications}
-              onMarkAsRead={displayedNotifications}
+              key={notification.notificationId}
+              notification={notification}
+              onMarkAsRead={onMarkAsRead}
             />
           ))
         )}

@@ -1,352 +1,190 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import PlantCard from '../components/PlantCard';
-import { plantService } from '../services/plantService';
-import  authService  from '../services/authService';
 import Modal from '../components/Modal';
 import PlantDetailModal from '../components/PlantDetailModal';
 import AddPairingModal from '../components/AddPairingModal';
-import '../styles/Dashboard.css';
-import { useNavigate } from 'react-router-dom';
-import { notificationService } from '../services/notificationService';
 import NotificationBell from '../components/NotificationBell';
 import NotificationModal from '../components/NotificationModal';
+import { useNavigate } from 'react-router-dom';
+import { usePlants } from '../hooks/usePlants';
+import { useNotifications } from '../hooks/useNotifications';
+import { useNotificationDropdown } from '../hooks/useNotificationDropdown';
+import { usePlantFilter } from '../hooks/usePlantFilter';
+import { usePlantModal } from '../hooks/usePlantModal';
+import authService from '../services/authService';
+import '../styles/Dashboard.css';
 
 function Dashboard() {
-  const [plants, setPlants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [selectedPlant, setSelectedPlant] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [notifications, setNotifications] = useState([]);
-  const bellRef = useRef(null);
-
-  const fetchPlants = async () => {
-    try {
-      setLoading(true);
-      const currentUser = authService.getCurrentUser();
-      const apiPlants = await plantService.getUserPlants(currentUser.userId);
-
-      const plantsWithReadings = await Promise.all(
-        apiPlants.map(async (userPlant) => {
-          let reading = null;
-
-          if (userPlant.device && userPlant.device.deviceId) {
-            try {
-              reading = await plantService.getLatestReading(userPlant.device.deviceId);
-            } catch (err) {
-              if(reading === null){
-
-              }
-              else{
-                console.error(`Failed to get reading for device ${userPlant.device.deviceId}`);
-                }
-            }
-          }
-
-          return {
-            ...userPlant,
-            latestReading: reading
-          };
-        })
-      );
-
-      const transformedPlants = plantsWithReadings.map(userPlant => {
-        const reading = userPlant.latestReading;
-        const plant = userPlant.plant;
-        
-        let status = "offline";
-        if (reading && reading.moistureLevel != null) {
-          if (reading.moistureLevel > plant.moistureHighRange) {
-            status = "overwatered";
-          } else if (reading.moistureLevel < plant.moistureLowRange) {
-            status = "needs_water";
-          } else {
-            status = "healthy";
-          }
-        }
-
-        return {
-          id: userPlant.userPlantId,
-          plant: {
-            id: plant.plantId,
-            scientificName: plant.scientificName,
-            familiarName: plant.familiarName,
-            idealMoistureMin: plant.moistureLowRange,
-            idealMoistureMax: plant.moistureHighRange,
-            funFact: plant.funFact || "This plant is part of your monitoring system!"
-          },
-          device: userPlant.device ? {
-            id: userPlant.device.deviceId,
-            name: userPlant.device.deviceName,
-            connectionType: userPlant.device.connectionType,
-            connectionAddress: userPlant.device.connectionAddress
-          } : {
-            id: null,
-            name: "No device assigned",
-            connectionType: "None",
-            connectionAddress: "None"
-          },
-          currentReading: reading ? {
-            moistureLevel: reading.moistureLevel,
-            timestamp: reading.timeStamp,
-            batteryLevel: reading.batteryLevel || 100
-          } : {
-            moistureLevel: 0,
-            timestamp: null,
-            batteryLevel: 0
-          },
-          status: status
-        };
-      });
-      
-      setPlants(transformedPlants);
-      setError(null);
-    } catch (err) {
-      console.error('Failed to fetch plants:', err);
-      setError('Failed to load plants. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUnreadCount = useCallback(async () =>{
-    setLoading(true);
-    const currentUser = authService.getCurrentUser();
-    try{
-      const data = await notificationService.getUnreadCount(currentUser.userId);
-      setUnreadCount(data.unreadCount || 0);
-    } catch(error){
-      console.error('Error fetching unread count: ', error);
-    } finally{
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchNotifications = useCallback(async () => {
-    try {
-      setLoading(true);
-      const currentUser = authService.getCurrentUser();
-      const apiNotifications = await notificationService.getNotifications(currentUser.userId);
-
-       if (!apiNotifications || !Array.isArray(apiNotifications)) {
-        setNotifications([]);
-        setError(null);
-        return;
-      }
-
-      const transformedNotifications = apiNotifications.map(notification => ({
-        notificationId: notification.notificationId,
-        message: notification.message,
-        notificationType: notification.notificationType,
-        isRead: notification.isRead,
-        createdAt: notification.createdAt,
-        userPlantId: notification.userPlantId,
-        userPlantName: notification.userPlantName
-      }));
-      
-      setNotifications(transformedNotifications);
-      setError(null);
-    } catch (err) {
-      console.error('Failed to fetch notifications:', err);
-      setError('Failed to load notifications. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  },[]);
-
-  const markAsRead = async (notificationId) => {
-    const currentUser = authService.getCurrentUser();
-    try {
-      await notificationService.markAsRead(notificationId, currentUser.userId);
-      setNotifications(prev => 
-        prev.map(n => n.notificationId === notificationId ? { ...n, isRead: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking as read:', error);
-      await fetchNotifications();
-      await fetchUnreadCount();
-    }
-  };
-
-  const markAllAsRead = async () => {
-    try {
-      await notificationService.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      setUnreadCount(0);
-    } catch (error) {
-      console.error('Error marking all as read:', error);
-      await fetchNotifications();
-      await fetchUnreadCount();
-    }
-  };
-
-  // Polling effect - every 2 minutes
-  useEffect(() => {
-    fetchUnreadCount(); // Initial fetch
-    
-    const intervalId = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        fetchUnreadCount();
-      }
-    }, 2 * 60 * 1000); // 2 minutes
-
-    return () => clearInterval(intervalId);
-  }, [fetchUnreadCount]);
-
-  useEffect(() => {
-    fetchPlants();
-}, []);
-
-  const healthyPlants = plants.filter(p => p.status === 'healthy').length;
-  const needsAttention = plants.filter(p => p.status !== 'healthy').length;
   const navigate = useNavigate();
+  
+  // Plants logic
+  const { plants, loading: plantsLoading, error: plantsError, fetchPlants, deletePlant } = usePlants();
+  
+  // Notifications logic
+  const {
+    notifications,
+    unreadCount,
+    loading: notificationsLoading,
+    error: notificationsError,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead
+  } = useNotifications();
+  
+  // Notification dropdown UI
+  const { isOpen, anchorRef, toggle, close } = useNotificationDropdown();
+  
+  // Plant filtering
+  const { selectedFilter, setSelectedFilter, filteredPlants, stats } = usePlantFilter(plants);
+  
+  // Plant modals
+  const {
+    selectedPlant,
+    showAddModal,
+    openPlantDetails,
+    closePlantDetails,
+    openAddModal,
+    closeAddModal
+  } = usePlantModal();
+
+  // Fetch notifications when dropdown opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications();
+    }
+  }, [isOpen, fetchNotifications]);
 
   const handleSignOut = () => {
     authService.logout();
     navigate('/landingpage');
   };
 
-
-  const handleFilterChange = (filter) => {
-    setSelectedFilter(filter);
-  };
-
   const handlePairingSuccess = () => {
     fetchPlants();
-    setShowAddModal(false);
-  };
-
-  const handleCardClick = (plant) => {
-    setSelectedPlant(plant);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedPlant(null);
+    closeAddModal();
   };
 
   const handlePlantDeleted = (deletedPlantId) => {
-    setPlants(userPlant.filter(plant => plant.plantId !== deletedPlantId));
-    setSelectedPlant(null);
+    deletePlant(deletedPlantId);
+    closePlantDetails();
   };
-
-  const filteredPlants = plants.filter(plant => {
-    if (selectedFilter === 'all') return true;
-    if (selectedFilter === 'needs-attention') return plant.status !== 'healthy';
-    return plant.status === selectedFilter;
-  });
 
   return (
     <div className="dashboard">
+      {/* Header */}
       <header className="dashboard-header">
         <h1>Plant Monitor Dashboard</h1>
-        {loading ? (
-          <p>Loading plants...</p>
-        ) : error ? (
-          <p style={{ color: 'red' }}>Error: {error}</p>
-        ) : (
-          <div className="summary-stats">
-            <div className="stat">
-              <span className="stat-number">{plants.length}</span>
-              <span className="stat-label">Total Plants</span>
-            </div>
-            <div className="stat healthy">
-              <span className="stat-number">{healthyPlants}</span>
-              <span className="stat-label">Healthy</span>
-            </div>
-            <div className="stat attention">
-              <span className="stat-number">{needsAttention}</span>
-              <span className="stat-label">Need Attention</span>
-            </div>
-            <button 
-              className="add-pairing-button" 
-              onClick={() => setShowAddModal(true)}
-            >
-              + Add Plant Pairing
-            </button>
-            <div ref={bellRef} className='relative'>
-              <NotificationBell 
-              unreadCount={unreadCount}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDropdownOpen(!isDropdownOpen);
-              }}
-              />
-              <NotificationModal
-                isOpen={isDropdownOpen}
-                onClose={() => setIsDropdownOpen(false)}
-                notifications={notifications}
-                loading={loading}
-                onMarkAsRead={markAsRead}
-                onMarkAllAsRead = {markAllAsRead}
-                onRefresh={fetchNotifications}
-                anchorRef={bellRef}
-              />
-            </div>
-            
-            
+        
+        {/* Error State */}
+        {plantsError && (
+          <div className="error" style={{ color: 'red', padding: '1rem' }}>
+            <p>Error: {plantsError}</p>
+            <button onClick={fetchPlants}>Try again</button>
           </div>
+        )}
+
+        {/* Loading State */}
+        {plantsLoading ? (
+          <p>Loading plants...</p>
+        ) : (
+          <>
+            {/* Summary Stats */}
+            <div className="summary-stats">
+              <div className="stat">
+                <span className="stat-number">{stats.total}</span>
+                <span className="stat-label">Total Plants</span>
+              </div>
+              <div className="stat healthy">
+                <span className="stat-number">{stats.healthy}</span>
+                <span className="stat-label">Healthy</span>
+              </div>
+              <div className="stat attention">
+                <span className="stat-number">{stats.needsAttention}</span>
+                <span className="stat-label">Need Attention</span>
+              </div>
+              
+              <button 
+                className="add-pairing-button" 
+                onClick={openAddModal}
+              >
+                + Add Plant Pairing
+              </button>
+              
+              {/* Notification Bell */}
+              <div ref={anchorRef} className='relative'>
+                <NotificationBell 
+                  unreadCount={unreadCount}
+                  onClick={toggle}
+                />
+                <NotificationModal
+                  isOpen={isOpen}
+                  onClose={close}
+                  notifications={notifications}
+                  loading={notificationsLoading}
+                  error={notificationsError}
+                  onMarkAsRead={markAsRead}
+                  onMarkAllAsRead={markAllAsRead}
+                  onRefresh={fetchNotifications}
+                />
+              </div>
+            </div>
+          </>
         )}
       </header>
 
+      {/* Filter Controls */}
       <div className="filter-controls">
         <h3>Filter Plants:</h3>
         <div className="filter-buttons">
           <button 
             className={selectedFilter === 'all' ? 'active' : ''}
-            onClick={() => handleFilterChange('all')}
+            onClick={() => setSelectedFilter('all')}
           >
-            All Plants ({plants.length})
+            All Plants ({stats.total})
           </button>
           <button 
             className={selectedFilter === 'healthy' ? 'active' : ''}
-            onClick={() => handleFilterChange('healthy')}
+            onClick={() => setSelectedFilter('healthy')}
           >
-            Healthy ({healthyPlants})
+            Healthy ({stats.healthy})
           </button>
           <button 
             className={selectedFilter === 'needs-attention' ? 'active' : ''}
-            onClick={() => handleFilterChange('needs-attention')}
+            onClick={() => setSelectedFilter('needs-attention')}
           >
-            Needs Attention ({needsAttention})
+            Needs Attention ({stats.needsAttention})
           </button>
           <button
             className="signout-button"
-            onClick={handleSignOut}>Sign Out</button>
-   
-          <AddPairingModal
-            isOpen={showAddModal}
-            onClose={() => setShowAddModal(false)}
-            onSuccess={() => handlePairingSuccess()}
-          />
+            onClick={handleSignOut}
+          >
+            Sign Out
+          </button>
         </div>
       </div>
 
       {/* Plants Grid */}
       <div className="plants-grid">
-        {loading ? (
+        {plantsLoading ? (
           <div className="loading">Loading plants...</div>
-        ) : error ? (
+        ) : plantsError ? (
           <div className="error">
             <p>Failed to load plants.</p>
-            <button onClick={() => window.location.reload()}>Retry</button>
+            <button onClick={fetchPlants}>Retry</button>
           </div>
         ) : (
           <>
-            {/* MAPPING - create a PlantCard for each plant */}
+            {/* Map filtered plants to PlantCard components */}
             {filteredPlants.map(pairing => (
               <PlantCard 
-                key={pairing.id}  // Required for React lists
-                pairing={pairing} // Pass entire pairing object as prop
-                onClick={() => handleCardClick(pairing)}
+                key={pairing.id}
+                pairing={pairing}
+                onClick={() => openPlantDetails(pairing)}
               />
             ))}
             
-            {/* CONDITIONAL RENDERING - show message if no plants match filter */}
-            {filteredPlants.length === 0 && !loading && (
+            {/* Empty state - no plants match filter */}
+            {filteredPlants.length === 0 && !plantsLoading && (
               <div className="no-plants">
                 <p>No plants match the current filter.</p>
               </div>
@@ -354,18 +192,25 @@ function Dashboard() {
           </>
         )}
       </div>
-      <Modal isOpen={selectedPlant !== null} onClose={handleCloseModal}>
+
+      {/* Plant Details Modal */}
+      <Modal isOpen={selectedPlant !== null} onClose={closePlantDetails}>
         {selectedPlant && (
           <PlantDetailModal 
             userPlant={selectedPlant}
             onDelete={handlePlantDeleted}
-            onClose={handleCloseModal}
+            onClose={closePlantDetails}
           />
         )}
       </Modal>
-      
+
+      {/* Add Pairing Modal */}
+      <AddPairingModal
+        isOpen={showAddModal}
+        onClose={closeAddModal}
+        onSuccess={handlePairingSuccess}
+      />
     </div>
   );
 }
-
 export default Dashboard;
