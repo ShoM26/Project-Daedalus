@@ -8,10 +8,10 @@ export const notificationService = {
         return await apiService.get(`/Notifications/${userId}`);
     },
     markAsRead: async (notificationId, userId) => {
-        return await apiService.patch(`/Notifications/${userId}/${notificationId}/read`); //TODO: Implement
+        return await apiService.patch(`/Notifications/${userId}/${notificationId}/read`);
     },
     markAllAsRead: async (userId) => {
-        return await apiService.patch(`/Notifications/${userId}/mark-all-read`); //TODO: Implement
+        return await apiService.patch(`/Notifications/${userId}/mark-all-read`);
     }
 
 };
