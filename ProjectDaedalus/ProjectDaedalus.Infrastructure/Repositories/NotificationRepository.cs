@@ -12,7 +12,7 @@ namespace ProjectDaedalus.Infrastructure.Repositories
         public async Task<IEnumerable<Notification>> GetNotificationsByUserIdAsync(int userId)
         {
             return await _dbSet.Include(n => n.UserPlant)
-                .ThenInclude(up=> up.Plant)
+                .ThenInclude(up => up.Plant)
                 .Where(n => n.UserPlant.UserId == userId)
                 .ToListAsync();
         }

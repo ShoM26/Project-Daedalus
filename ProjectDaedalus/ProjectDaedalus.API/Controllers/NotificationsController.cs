@@ -9,7 +9,6 @@ namespace ProjectDaedalus.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
 
     public class NotificationsController : ControllerBase
     {
@@ -61,9 +60,9 @@ namespace ProjectDaedalus.API.Controllers
             {
                 var query = await _notificationRepository.GetNotificationsByUserIdAsync(userId);
 
-                if (query.Any())
+                if (!query.Any())
                 {
-                    return NoContent();
+                    return Ok(new List<NotificationResponseDto>());
                 }
 
                 var notifications = query
