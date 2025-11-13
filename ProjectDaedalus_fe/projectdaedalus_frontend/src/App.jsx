@@ -5,7 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import LandingPage from './pages/LandingPage';
 import authService from './services/authService';
-import './App.css';
+import './styles/global.css';
 
 // Protected Route component - only shows content if user is logged in
 function ProtectedRoute({ children }) {

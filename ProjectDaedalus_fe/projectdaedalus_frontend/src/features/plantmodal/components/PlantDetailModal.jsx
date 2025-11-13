@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import SensorChart from './SensorChart';
 import '../styles/PlantDetailModal.css';
-import ConfirmDialog from './ConfirmDialog';
+import ConfirmDialog from '../../dashboard/components/ConfirmDialog';
 
 
 function PlantDetailModal({ userPlant, onDelete, onClose }) {

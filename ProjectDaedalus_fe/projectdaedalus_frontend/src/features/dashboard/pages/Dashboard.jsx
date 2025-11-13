@@ -1,17 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+//components
+import Modal from '@shared/components/Modal';
 import PlantCard from '../components/PlantCard';
-import Modal from '../components/Modal';
 import PlantDetailModal from '../components/PlantDetailModal';
 import AddPairingModal from '../components/AddPairingModal';
-import NotificationBell from '../components/NotificationBell';
-import NotificationModal from '../components/NotificationModal';
-import { useNavigate } from 'react-router-dom';
+import NotificationBell from '@notificationmodal/components/NotificationBell';
+import NotificationModal from '@notificationmodal/components/NotificationModal';
+//hooks
 import { usePlants } from '../hooks/usePlants';
 import { useNotifications } from '../hooks/useNotifications';
 import { useNotificationDropdown } from '../hooks/useNotificationDropdown';
 import { usePlantFilter } from '../hooks/usePlantFilter';
 import { usePlantModal } from '../hooks/usePlantModal';
-import authService from '../services/authService';
+//services
+import authService from '@auth/services/authService';
+//styles
 import '../styles/Dashboard.css';
 
 function Dashboard() {
@@ -89,16 +93,19 @@ function Dashboard() {
               unreadCount={unreadCount}
               onClick={toggle}
             />
-            <NotificationModal
-              isOpen={isOpen}
-              onClose={close}
-              notifications={notifications}
-              loading={notificationsLoading}
-              error={notificationsError}
-              onMarkAsRead={markAsRead}
-              onMarkAllAsRead={markAllAsRead}
-              onRefresh={fetchNotifications}
+            <Modal>
+              <NotificationModal
+                isOpen={isOpen}
+                onClose={close}
+                notifications={notifications}
+                loading={notificationsLoading}
+                error={notificationsError}
+                onMarkAsRead={markAsRead}
+                onMarkAllAsRead={markAllAsRead}
+                onRefresh={fetchNotifications}
             />
+            </Modal>
+            
           </div>
           
           <button
@@ -199,12 +206,13 @@ function Dashboard() {
           />
         )}
       </Modal>
-
-      <AddPairingModal
+      <Modal>
+        <AddPairingModal
         isOpen={showAddModal}
         onClose={closeAddModal}
         onSuccess={handlePairingSuccess}
-      />
+      /></Modal>
+      
     </div>
   );
 }

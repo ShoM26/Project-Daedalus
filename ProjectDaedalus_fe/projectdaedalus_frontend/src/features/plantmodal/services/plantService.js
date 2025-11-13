@@ -1,4 +1,4 @@
-import apiService from './api';
+import apiService from '../../../services/api';
 
 export const plantService = {
   // Get all plants (original endpoint - not user-specific)
