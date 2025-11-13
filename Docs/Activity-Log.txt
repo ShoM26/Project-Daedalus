@@ -111,3 +111,5 @@
 11/10/15: first snow of the year. made a lot of ground in cleaning up the execution of the feature on all fronts. on the backend I moved to the repository style to ensure integrity. Also looked into a bit of front end architecture that I will be diving into and implementing soon.
 
 11/11/25: refactored my front end to follow a more commonly used pattern where state changes are held in javascript files. planning on figuring out why no notifications are showing then merging to the "feature" architecture.
+
+11/12/25: restored function to the getnotifications endpoint. need to checkout the individual patch method because I'm not sure it works. other than that just styles and the refactoring the front end. also need to make sure notificationhistory table is running in parallel.
