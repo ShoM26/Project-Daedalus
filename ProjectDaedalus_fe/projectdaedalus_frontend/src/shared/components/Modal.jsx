@@ -1,6 +1,6 @@
 // src/components/Modal.jsx
 import React from 'react';
-import '../styles/Modal.css';
+import styles from '../styles/Modal.module.css';
 
 function Modal({ isOpen, onClose, children }) {
   // Don't render anything if modal isn't open
@@ -9,15 +9,13 @@ function Modal({ isOpen, onClose, children }) {
   // Close modal when clicking the overlay (background)
   const handleOverlayClick = (e) => {
     // Only close if clicking the overlay itself, not the content
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
+    if (e.target === e.currentTarget) onClose();
   };
 
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal-content">
-        <button className="modal-close" onClick={onClose}>
+    <div className={styles.overlay} onClick={handleOverlayClick}>
+      <div className={styles.content}>
+        <button className={styles.close} onClick={onClose}>
           ×
         </button>
         {children}
