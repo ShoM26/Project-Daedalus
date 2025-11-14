@@ -113,3 +113,5 @@
 11/11/25: refactored my front end to follow a more commonly used pattern where state changes are held in javascript files. planning on figuring out why no notifications are showing then merging to the "feature" architecture.
 
 11/12/25: restored function to the getnotifications endpoint. need to checkout the individual patch method because I'm not sure it works. other than that just styles and the refactoring the front end. also need to make sure notificationhistory table is running in parallel.
+
+11/13/25: Did the big refactor today. this pr is going to be crazy but I've made crazy progress on the feature. last minute small thing tomorrow then push before the weekend. thank god tomorrow is Friday.
