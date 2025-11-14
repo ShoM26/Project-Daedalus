@@ -1,7 +1,7 @@
 // hooks/useNotifications.js
 import { useState, useCallback, useEffect } from 'react';
 import { notificationService } from '../services/notificationService';
-import authService from '../services/authService';
+import authService from '../../auth/services/authService';
 
 export function useNotifications() {
   const [notifications, setNotifications] = useState([]);

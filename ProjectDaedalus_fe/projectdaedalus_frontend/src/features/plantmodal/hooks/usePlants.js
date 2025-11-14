@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { plantService } from '../services/plantService';
-import authService from '@auth/services/authService';
+import authService from '../../auth/services/authService';
 
 export function usePlants() {
   const [plants, setPlants] = useState([]);

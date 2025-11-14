@@ -1,20 +1,20 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 //components
-import Modal from '@shared/components/Modal';
-import PlantCard from '../components/PlantCard';
-import PlantDetailModal from '../components/PlantDetailModal';
-import AddPairingModal from '../components/AddPairingModal';
-import NotificationBell from '@notificationmodal/components/NotificationBell';
-import NotificationModal from '@notificationmodal/components/NotificationModal';
+import Modal from '@shared/components/Modal.jsx';
+import PlantCard from '../components/PlantCard.jsx';
+import PlantDetailModal from '../../plantmodal/components/PlantDetailModal.jsx'; 
+import AddPairingModal from '../components/AddPairingModal.jsx';
+import NotificationBell from '../../notificationmodal/components/NotificationBell.jsx';
+import NotificationModal from '../../notificationmodal/components/NotificationModal.jsx';
 //hooks
-import { usePlants } from '../hooks/usePlants';
-import { useNotifications } from '../hooks/useNotifications';
-import { useNotificationDropdown } from '../hooks/useNotificationDropdown';
-import { usePlantFilter } from '../hooks/usePlantFilter';
-import { usePlantModal } from '../hooks/usePlantModal';
+import { usePlants } from '../../plantmodal/hooks/usePlants.js';
+import { useNotifications } from '../../notificationmodal/hooks/useNotifications.js';
+import { useNotificationDropdown } from '../../notificationmodal/hooks/useNotificationDropdown.js';
+import { usePlantFilter } from '../../plantmodal/hooks/usePlantFilter.js';
+import { usePlantModal } from '../../plantmodal/hooks/usePlantModal.js';
 //services
-import authService from '@auth/services/authService';
+import authService from '../../auth/services/authService.js';
 //styles
 import '../styles/Dashboard.css';
 

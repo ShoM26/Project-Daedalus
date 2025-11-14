@@ -1,20 +1,22 @@
 import React from "react";
 import { Bell } from 'lucide-react';
+import styles from '../styles/NotificationBell.module.css';
 
 function NotificationBell({ unreadCount, onClick }) {
+  const hasUnread = unreadCount && unreadCount > 0;
   return (
     <button
       onClick={onClick}
-      className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-      aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
+      className={styles.bellButton}
+      aria-label={`Notifications ${hasUnread ? `(${unreadCount} unread)` : ''}`}
     >
-      <Bell className="w-6 h-6 text-gray-700" />
-      {unreadCount > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[20px] h-5 flex items-center justify-center px-1">
+      <Bell className={styles.bellIcon} />
+      {hasUnread && (
+        <span className={styles.badge}>
           {unreadCount > 99 ? '99+' : unreadCount}
         </span>
       )}
     </button>
   );
-};
+}
 export default NotificationBell;

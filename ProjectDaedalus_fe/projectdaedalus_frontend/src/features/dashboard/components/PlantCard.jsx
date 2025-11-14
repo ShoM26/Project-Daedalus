@@ -1,7 +1,6 @@
 // src/features/plants/components/PlantCard.jsx
-import { getStatusColor, isInIdealRange } from '../utils/plantUtils';
+import { isInIdealRange } from '../utils/plantUtils';
 import styles from '../styles/PlantCard.module.css';
-
 /**
  * PlantCard Component
  * Displays a plant pairing with its device, moisture readings, and status
@@ -18,6 +17,12 @@ function PlantCard({ pairing, onClick }) {
     plant.idealMoistureMax
   );
 
+  function getStatusClass(moisture, idealMin, idealMax, styles) {
+    if (moisture < idealMin) return styles.statusLow;
+    if (moisture > idealMax) return styles.statusHigh;
+    return styles.statusOk;
+  };
+
   return (
     <div 
       className={styles.plantCard}
@@ -27,8 +32,8 @@ function PlantCard({ pairing, onClick }) {
       <div className={styles.plantHeader}>
         <h3>{plant.familiarName}</h3>
         <span 
-          className={styles.statusIndicator}
-          style={{ backgroundColor: getStatusColor(status) }}
+          className={`${styles.statusIndicator}
+          ${getStatusClass(plant.moistureLevel, plant.idealMoistureMin, plant.idealMoistureMax, styles)}`}
         >
           {status.replace('_', ' ')}
         </span>

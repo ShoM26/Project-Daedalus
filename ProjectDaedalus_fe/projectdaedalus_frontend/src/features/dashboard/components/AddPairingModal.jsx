@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Modal from '@shared/components/Modal';
 import ConfirmDialog from './ConfirmDialog';
-import { plantService } from '../services/plantService';
+import { plantService } from '../../plantmodal/services/plantService';
 import '../styles/AddPairingModal.css';
 
 

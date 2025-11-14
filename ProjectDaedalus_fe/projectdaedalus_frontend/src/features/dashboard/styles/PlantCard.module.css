@@ -39,6 +39,18 @@
   text-transform: capitalize;
 }
 
+.statusOk {
+  background-color: #4caf50; /* green */
+}
+
+.statusLow {
+  background-color: #f4b400; /* yellow */
+}
+
+.statusHigh {
+  background-color: #d9534f; /* red */
+}
+
 /* ===== Device Info Section ===== */
 .deviceInfo {
   display: flex;
