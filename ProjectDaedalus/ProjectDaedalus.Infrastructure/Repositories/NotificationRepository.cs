@@ -28,7 +28,7 @@ namespace ProjectDaedalus.Infrastructure.Repositories
 
         public async Task<int> GetNotificationsCountAsync(int userId)
         {
-            return await _dbSet.Include(n => n.UserPlant.User)
+            return await _dbSet.Include(n => n.UserPlant)
                 .Where(n=> n.UserPlant.UserId == userId && !n.IsRead)
                 .CountAsync();
         }

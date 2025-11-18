@@ -35,12 +35,8 @@ namespace ProjectDaedalus.API.Controllers
         {
             try
             {
-                var count = await _notificationRepository.GetNotificationsCountAsync(userId);
-                if (count == 0)
-                {
-                    return  NoContent();
-                }
-                return Ok(new {count});
+                var unreadCount = await _notificationRepository.GetNotificationsCountAsync(userId);
+                return Ok(new {unreadCount});
             }
             catch (Exception ex)
             {
