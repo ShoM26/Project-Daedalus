@@ -1,11 +1,11 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
+import Dashboard from '@features/dashboard/pages/Dashboard.jsx';
+import Login from '@features/auth/pages/Login';
+import Signup from '@features/auth/pages/Signup';
 import LandingPage from './pages/LandingPage';
-import authService from './services/authService';
-import './App.css';
+import authService from '@features/auth/services/authService';
+import '@shared/styles/global.css';
 
 // Protected Route component - only shows content if user is logged in
 function ProtectedRoute({ children }) {

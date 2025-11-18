@@ -7,6 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <None Update="appsettings.Development.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+    
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.8">
@@ -20,6 +26,12 @@
     <ItemGroup>
       <ProjectReference Include="..\ProjectDaedalus.Core\ProjectDaedalus.Core.csproj" />
       <ProjectReference Include="..\ProjectDaedalus.Infrastructure\ProjectDaedalus.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="EmailTemplates\**\*.html">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

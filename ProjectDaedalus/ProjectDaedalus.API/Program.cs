@@ -8,6 +8,8 @@ using ProjectDaedalus.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using ProjectDaedalus.Core.Configuration;
+using ProjectDaedalus.Infrastructure.Services;
 using ProjectDaedalus.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +35,15 @@ builder.Services.AddScoped<IPlantRepository, PlantRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 builder.Services.AddScoped<ISensorReadingRepository, SensorReadingRepository>();
 builder.Services.AddScoped<IUserPlantRepository, UserPlantRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("NotificationWorker"));
+
+//Adding Services
+builder.Services.AddSingleton<IEmailTemplateService, EmailTemplateService>();
+builder.Services.AddScoped<IEmailService, SendGridEmailService>();
+builder.Services.AddHostedService<NotificationWorker>();
 
 // Register UnitOfWork
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

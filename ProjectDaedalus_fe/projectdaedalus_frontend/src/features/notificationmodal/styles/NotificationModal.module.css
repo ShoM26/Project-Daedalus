@@ -1,0 +1,77 @@
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  max-height: 70vh;
+  overflow: hidden;
+  background-color: var(--earth-cream);
+  border-radius: var(--radius-soft);
+  border: 1px solid var(--earth-green);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--earth-green);
+  background-color: var(--earth-cream);
+}
+
+.header h3 {
+  color: var(--earth-brown);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.unreadFilter {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--earth-brown);
+}
+
+.markAllRead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--earth-red);
+  color: var(--earth-cream);
+  border: none;
+  border-radius: var(--radius-soft);
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.markAllRead:hover {
+  background-color: #a53a3a;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.statusText {
+  text-align: center;
+  color: var(--earth-brown);
+  padding: 1rem;
+  font-size: 0.95rem;
+}
+
+.iconSmall {
+  width: 16px;
+  height: 16px;
+}

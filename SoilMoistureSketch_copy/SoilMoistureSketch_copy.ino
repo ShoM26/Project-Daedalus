@@ -1,11 +1,12 @@
 #include <ArduinoJson.h>
 #include <EEPROM.h>
+#include <SoftwareSerial.h>
 
 // Device configuration
 const String hardwareIdentifier;
 int prevReading = 0;
 
-const int dry=536;
+const int dry=539;
 const int wet=350;
 
 const int SAMPLE_COUNT = 10;
@@ -104,9 +105,10 @@ void loop() {
   unsigned long currentTime = millis();
   int valueDifference = abs(smoothedValue - prevReading);
 
-  if(valueDifference > 5 || (currentTime - lastSendTime) > 30000) {
-    percentageValue = map(smoothedValue, wet, dry, 100, 0);
-    sendSensorData(smoothedValue);
+  if(valueDifference > 2 || (currentTime - lastSendTime) > 30000) {
+    int clampedValue = constrain(smoothedValue, wet, dry);
+    percentageValue = map(clampedValue, wet, dry, 100, 0);
+    sendSensorData(percentageValue);
     prevReading = smoothedValue;
     lastSendTime = currentTime;
   }
