@@ -115,3 +115,5 @@
 11/12/25: restored function to the getnotifications endpoint. need to checkout the individual patch method because I'm not sure it works. other than that just styles and the refactoring the front end. also need to make sure notificationhistory table is running in parallel.
 
 11/13/25: Did the big refactor today. this pr is going to be crazy but I've made crazy progress on the feature. last minute small thing tomorrow then push before the weekend. thank god tomorrow is Friday.
+
+11/17/25: Enjoyed a weekend spent with a lot of people and it gave me a lot of time to think about how I was going to tackle the tail end of all of this. I was on a role in the small amount of time I spent on this today. Fixed more css restored function to everything and did a lot of gentle error handling. Created the PR and the diff is too big to check. oh well. The last thing I need to do for now is to change the notification and notification history tables to be populated by api. Going to be a loud day on linkedin when this drops.
