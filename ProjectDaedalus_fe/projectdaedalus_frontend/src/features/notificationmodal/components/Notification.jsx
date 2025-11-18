@@ -8,7 +8,7 @@ function Notification({ notification, onMarkAsRead }) {
 
     const handleMarkAsRead = async () => {
         setIsMarking(true);
-        await onMarkingAsRead(notification.id);
+        await onMarkAsRead(notification.notificationId);
         setIsMarking(false);
     };
 

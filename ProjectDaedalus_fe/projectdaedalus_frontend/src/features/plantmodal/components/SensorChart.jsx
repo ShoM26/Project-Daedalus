@@ -48,8 +48,11 @@ function SensorChart({ deviceId, moistureMin, moistureMax }) {
       try {
         const { startDate, endDate } = getDateRange(timeRange);
         const data = await plantService.getReadingsRange(deviceId, startDate, endDate);
-        
-        const formattedData = data.map(reading => ({
+        if(data === null){
+          setReadings([]);
+        }
+        else{
+          const formattedData = data.map(reading => ({
         timestamp: new Date(reading.timestamp).toLocaleString('en-US',{
             month: 'short',
             day: 'numeric',
@@ -59,7 +62,10 @@ function SensorChart({ deviceId, moistureMin, moistureMax }) {
         moisture: reading.moistureLevel,
         date: new Date(reading.timestamp)
       }));
-        setReadings(formattedData);
+      setReadings(formattedData);
+        }
+        
+        
       } catch (err) {
         setError(err.message);
       } finally {

@@ -5,7 +5,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg,var(--color-primary) 0%, var(--color-secondary) 100%);
   padding: 20px;
 }
 
@@ -56,20 +56,20 @@
 }
 
 .landing-button:first-child {
-  background-color: #667eea;
+  background-color: var(--color-primary);
   color: white;
 }
 
 .landing-button:first-child:hover {
-  background-color: #5568d3;
+  background-color: var(--color-secondary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px var(--color-primary);
 }
 
 .landing-button:last-child {
   background-color: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: var(--color-primary);
+  border: 2px solid var(--color-secondary);
 }
 
 .landing-button:last-child:hover {

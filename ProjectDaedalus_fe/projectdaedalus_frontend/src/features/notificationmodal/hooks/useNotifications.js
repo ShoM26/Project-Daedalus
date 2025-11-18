@@ -32,6 +32,7 @@ export function useNotifications() {
       }));
       
       setNotifications(transformedNotifications);
+      setUnreadCount(transformedNotifications.filter(n => !n.isRead).length);
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
       setError('Failed to load notifications. Please try again.');
@@ -44,7 +45,11 @@ export function useNotifications() {
     try {
       const currentUser = authService.getCurrentUser();
       const data = await notificationService.getUnreadCount(currentUser.userId);
-      setUnreadCount(data.unreadCount || 0);
+      if(!data || data == null){
+        setUnreadCount(0);
+      }else {
+        setUnreadCount(data.unreadCount || 0);
+      }
     } catch (error) {
       console.error('Error fetching unread count:', error);
     }

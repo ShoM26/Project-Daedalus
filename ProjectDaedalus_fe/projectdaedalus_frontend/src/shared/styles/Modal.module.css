@@ -4,7 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0,0,0,0.7);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,7 +12,7 @@
 }
 
 .content {
-  background-color: var(--earth-cream);
+  background-color: white;
   border-radius: var(--radius-soft);
   padding: 1rem 1.25rem;
   position: relative;
@@ -30,6 +30,9 @@
 }
 
 .close {
+  display: flex;
+  justify-content: center;
+  align-content: center;
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;

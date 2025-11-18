@@ -31,6 +31,7 @@ function Dashboard() {
     loading: notificationsLoading,
     error: notificationsError,
     fetchNotifications,
+    fetchUnreadCount,
     markAsRead,
     markAllAsRead
   } = useNotifications();
@@ -51,12 +52,19 @@ function Dashboard() {
     closeAddModal
   } = usePlantModal();
 
+  // Fetch unread count on mount
+  useEffect(() =>{
+    fetchUnreadCount();
+  }, [fetchUnreadCount]);
+
   // Fetch notifications when dropdown opens
-  useEffect(() => {
-    if (isOpen) {
+  const handleNotificationToggle = () => {
+    
+    if (!isOpen) {
       fetchNotifications();
     }
-  }, [isOpen, fetchNotifications]);
+    toggle();
+  };
 
   const handleSignOut = () => {
     authService.logout();
@@ -91,9 +99,8 @@ function Dashboard() {
           <div ref={anchorRef} className='relative'>
             <NotificationBell 
               unreadCount={unreadCount}
-              onClick={toggle}
+              onClick={handleNotificationToggle}
             />
-            <Modal>
               <NotificationModal
                 isOpen={isOpen}
                 onClose={close}
@@ -102,9 +109,7 @@ function Dashboard() {
                 error={notificationsError}
                 onMarkAsRead={markAsRead}
                 onMarkAllAsRead={markAllAsRead}
-                onRefresh={fetchNotifications}
-            />
-            </Modal>
+                onRefresh={fetchNotifications}/>
             
           </div>
           
@@ -206,12 +211,10 @@ function Dashboard() {
           />
         )}
       </Modal>
-      <Modal>
         <AddPairingModal
         isOpen={showAddModal}
         onClose={closeAddModal}
-        onSuccess={handlePairingSuccess}
-      /></Modal>
+        onSuccess={handlePairingSuccess}/>
       
     </div>
   );

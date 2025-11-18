@@ -3,7 +3,7 @@ import { Bell } from 'lucide-react';
 import styles from '../styles/NotificationBell.module.css';
 
 function NotificationBell({ unreadCount, onClick }) {
-  const hasUnread = unreadCount && unreadCount > 0;
+  const hasUnread = unreadCount > 0;
   return (
     <button
       onClick={onClick}
@@ -12,7 +12,7 @@ function NotificationBell({ unreadCount, onClick }) {
     >
       <Bell className={styles.bellIcon} />
       {hasUnread && (
-        <span className={styles.badge}>
+        <span className={styles.badgeIcon}>
           {unreadCount > 99 ? '99+' : unreadCount}
         </span>
       )}

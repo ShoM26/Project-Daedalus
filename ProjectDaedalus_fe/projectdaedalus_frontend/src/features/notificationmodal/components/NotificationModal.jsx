@@ -55,7 +55,7 @@ function NotificationModal({
           ) : (
             displayedNotifications.map((n) => (
               <Notification
-                key={n.id}
+                key={n.notificationId}
                 notification={n}
                 onMarkAsRead={onMarkAsRead}
               />

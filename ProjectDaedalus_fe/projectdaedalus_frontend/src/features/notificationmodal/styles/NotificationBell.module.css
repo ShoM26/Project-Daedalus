@@ -3,10 +3,10 @@
 .bellButton {
   position: relative;
   padding: 0.5rem;
+  margin: var(--space-sm);
   border: none;
   background: transparent;
   cursor: pointer;
-
   border-radius: var(--radius);
   transition: background 0.15s ease;
 }
@@ -23,15 +23,15 @@
 .bellIcon {
   width: 24px;
   height: 24px;
-  color: var(--text-dark);
+  color: black;
 }
 
-.badge {
+.badgeIcon {
   position: absolute;
   top: -4px;
   right: -4px;
 
-  background: var(--accent); /* earthy red */
+  background: black;
   color: white;
   font-size: 0.7rem;
   font-weight: bold;

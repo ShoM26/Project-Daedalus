@@ -196,3 +196,11 @@
 .signout-button:hover {
   background-color: #c82333;
 }
+
+.nav-actions{
+  display: flex;
+}
+
+.relative{
+  margin-left: auto;
+}

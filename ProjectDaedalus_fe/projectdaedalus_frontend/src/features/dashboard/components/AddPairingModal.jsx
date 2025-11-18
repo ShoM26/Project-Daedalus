@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Modal from '@shared/components/Modal';
+import Modal from '../../../shared/components/Modal.jsx';
 import ConfirmDialog from './ConfirmDialog';
 import { plantService } from '../../plantmodal/services/plantService';
 import '../styles/AddPairingModal.css';
