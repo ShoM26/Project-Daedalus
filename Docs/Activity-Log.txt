@@ -119,3 +119,5 @@
 11/17/25: Enjoyed a weekend spent with a lot of people and it gave me a lot of time to think about how I was going to tackle the tail end of all of this. I was on a role in the small amount of time I spent on this today. Fixed more css restored function to everything and did a lot of gentle error handling. Created the PR and the diff is too big to check. oh well. The last thing I need to do for now is to change the notification and notification history tables to be populated by api. Going to be a loud day on linkedin when this drops.
 
 11/23/22: did my planning for the implementation of automatic device registration. feature sounds cool and not as big of a lift as the previous one. Going to begin implementation soon
+
+11/26/25: began working on the auto device feature today starting with the .ino file
