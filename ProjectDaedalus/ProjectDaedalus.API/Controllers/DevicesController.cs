@@ -5,8 +5,8 @@ using ProjectDaedalus.API.Attributes;
 using ProjectDaedalus.API.Dtos;
 using ProjectDaedalus.API.Dtos.Device;
 using ProjectDaedalus.Core.Entities;
-using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
-using ProjectDaedalus.Infrastructure.Data; // DbContext
+using ProjectDaedalus.Core.Interfaces;
+using ProjectDaedalus.Infrastructure.Data;
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -86,19 +86,17 @@ namespace ProjectDaedalus.API.Controllers
         //POST register a new Device
         [HttpPost("internal/register")]
         [InternalApi]
-        [AllowAnonymous]
         public async Task<IActionResult> RegisterDevice([FromBody] DeviceDto dto)
         {
             if (dto == null)
             {
                 return BadRequest("Invalid Payload");
             }
-
             try
             {
-                var exisitingDevice =
+                var existingDevice =
                     await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
-                if (exisitingDevice != null)
+                if (existingDevice != null)
                 {
                     return Conflict($"Device with hardware identifer '{dto.HardwareIdentifier}' already exists");
                 }

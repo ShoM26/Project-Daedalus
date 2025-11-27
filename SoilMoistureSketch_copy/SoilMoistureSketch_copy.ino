@@ -1,11 +1,133 @@
+/*
+Project Daedalus - Unified Sensor Firmware
+Supports: Arduino Uno (w/HC-05) and ESP32
+Features: Auto-ID, Secure Handshake, Dual-Port Data Transmission
+*/
+
 #include <ArduinoJson.h>
-#include <EEPROM.h>
-#include <SoftwareSerial.h>
+#include "Secret.h"
 
-// Device configuration
+//######################################
+//  Hardware Selection & Configuration
+// #####################################
+
+// Define pins
+#define SOIL_PIN A0
+
+// Timing Configuration
+const long HANDSHAKE_INTERVAL = 2000;
+const long DATA_INTERVAL = 15000;
+
+// ###################################
+// Platform Specific Includes & Setup
+// ###################################
+
 const String hardwareIdentifier;
-int prevReading = 0;
+bool isRegistered = false;
 
+#ifdef ESP32
+  #include "BluetoothSerial.h"
+  #include "WiFi.h"
+  BluetoothSerial SerialBT;
+
+  void setupComms() {
+    Serial.begin(9600);     // USB Serial
+    SerialBT.begin("Daedalus_Plant_Sensor"); // Bluetooth Name
+    Serial.println("--- ESP32 DETECTED ---");
+    Serial.println("Bluetooth Started: Daedalus_Plant_Sensor");
+  }
+
+  String generateDeviceId() {
+    return WiFi.macAddress();
+  }
+
+ //Wrapper to send to either ports
+  void sendToBridge(JsonDocument& doc){
+    serializeJson(doc, Serial);
+    Serial.println();
+
+    if(SerialBT.hasClient()){
+      serializeJson(doc, SerialBT);
+      SerialBT.println();
+    }
+  }
+
+  bool readFromBridge(JsonDocument& doc){
+    if(Serial.available()){
+      DeserializationError error = deserializeJson(doc, Serial);
+      if(!error) return true;
+    }
+    if(SerialBT.available()){
+      DeserializationError error = deserializeJson(doc, SerialBT);
+      if(!error) return true;
+    }
+    return false;
+  }
+
+#else
+  // Arduino Uno Configuration
+  #include <SoftwareSerial.h>
+  #include <EEPROM.h>
+  
+  #define BT_RX_PIN 2
+  #define BT_TX_PIN 3
+
+  SoftwareSerial SerialBT(BT_RX_PIN, BT_TX_PIN);
+
+  void setupComms(){
+    Serial.begin(9600);
+    SerialBT.begin(9600)
+    Serial.println("--- Arduino Uno Detected ---");
+  } 
+
+  String getEEPROMDeviceID() {
+    String id = "PLANT_";
+    
+    // Check if we've stored an ID in EEPROM before
+    if (EEPROM.read(0) == 0xFF) {  // First time setup
+      // Generate random ID and store it permanently
+      randomSeed(analogRead(A1) ^ analogRead(A2) ^ millis());  // Use unconnected pin for randomness
+      long uniqueNum = random(10000, 99999);
+      
+      // Store in EEPROM (permanent storage)
+      EEPROM.write(0, 0x01);  // Mark as initialized
+      EEPROM.write(1, (uniqueNum >> 24) & 0xFF);
+      EEPROM.write(2, (uniqueNum >> 16) & 0xFF);
+      EEPROM.write(3, (uniqueNum >> 8) & 0xFF);
+      EEPROM.write(4, uniqueNum & 0xFF);
+    }
+    long storedNum = 0;
+    storedNum |= ((long)EEPROM.read(1) << 24);
+    storedNum |= ((long)EEPROM.read(2) << 16);
+    storedNum |= ((long)EEPROM.read(3) << 8);
+    storedNum |= EEPROM.read(4);
+    
+    id += String(storedNum);
+    return id;
+  }
+
+  void sendToBridge(JsonDocument& doc){
+    serializeJson(doc, Serial);
+    Serial.println();
+
+    serializeJson(doc, SerialBT);
+    SerialBT.println();
+  }
+
+  bool readFromBridge(JsonDocument& doc){
+    if(Serial.available()){
+      DeserializationError error = deserializeJson(doc, Serial);
+      if(!error) return true;
+    }
+    if(SerialBT.available()){
+      DeserializationError error = deserializeJson(doc, SerialBT);
+      if(!error) return true;
+    }
+    return false;
+  }
+#endif
+
+int prevReading = 0;
 const int dry=539;
 const int wet=350;
 
@@ -14,35 +136,7 @@ const int SAMPLE_DELAY = 100;
 int sampleBuffer[SAMPLE_COUNT];
 int sampleIndex = 0;
 bool bufferFilled = false;
-
 unsigned long lastSendTime = 0;
-
-// Function to generate unique device ID using EEPROM
-String getEEPROMDeviceID() {
-  String id = "PLANT_";
-  
-  // Check if we've stored an ID in EEPROM before
-  if (EEPROM.read(0) == 0xFF) {  // First time setup
-    // Generate random ID and store it permanently
-    randomSeed(analogRead(A1));  // Use unconnected pin for randomness
-    long uniqueNum = random(10000, 99999);
-    
-    // Store in EEPROM (permanent storage)
-    EEPROM.write(0, 0x01);  // Mark as initialized
-    EEPROM.write(1, (uniqueNum >> 24) & 0xFF);
-    EEPROM.write(2, (uniqueNum >> 16) & 0xFF);
-    EEPROM.write(3, (uniqueNum >> 8) & 0xFF);
-    EEPROM.write(4, uniqueNum & 0xFF);
-  }
-  long storedNum = 0;
-  storedNum |= ((long)EEPROM.read(1) << 24);
-  storedNum |= ((long)EEPROM.read(2) << 16);
-  storedNum |= ((long)EEPROM.read(3) << 8);
-  storedNum |= EEPROM.read(4);
-  
-  id += String(storedNum);
-  return id;
-}
 
 int getAveragedReading() {
   long total = 0;
@@ -84,48 +178,56 @@ int getRollingAverage(int newReading) {
 }
 
 void setup() {
-  Serial.begin(9600);
-  hardwareIdentifier = getEEPROMDeviceID();
+  setupComms();
+  hardwareIdentifier = generateDeviceId();
   for(int i =0; i< SAMPLE_COUNT; i++){
     sampleBuffer[i] = 0;
   }
 }
 
 void loop() {
-  int rawValue = getAveragedReading();  
-  int percentageValue;
-  if(rawValue < 0){
-    sendErrorMessage("Sensor reading failed");
-    delay(5000);
-    return;
+
+//Listen for ACK
+  StaticJsonDocument<200> inputDoc;
+  if(readFromBridge(inputDoc)){
+    const char* type = inputDoc["type"];
+
+    if(strcmp(type, "ACK") == 0){
+      isRegistered = true;
+      Serial.println(">> Registration Confirmed. Switching to Data Mode. ");
+    }
   }
 
-  int smoothedValue = getRollingAverage(rawValue);
-  
-  unsigned long currentTime = millis();
-  int valueDifference = abs(smoothedValue - prevReading);
+//Timed action based on state
+  unsigned long currentMillis = millis();
+  if(!isRegistered){
+    //Handshake
+    if(cureentMillis - lastActionTime >= HANDSHAKE_INTERVAL){
+      lastActionTime = currentMillis;
 
-  if(valueDifference > 2 || (currentTime - lastSendTime) > 30000) {
-    int clampedValue = constrain(smoothedValue, wet, dry);
-    percentageValue = map(clampedValue, wet, dry, 100, 0);
-    sendSensorData(percentageValue);
-    prevReading = smoothedValue;
-    lastSendTime = currentTime;
+      StaticJsonDocument<200> doc;
+      doc["type"] = "HANDSHAKE";
+      doc["hardwareIdentifier"] = hardwareIdentifier;
+      doc["secret"] = APP_SECRET;
+
+      sendToBridge(doc);
+    }
   }
-  
-  delay(1000);
-}
+  else{
+    //Data sending mode
+    if(currentMillis - lastActionTime >= DATA_INTERVAL){
+      lastActionTime = currentMillis;
 
-void sendSensorData(int value) {
-  StaticJsonDocument<200> doc;
-  
-  doc["hardwareidentifier"] = hardwareIdentifier;
-  doc["timestamp"] = millis();
-  doc["moisturelevel"] = value;
-  
-  serializeJson(doc, Serial);
-  Serial.println();
-  delay(100);
+       int rawValue = getAveragedReading();
+       int smoothedValue = getRollingAverage(rawValue);
+       int clampedValue = constrain(smoothedValue, wet, dry);
+       percentageValue = map(clampedValue, wet, dry, 100, 0);
+       doc["type"] = "DATA";
+       doc["hardwareIdentifier"] = hardwareIdentifier;
+       doc["moisture"] = percentageValue;
+       sendToBridge(doc);
+    }
+  }
 }
 
 void sendErrorMessage(const char* errorMsg) {
