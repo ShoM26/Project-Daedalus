@@ -5,7 +5,7 @@ Features: Auto-ID, Secure Handshake, Dual-Port Data Transmission
 */
 
 #include <ArduinoJson.h>
-#include "Secret.h"
+#include "HardwareSecret.h"
 
 //######################################
 //  Hardware Selection & Configuration
@@ -76,11 +76,11 @@ bool isRegistered = false;
 
   void setupComms(){
     Serial.begin(9600);
-    SerialBT.begin(9600)
+    SerialBT.begin(9600);
     Serial.println("--- Arduino Uno Detected ---");
   } 
 
-  String getEEPROMDeviceID() {
+  String generateDeviceId() {
     String id = "PLANT_";
     
     // Check if we've stored an ID in EEPROM before
@@ -202,30 +202,31 @@ void loop() {
   unsigned long currentMillis = millis();
   if(!isRegistered){
     //Handshake
-    if(cureentMillis - lastActionTime >= HANDSHAKE_INTERVAL){
-      lastActionTime = currentMillis;
+    if(currentMillis - lastSendTime >= HANDSHAKE_INTERVAL){
+      lastSendTime = currentMillis;
 
       StaticJsonDocument<200> doc;
       doc["type"] = "HANDSHAKE";
       doc["hardwareIdentifier"] = hardwareIdentifier;
-      doc["secret"] = APP_SECRET;
+      doc["secret"] = HARDWARE_SECRET;
 
       sendToBridge(doc);
     }
   }
   else{
     //Data sending mode
-    if(currentMillis - lastActionTime >= DATA_INTERVAL){
-      lastActionTime = currentMillis;
+    if(currentMillis - lastSendTime >= DATA_INTERVAL){
+      lastSendTime = currentMillis;
 
-       int rawValue = getAveragedReading();
-       int smoothedValue = getRollingAverage(rawValue);
-       int clampedValue = constrain(smoothedValue, wet, dry);
-       percentageValue = map(clampedValue, wet, dry, 100, 0);
-       doc["type"] = "DATA";
-       doc["hardwareIdentifier"] = hardwareIdentifier;
-       doc["moisture"] = percentageValue;
-       sendToBridge(doc);
+      StaticJsonDocument<200> doc;
+      int rawValue = getAveragedReading();
+      int smoothedValue = getRollingAverage(rawValue);
+      int clampedValue = constrain(smoothedValue, wet, dry);
+      int percentageValue = map(clampedValue, wet, dry, 100, 0);
+      doc["type"] = "DATA";
+      doc["hardwareIdentifier"] = hardwareIdentifier;
+      doc["moisture"] = percentageValue;
+      sendToBridge(doc);
     }
   }
 }
