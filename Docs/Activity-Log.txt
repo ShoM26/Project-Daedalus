@@ -121,3 +121,5 @@
 11/23/22: did my planning for the implementation of automatic device registration. feature sounds cool and not as big of a lift as the previous one. Going to begin implementation soon
 
 11/26/25: began working on the auto device feature today starting with the .ino file
+
+12/4/25: Took a loong break from this project to focus on my class. Finished all of my assignments and took my final yesterday. Since last I had the second interview for Saturn sports, talked to Ethan and Betsy Knott. Just having fun at this point. After this feature trying to explore hosting these applications and then moving onto another project.
