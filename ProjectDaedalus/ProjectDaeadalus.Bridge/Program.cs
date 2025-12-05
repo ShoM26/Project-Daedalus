@@ -4,6 +4,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ProjectDaeadalus.Bridge.Configuration;
+using ProjectDaedalus.Core.Entities;
 
 
 namespace ProjectDaeadalus.Bridge
@@ -16,6 +18,9 @@ namespace ProjectDaeadalus.Bridge
         static async Task Main(string[] args)
         {
             Console.WriteLine("=== Project Daedalus Arduino Bridge ===");
+
+            var handshakeConfig = await DeviceSetup.EnsureConfiguredAsync();
+            
             Console.WriteLine("Starting Arduino to API bridge service...\n");
 
             try
@@ -29,7 +34,11 @@ namespace ProjectDaeadalus.Bridge
                 // Build service provider
                 var services = new ServiceCollection();
                 services.AddSingleton<IConfiguration>(config);
-                services.AddHttpClient<IInternalApiService, InternalApiService>();
+                services.AddSingleton(handshakeConfig);
+                services.AddHttpClient<IInternalApiService, InternalApiService>(client =>
+                {
+                    client.BaseAddress = new Uri(handshakeConfig.ApiBaseUrl);
+                });
                 services.AddSingleton<BridgeService>();
                 var serviceProvider = services.BuildServiceProvider();
                 

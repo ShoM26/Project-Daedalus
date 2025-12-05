@@ -165,6 +165,9 @@ namespace ProjectDaeadalus.Bridge.Services
                 // Route message based on type
                 switch (arduinoMessage.GetMessageType())
                 {
+                    case ArduinoMessageType.Handshake:
+                        HandleDeviceHandshake(arduinoMessage);
+                        break;
                     case ArduinoMessageType.Error:
                         HandleErrorMessage(arduinoMessage);
                         break;
@@ -213,6 +216,14 @@ namespace ProjectDaeadalus.Bridge.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing sensor reading: {ex.Message}");
+            }
+        }
+
+        private async Task HandleDeviceHandshake(ArduinoMessage message)
+        {
+            try
+            {
+                
             }
         }
         
