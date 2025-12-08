@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using ProjectDaedalus.API.Attributes;
 using ProjectDaedalus.API.Dtos;
 using ProjectDaedalus.API.Dtos.Device;
@@ -84,29 +85,24 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //POST register a new Device
+        [Authorize]
         [HttpPost("internal/register")]
         [InternalApi]
-        public async Task<IActionResult> RegisterDevice([FromBody] DeviceDto dto)
+        public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceDto config)
         {
-            if (dto == null)
+            if (config.UserToken == null)
             {
-                return BadRequest("Invalid Payload");
+                return BadRequest("Invalid token");
             }
             try
             {
-                var existingDevice =
-                    await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
-                if (existingDevice != null)
-                {
-                    return Conflict($"Device with hardware identifer '{dto.HardwareIdentifier}' already exists");
-                }
-
+                var userId = int.Parse(User.FindFirst("sub")?.Value);
                 var device = new Device
                 {
-                    HardwareIdentifier = dto.HardwareIdentifier,
-                    ConnectionType = dto.ConnectionType,
-                    ConnectionAddress = dto.ConnectionAddress,
-                    UserId = dto.UserId.Value, //UserId = GetCurrentUserId(),
+                    HardwareIdentifier = config.HardwareIdentifier,
+                    ConnectionType = String.Empty,
+                    ConnectionAddress = String.Empty,
+                    UserId = userId,
                     Status = "Active",
                     LastSeen = DateTime.Now
                 };
@@ -122,7 +118,11 @@ namespace ProjectDaedalus.API.Controllers
                     Status = createdDevice.Status,
                     LastSeen = createdDevice.LastSeen
                 };
-                return CreatedAtAction(nameof(GetDeviceById), new { deviceId = createdDevice.DeviceId }, resultDto);
+                return Ok(new AckMessage
+                {
+                    Success = true,
+                    Message = "<ACK:OK>"
+                });
             }
             catch (Exception ex)
             {
@@ -233,6 +233,78 @@ namespace ProjectDaedalus.API.Controllers
                     UserId = d.UserId
                 };
                 return Ok(device);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        //GET check if a device with given hardwareidentifier already exists
+        [HttpGet("{hardwareIdentifier}")]
+        [InternalApi]
+        public async Task<IActionResult> GetDeviceByHardwareIdentifier(string hardwareIdentifier)
+        {
+            try
+            {
+                var exists = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(hardwareIdentifier);
+                if (exists == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(exists);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{hardwareIdentifier}/update")]
+        [InternalApi]
+        public async Task<IActionResult> UpdateDevice(string hardwareIdentifier, [FromBody] DeviceDto dto)
+        {
+            if (dto == null)
+            {
+                return BadRequest("Invalid Payload");
+            }
+            
+            // Find device by id
+            try
+            {
+                var existingDevice = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(hardwareIdentifier);
+                if (existingDevice == null)
+                {
+                    return BadRequest($"Device with identifier '{hardwareIdentifier}' not found");
+                }
+
+                var updatedDeviceDto = new Device
+                {
+                    DeviceId = dto.DeviceId,
+                    HardwareIdentifier = dto.HardwareIdentifier,
+                    LastSeen = DateTime.Now,
+                    ConnectionType = dto.ConnectionType,
+                    ConnectionAddress = dto.ConnectionAddress,
+                    UserId = dto.UserId.Value
+                };
+                // Update in database
+                var updatedDevice = await _deviceRepository.UpdateAsync(updatedDeviceDto);
+
+                // Return updated device as DTO
+                var resultDto = new DeviceDto
+                {
+                    HardwareIdentifier = updatedDevice.HardwareIdentifier,
+                    ConnectionType = updatedDevice.ConnectionType,
+                    ConnectionAddress = updatedDevice.ConnectionAddress,
+                    Status = updatedDevice.Status,
+                    LastSeen = updatedDevice.LastSeen,
+                    UserId = updatedDevice.UserId,
+                };
+                return Ok(new AckMessage
+                {
+                    Success = true,
+                    Message = "<ACK:OK>"
+                });
             }
             catch (Exception ex)
             {
