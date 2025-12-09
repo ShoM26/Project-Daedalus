@@ -10,7 +10,7 @@ namespace ProjectDaeadalus.Bridge.Services
     public class DeviceSetup
     {
         private const string ConfigFileName = "config.json";
-        private const string SetupUrl = "";
+        private const string SetupUrl = "http://localhost:5050/";
 
         /// <summary>
         /// Checks for config file. If missing, starts the 'Magic Button' server and waits for the frontend.
