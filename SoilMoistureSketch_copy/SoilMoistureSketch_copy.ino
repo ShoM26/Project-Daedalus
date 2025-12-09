@@ -192,7 +192,7 @@ void loop() {
   if(readFromBridge(inputDoc)){
     const char* type = inputDoc["type"];
 
-    if(strcmp(type, "ACK") == 0){
+    if(type && strcmp(type, "ACK") == 0){
       isRegistered = true;
       Serial.println(">> Registration Confirmed. Switching to Data Mode. ");
     }
