@@ -7,6 +7,7 @@ import PlantDetailModal from '../../plantmodal/components/PlantDetailModal.jsx';
 import AddPairingModal from '../components/AddPairingModal.jsx';
 import NotificationBell from '../../notificationmodal/components/NotificationBell.jsx';
 import NotificationModal from '../../notificationmodal/components/NotificationModal.jsx';
+import RegisterDeviceModal from '../components/RegisterDeviceModal.jsx';
 //hooks
 import { usePlants } from '../../plantmodal/hooks/usePlants.js';
 import { useNotifications } from '../../notificationmodal/hooks/useNotifications.js';
@@ -71,6 +72,14 @@ function Dashboard() {
     navigate('/landingpage');
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleDeviceRegister = () => {
+    setIsModalOpen(true);
+    currentUserToken = authService.getToken()
+    const deepLink = `mybridgeapp://register?token=${currentUserToken}`;
+    window.location.href = deepLink;
+  };
+
   const handlePairingSuccess = () => {
     fetchPlants();
     closeAddModal();
@@ -112,6 +121,9 @@ function Dashboard() {
                 onRefresh={fetchNotifications}/>
             
           </div>
+          <button
+          className="register-button"
+          onClick={handleDeviceRegister}>Register Device</button>
           
           <button
             className="signout-button"
@@ -215,7 +227,9 @@ function Dashboard() {
         isOpen={showAddModal}
         onClose={closeAddModal}
         onSuccess={handlePairingSuccess}/>
-      
+      <RegisterDeviceModal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}/>
     </div>
   );
 }
