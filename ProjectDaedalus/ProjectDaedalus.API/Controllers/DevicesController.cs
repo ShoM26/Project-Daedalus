@@ -121,7 +121,7 @@ namespace ProjectDaedalus.API.Controllers
                 return Ok(new AckMessage
                 {
                     Success = true,
-                    Message = "<ACK:OK>"
+                    Message = "<type:ACK>"
                 });
             }
             catch (Exception ex)
@@ -262,13 +262,9 @@ namespace ProjectDaedalus.API.Controllers
 
         [HttpPut("{hardwareIdentifier}/update")]
         [InternalApi]
-        public async Task<IActionResult> UpdateDevice(string hardwareIdentifier, [FromBody] DeviceDto dto)
+        public async Task<IActionResult> UpdateDevice(string hardwareIdentifier)
         {
-            if (dto == null)
-            {
-                return BadRequest("Invalid Payload");
-            }
-            
+           
             // Find device by id
             try
             {
@@ -280,30 +276,19 @@ namespace ProjectDaedalus.API.Controllers
 
                 var updatedDeviceDto = new Device
                 {
-                    DeviceId = dto.DeviceId,
-                    HardwareIdentifier = dto.HardwareIdentifier,
+                    DeviceId = existingDevice.DeviceId,
+                    HardwareIdentifier = existingDevice.HardwareIdentifier,
                     LastSeen = DateTime.Now,
-                    ConnectionType = dto.ConnectionType,
-                    ConnectionAddress = dto.ConnectionAddress,
-                    UserId = dto.UserId.Value
+                    ConnectionType = existingDevice.ConnectionType,
+                    ConnectionAddress = existingDevice.ConnectionAddress,
+                    UserId = existingDevice.UserId
                 };
                 // Update in database
-                var updatedDevice = await _deviceRepository.UpdateAsync(updatedDeviceDto);
-
-                // Return updated device as DTO
-                var resultDto = new DeviceDto
-                {
-                    HardwareIdentifier = updatedDevice.HardwareIdentifier,
-                    ConnectionType = updatedDevice.ConnectionType,
-                    ConnectionAddress = updatedDevice.ConnectionAddress,
-                    Status = updatedDevice.Status,
-                    LastSeen = updatedDevice.LastSeen,
-                    UserId = updatedDevice.UserId,
-                };
+                await _deviceRepository.UpdateAsync(updatedDeviceDto);
                 return Ok(new AckMessage
                 {
                     Success = true,
-                    Message = "<ACK:OK>"
+                    Message = "<type:ACK>"
                 });
             }
             catch (Exception ex)
