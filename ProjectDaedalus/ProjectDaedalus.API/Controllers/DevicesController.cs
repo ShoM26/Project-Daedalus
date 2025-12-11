@@ -13,7 +13,7 @@ namespace ProjectDaedalus.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    
     public class DevicesController : ControllerBase
     {
         private readonly DaedalusContext _context;
@@ -26,6 +26,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET all devices for a user
         [HttpGet("user/{userId}/devices")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<DeviceDto>>> GetAllDevicesOfUser(int userId)
         {
             try
@@ -56,6 +57,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET specific device details
         [HttpGet("{deviceId}/device")]
+        [Authorize]
         public async Task<IActionResult> GetDeviceById(int deviceId)
         {
             try
@@ -85,8 +87,9 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //POST register a new Device
-        [Authorize]
+        
         [HttpPost("internal/register")]
+        [Authorize]
         [InternalApi]
         public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceDto config)
         {
@@ -194,6 +197,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //DELETE remove a device
         [HttpDelete("{deviceId}")]
+        [Authorize]
         public async Task<ActionResult<Device>> DeleteDevice(int deviceId)
         {
             try
