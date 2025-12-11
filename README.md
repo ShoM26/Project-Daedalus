@@ -48,13 +48,14 @@ Environment: All components run locally during development
 - Device-to-plant assignment management
 - Batch operations (e.g., DeleteManyAsync)
 - Data cleanup for old sensor readings
+- React frontend with real-time dashboards
+- Watering alert system with notifications
+- Historical trend visualization
 
 🔮 Planned Features
 
-- React frontend with real-time dashboards
+- Automatic Device Registration
 - Bluetooth device connectivity
-- Watering alert system with notifications
-- Historical trend visualization
 - Mobile-responsive UI
 
 **Development Approach**
@@ -70,7 +71,8 @@ Environment: All components run locally during development
 ✅ Database schema & cascading relationships configured
 ✅ Controllers implemented for all entities
 ✅ Preparing for frontend integration
-🔄 Adding Features to frontend
+✅ Adding Features to frontend
+🔄 Flushing Out Auto-Device Registration
 
 **Roadmap**
 
