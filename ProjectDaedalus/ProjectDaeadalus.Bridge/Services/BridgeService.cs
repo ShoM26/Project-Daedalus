@@ -21,19 +21,18 @@ namespace ProjectDaeadalus.Bridge.Services
     {
         private readonly BridgeConfig _config;
         private readonly string _expectedSecret;
-        private readonly HttpClient _httpClient;
         private SerialPort _serialPort;
         private bool _isRunning = true;
         private bool _disposed = false;
-        private readonly IInternalApiService _internalApiService ;
+        private readonly IInternalApiService _internalApiService;
 
         /// <summary>
         /// Initializes the bridge service with configuration and HTTP client
         /// </summary>
-        public BridgeService(IInternalApiService apiService, IConfiguration appSettings, string portName)
+        public BridgeService(IInternalApiService apiService, IConfiguration appSettings, BridgeConfig config)
         {
             _internalApiService = apiService;
-            _config = new BridgeConfig();
+            _config = config;
             _config.Validate(); // Ensure configuration is valid
             _expectedSecret = appSettings["HardwareSettings:HardwareKey"];
             if (string.IsNullOrEmpty(_expectedSecret))
@@ -41,11 +40,6 @@ namespace ProjectDaeadalus.Bridge.Services
                 Console.WriteLine("[Warning] Hardware Secret us missing in appsettings.json");
             }
             
-            _httpClient = new HttpClient
-            {
-                Timeout = TimeSpan.FromMilliseconds(_config.HttpTimeoutMs)
-            };
-            _serialPort = new SerialPort(portName, _config.BaudRate);
         }
 
         /// <summary>
@@ -238,42 +232,26 @@ namespace ProjectDaeadalus.Bridge.Services
                     HardwareIdentifier = message.hardwareidentifier,
                     HardwareSecret = message.secret
                 };
-                var safeName = Uri.EscapeDataString(handshake.HardwareIdentifier);
-                var exists = await _internalApiService.GetAsync<object>($"devices/search?name={safeName}");
-                if (exists != null)
+                //Validify Secret
+                if (handshake.HardwareSecret != _expectedSecret)
                 {
-                    //Check key
-                    if (handshake.HardwareSecret != _expectedSecret)
+                    //Call Separate methods for update/register
+                    //Register waits for you to press the button
+                    var exists = await _internalApiService.GetAsync<object>($"devices/search?name={handshake.HardwareIdentifier}");
+                    if (exists == null)
                     {
-                        Console.WriteLine("Incorrect hardware secret");
-                        return;
+                        RegisterNewDevice(handshake.HardwareIdentifier);
                     }
-                    //Update
-                    var ack = await UpdateExistingDevice(handshake.HardwareIdentifier);
-                    var doc = new
+
+                    if (exists != null)
                     {
-                        type = ack
-                    };
-                    string jsonString = JsonSerializer.Serialize(doc);
-                    SendViaSerial(jsonString);
+                        UpdateExistingDevice(handshake.HardwareIdentifier);
+                    }
                 }
                 else
                 {
-                    //Check key
-                    if (handshake.HardwareSecret != _expectedSecret)
-                    {
-                        Console.WriteLine("Incorrect hardware secret");
-                        return;
-                    }
-
-                    //Post
-                    var ack = await RegisterNewDevice(handshake.HardwareIdentifier, _config.UserToken);
-                    var doc = new
-                    {
-                        type = ack
-                    };
-                    string jsonString = JsonSerializer.Serialize(doc);
-                    SendViaSerial(jsonString);
+                    Console.WriteLine("Incorrect hardware secret");
+                    return;
                 }
             }
             catch (Exception ex)
@@ -285,31 +263,48 @@ namespace ProjectDaeadalus.Bridge.Services
         /// <summary>
         /// Register device when it is its first time logging in
         /// </summary>
-        public async Task<string> RegisterNewDevice(string hardwareIdentifier, string userToken)
+        public async Task RegisterNewDevice(string hardwareIdentifier)
         {
-            var registerDto = new RegisterDeviceDto
+            //Grab token
+            string userToken;
+            try
             {
-                HardwareIdentifier = hardwareIdentifier,
-                UserToken = userToken
-            };
+                if (_config.UserToken == null)
+                {
+                    Console.WriteLine("User Token is not populated");
+                    return;
+                }
+                else
+                {
+                    userToken = _config.UserToken;
+                }
 
-            var response = await _internalApiService.PostAsync<AckMessage>("devices/internal/register", registerDto);
-            if (response != null && response.Success)
-            {
-                return response.Message;
+                var registerDto = new RegisterDeviceDto
+                {
+                    HardwareIdentifier = hardwareIdentifier,
+                    UserToken = userToken
+                };
+
+                var response =
+                    await _internalApiService.PostAsync<AckMessage>("devices/internal/register", registerDto);
+                if (response != null && response.Success)
+                {
+                    SendViaSerial(response.Message);
+                }
             }
-            return "Failed to register device";
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error registering device: {ex.Message}");
+            }
         }
 
-        public async Task<string> UpdateExistingDevice(string hardwareIdentifier)
+        public async Task UpdateExistingDevice(string hardwareIdentifier)
         {
-            var existing = await _internalApiService.GetAsync<object>(hardwareIdentifier);
-            var response = await _internalApiService.PutAsync<AckMessage>("devices/internal/update", existing);
+            var response = await _internalApiService.PutAsync<AckMessage>("devices/internal/update", hardwareIdentifier);
             if (response != null && response.Success)
             {
-                return response.Message;
+                SendViaSerial(response.Message);
             }
-            return "Failed to register device";
         }
 
         /// <summary>
@@ -423,8 +418,6 @@ namespace ProjectDaeadalus.Bridge.Services
                     {
                         Console.WriteLine($"Cleanup warning: {ex.Message}");
                     }
-
-                    _httpClient?.Dispose();
                 }
                 _disposed = true;
             }
