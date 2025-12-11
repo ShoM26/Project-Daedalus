@@ -7,7 +7,7 @@ namespace ProjectDaeadalus.Bridge.Configuration
     public class BridgeConfig
     {
         //Authentification
-        public string UserToken { get; set; }
+        public string? UserToken { get; set; }
         
         // Serial Communication Settings
         public string ComPort { get; set; } = "COM3"; 
