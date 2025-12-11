@@ -16,6 +16,7 @@ import { usePlantFilter } from '../../plantmodal/hooks/usePlantFilter.js';
 import { usePlantModal } from '../../plantmodal/hooks/usePlantModal.js';
 //services
 import authService from '../../auth/services/authService.js';
+import {configureBridge} from '../utils/registerUtils.js';
 //styles
 import '../styles/Dashboard.css';
 
@@ -73,11 +74,15 @@ function Dashboard() {
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleDeviceRegister = () => {
+  const handleDeviceRegister = async () => {
     setIsModalOpen(true);
-    currentUserToken = authService.getToken()
-    const deepLink = `mybridgeapp://register?token=${currentUserToken}`;
-    window.location.href = deepLink;
+    var currentUserToken = authService.getToken();
+    try{
+      await configureBridge(currentUserToken, "http://localhost:5278");
+      alert("Bridge connected");
+    } catch (error){
+      alert("Is the bridge application powered on? please launch it manually");
+    }
   };
 
   const handlePairingSuccess = () => {
