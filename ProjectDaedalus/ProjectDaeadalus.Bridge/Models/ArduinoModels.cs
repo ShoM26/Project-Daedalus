@@ -20,9 +20,9 @@ namespace ProjectDaeadalus.Bridge.Models
         {
             return type switch
             {
-                "handshake" => ArduinoMessageType.Handshake,
-                "data" => ArduinoMessageType.SensorReading,
-                "error" => ArduinoMessageType.Error, 
+                "HANDSHAKE" => ArduinoMessageType.Handshake,
+                "DATA" => ArduinoMessageType.SensorReading,
+                "ERROR" => ArduinoMessageType.Error, 
                 _ => ArduinoMessageType.Unknown,
             };
         }
