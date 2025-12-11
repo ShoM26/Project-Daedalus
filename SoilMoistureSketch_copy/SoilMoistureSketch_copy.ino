@@ -15,7 +15,7 @@ Features: Auto-ID, Secure Handshake, Dual-Port Data Transmission
 #define SOIL_PIN A0
 
 // Timing Configuration
-const long HANDSHAKE_INTERVAL = 2000;
+const long HANDSHAKE_INTERVAL = 15000;
 const long DATA_INTERVAL = 15000;
 
 // ###################################
@@ -233,9 +233,9 @@ void loop() {
 
 void sendErrorMessage(const char* errorMsg) {
   StaticJsonDocument<200> doc;
+  doc["type"] = "ERROR";
   doc["hardwareidentifier"] = hardwareIdentifier;
   doc["error"] = errorMsg;
-  doc["timestamp"] = millis();
   
   serializeJson(doc, Serial);
   Serial.println();
