@@ -245,7 +245,6 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET check if a device with given hardwareidentifier already exists
         [HttpGet("{hardwareIdentifier}")]
-        [InternalApi]
         public async Task<IActionResult> GetDeviceByHardwareIdentifier(string hardwareIdentifier)
         {
             try
@@ -264,31 +263,31 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
 
-        [HttpPut("{hardwareIdentifier}/update")]
-        [InternalApi]
-        public async Task<IActionResult> UpdateDevice(string hardwareIdentifier)
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateDevice([FromBody] HandshakeDto dto)
         {
+            if (dto == null)
+                {
+                    return BadRequest("Request body is null");
+                }
+                
+                if (string.IsNullOrEmpty(dto.HardwareIdentifier))
+                {
+                    return BadRequest("HardwareIdentifier is required");
+                }
            
             // Find device by id
             try
             {
-                var existingDevice = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(hardwareIdentifier);
+                var existingDevice = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
                 if (existingDevice == null)
                 {
-                    return BadRequest($"Device with identifier '{hardwareIdentifier}' not found");
+                    return BadRequest($"Device with identifier '{dto.HardwareIdentifier}' not found");
                 }
 
-                var updatedDeviceDto = new Device
-                {
-                    DeviceId = existingDevice.DeviceId,
-                    HardwareIdentifier = existingDevice.HardwareIdentifier,
-                    LastSeen = DateTime.Now,
-                    ConnectionType = existingDevice.ConnectionType,
-                    ConnectionAddress = existingDevice.ConnectionAddress,
-                    UserId = existingDevice.UserId
-                };
+                existingDevice.LastSeen = DateTime.Now;
                 // Update in database
-                await _deviceRepository.UpdateAsync(updatedDeviceDto);
+                await _deviceRepository.SaveChangesAsync();
                 return Ok(new AckMessage
                 {
                     Success = true,
