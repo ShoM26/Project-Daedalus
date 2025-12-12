@@ -170,7 +170,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 switch (arduinoMessage.GetMessageType())
                 {
                     case ArduinoMessageType.Handshake:
-                        HandleDeviceHandshake(arduinoMessage);
+                        await HandleDeviceHandshake(arduinoMessage);
                         break;
                     case ArduinoMessageType.Error:
                         HandleErrorMessage(arduinoMessage);
@@ -233,19 +233,18 @@ namespace ProjectDaeadalus.Bridge.Services
                     HardwareSecret = message.secret
                 };
                 //Validify Secret
-                if (handshake.HardwareSecret != _expectedSecret)
+                if (handshake.HardwareSecret == _expectedSecret)
                 {
                     //Call Separate methods for update/register
                     //Register waits for you to press the button
-                    var exists = await _internalApiService.GetAsync<object>($"devices/search?name={handshake.HardwareIdentifier}");
+                    var exists = await _internalApiService.GetAsync<object>($"Devices/{message.hardwareidentifier}");
                     if (exists == null)
                     {
-                        RegisterNewDevice(handshake.HardwareIdentifier);
+                        await RegisterNewDevice(handshake.HardwareIdentifier);
                     }
-
-                    if (exists != null)
+                    else
                     {
-                        UpdateExistingDevice(handshake.HardwareIdentifier);
+                        await UpdateExistingDevice(handshake);
                     }
                 }
                 else
@@ -271,7 +270,8 @@ namespace ProjectDaeadalus.Bridge.Services
             {
                 if (_config.UserToken == null)
                 {
-                    Console.WriteLine("User Token is not populated");
+                    Console.WriteLine("User Token is not populated, Retrying in 5 seconds");
+                    //wait 5 seconds and check again
                     return;
                 }
                 else
@@ -286,7 +286,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 };
 
                 var response =
-                    await _internalApiService.PostAsync<AckMessage>("devices/internal/register", registerDto);
+                    await _internalApiService.PostAsync<AckMessage>("Devices/internal/register", registerDto);
                 if (response != null && response.Success)
                 {
                     SendViaSerial(response.Message);
@@ -298,9 +298,10 @@ namespace ProjectDaeadalus.Bridge.Services
             }
         }
 
-        public async Task UpdateExistingDevice(string hardwareIdentifier)
+        public async Task UpdateExistingDevice(HandshakeDto dto)
         {
-            var response = await _internalApiService.PutAsync<AckMessage>("devices/internal/update", hardwareIdentifier);
+            
+            var response = await _internalApiService.PutAsync<AckMessage>($"Devices/update", dto);
             if (response != null && response.Success)
             {
                 SendViaSerial(response.Message);
@@ -373,7 +374,8 @@ namespace ProjectDaeadalus.Bridge.Services
         {
             if (_serialPort.IsOpen)
             {
-                _serialPort.WriteLine(jsonMessage);
+                var json = JsonSerializer.Serialize(jsonMessage);
+                _serialPort.WriteLine(json);
             }
         }
 

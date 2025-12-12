@@ -39,8 +39,13 @@ namespace ProjectDaeadalus.Bridge.Services
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
+            Console.WriteLine($"Sending to API: {json}");
             var response = await _httpClient.PutAsync($"{_baseUrl}/{endpoint}", content);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"API call failed: {response.StatusCode} - {errorContent}");
+            }
 
             var responseJson = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(responseJson, _jsonOptions);
