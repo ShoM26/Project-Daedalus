@@ -9,8 +9,9 @@ namespace ProjectDaedalus.Core.Interfaces
         Task<T> AddAsync(T entity);
         Task<T> UpdateAsync(T entity);
         Task<bool> DeleteAsync(int id);
-        Task<int> DeleteManyAsync(IEnumerable<T> entities); 
-    
+        Task<int> DeleteManyAsync(IEnumerable<T> entities);
+        Task SaveChangesAsync();
+
     }
 }
 

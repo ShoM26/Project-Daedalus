@@ -62,4 +62,9 @@ public class Repository<T> : IRepository<T> where T : class
         await _context.SaveChangesAsync();
         return entitiesList.Count();
     }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }
