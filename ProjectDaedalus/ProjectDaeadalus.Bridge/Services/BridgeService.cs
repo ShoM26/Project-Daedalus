@@ -1,6 +1,6 @@
 using System.IO.Ports;
+using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -211,7 +211,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 var sensorReading = new SensorReadingInsertDto()
                 {
                     HardwareIdentifier = message.hardwareidentifier,
-                    MoistureLevel = message.moisturelevel.Value,
+                    MoistureLevel = message.moisture.Value,
                     Timestamp = DateTime.Now,
                 };
 
@@ -237,12 +237,12 @@ namespace ProjectDaeadalus.Bridge.Services
                 {
                     //Call Separate methods for update/register
                     //Register waits for you to press the button
-                    var exists = await _internalApiService.GetAsync<object>($"Devices/{message.hardwareidentifier}");
-                    if (exists == null)
-                    {
+                    var response = await _internalApiService.CheckDeviceStatusAsync($"Devices/{message.hardwareidentifier}");
+                    if (response == HttpStatusCode.NoContent){
+                        Console.WriteLine("Awaiting the call to register the new device");
                         await RegisterNewDevice(handshake.HardwareIdentifier);
                     }
-                    else
+                    if(response == HttpStatusCode.OK)
                     {
                         await UpdateExistingDevice(handshake);
                     }
@@ -262,29 +262,27 @@ namespace ProjectDaeadalus.Bridge.Services
         /// <summary>
         /// Register device when it is its first time logging in
         /// </summary>
-        public async Task RegisterNewDevice(string hardwareIdentifier)
+        private async Task RegisterNewDevice(string hardwareIdentifier)
         {
             //Grab token
             string userToken;
             try
             {
-                if (_config.UserToken == null)
+                if (_config.UserToken.Length == 0 || _config.UserToken == null)
                 {
                     Console.WriteLine("User Token is not populated, Retrying in 5 seconds");
                     //wait 5 seconds and check again
-                    return;
+                    await Task.Delay(500);
+                    await RegisterNewDevice(hardwareIdentifier);
                 }
-                else
-                {
-                    userToken = _config.UserToken;
-                }
-
+                userToken = _config.UserToken;
+                Console.WriteLine("Token is not empty or null");
                 var registerDto = new RegisterDeviceDto
                 {
                     HardwareIdentifier = hardwareIdentifier,
                     UserToken = userToken
                 };
-
+                Console.WriteLine("Sending the dto off to the api call");
                 var response =
                     await _internalApiService.PostAsync<AckMessage>("Devices/internal/register", registerDto);
                 if (response != null && response.Success)
@@ -370,12 +368,13 @@ namespace ProjectDaeadalus.Bridge.Services
             };
         }
 
-        public void SendViaSerial(string jsonMessage)
+        public void SendViaSerial(object jsonMessage)
         {
             if (_serialPort.IsOpen)
             {
                 var json = JsonSerializer.Serialize(jsonMessage);
                 _serialPort.WriteLine(json);
+                Console.WriteLine($"Sent ACK message {json}");
             }
         }
 
