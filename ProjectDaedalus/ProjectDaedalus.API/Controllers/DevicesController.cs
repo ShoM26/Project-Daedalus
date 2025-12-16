@@ -93,6 +93,7 @@ namespace ProjectDaedalus.API.Controllers
         [InternalApi]
         public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceDto config)
         {
+            Console.WriteLine("Made it into the POST api call");
             if (config.UserToken == null)
             {
                 return BadRequest("Invalid token");
@@ -103,28 +104,18 @@ namespace ProjectDaedalus.API.Controllers
                 var device = new Device
                 {
                     HardwareIdentifier = config.HardwareIdentifier,
-                    ConnectionType = String.Empty,
-                    ConnectionAddress = String.Empty,
+                    ConnectionType = string.Empty,
+                    ConnectionAddress = string.Empty,
                     UserId = userId,
                     Status = "Active",
                     LastSeen = DateTime.Now
                 };
                 var createdDevice = await _deviceRepository.AddAsync(device);
-
-                var resultDto = new DeviceDto
-                {
-                    DeviceId = createdDevice.DeviceId,
-                    HardwareIdentifier = createdDevice.HardwareIdentifier,
-                    ConnectionType = createdDevice.ConnectionType,
-                    ConnectionAddress = createdDevice.ConnectionAddress,
-                    UserId = createdDevice.UserId,
-                    Status = createdDevice.Status,
-                    LastSeen = createdDevice.LastSeen
-                };
+                Console.WriteLine($"Added the device {createdDevice} to the database, sending ack message");
                 return Ok(new AckMessage
                 {
                     Success = true,
-                    Message = "<type:ACK>"
+                    Message = new { type = "ACK"}
                 });
             }
             catch (Exception ex)
@@ -270,7 +261,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return BadRequest("Request body is null");
                 }
-                
+            Console.WriteLine($"API reicieved dto with identifier {dto.HardwareIdentifier}");
                 if (string.IsNullOrEmpty(dto.HardwareIdentifier))
                 {
                     return BadRequest("HardwareIdentifier is required");
@@ -280,18 +271,20 @@ namespace ProjectDaedalus.API.Controllers
             try
             {
                 var existingDevice = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
+                Console.WriteLine($"Device found in api call");
                 if (existingDevice == null)
                 {
-                    return BadRequest($"Device with identifier '{dto.HardwareIdentifier}' not found");
+                    return NoContent();
                 }
 
                 existingDevice.LastSeen = DateTime.Now;
                 // Update in database
+                Console.WriteLine("Updated time saving changes now");
                 await _deviceRepository.SaveChangesAsync();
                 return Ok(new AckMessage
                 {
                     Success = true,
-                    Message = "<type:ACK>"
+                    Message = new { type = "ACK"}
                 });
             }
             catch (Exception ex)
