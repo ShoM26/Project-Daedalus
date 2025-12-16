@@ -7,8 +7,7 @@ namespace ProjectDaeadalus.Bridge.Models
     public class ArduinoMessage
     {
         public string hardwareidentifier { get; set; }
-        public long timestamp { get; set; }
-        public int? moisturelevel { get; set; }
+        public int? moisture { get; set; }
         public string? error { get; set; }        // For error messages
         public string? secret {get; set; }
         public string type { get; set; }
