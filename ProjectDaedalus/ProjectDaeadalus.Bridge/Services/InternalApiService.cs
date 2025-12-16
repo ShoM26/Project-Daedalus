@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 
@@ -58,6 +59,12 @@ namespace ProjectDaeadalus.Bridge.Services
             var responseJson = await response.Content.ReadAsStringAsync();
             
             return JsonSerializer.Deserialize<T>(responseJson, _jsonOptions);
+        }
+        public async Task<HttpStatusCode> CheckDeviceStatusAsync(string endpoint)
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}/{endpoint}");
+    
+            return response.StatusCode;
         }
     }
 }
