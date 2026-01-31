@@ -16,18 +16,17 @@ Features: Auto-ID, Secure Handshake, Dual-Port Data Transmission
 
 // Timing Configuration
 const long HANDSHAKE_INTERVAL = 15000;
-const long DATA_INTERVAL = 15000;
+const long DATA_INTERVAL = 30000;
 
 // ###################################
 // Platform Specific Includes & Setup
 // ###################################
 
-const String hardwareIdentifier;
+String hardwareIdentifier;
 bool isRegistered = false;
 
 #ifdef ESP32
   #include "BluetoothSerial.h"
-  #include "WiFi.h"
   BluetoothSerial SerialBT;
 
   void setupComms() {
@@ -38,7 +37,11 @@ bool isRegistered = false;
   }
 
   String generateDeviceId() {
-    return WiFi.macAddress();
+    uint64_t chipid = ESP.getEfuseMac();
+    String uniqueId = String((uint16_t)(chipid >> 32), HEX) + 
+                    String((uint32_t)chipid, HEX);
+    uniqueId.toUpperCase();
+    return uniqueId;
   }
 
  //Wrapper to send to either ports
@@ -54,7 +57,10 @@ bool isRegistered = false;
 
   bool readFromBridge(JsonDocument& doc){
     if(Serial.available()){
-      DeserializationError error = deserializeJson(doc, Serial);
+      String input = Serial.readStringUntil('\n');
+      input.trim();
+      if(input.length() == 0) return false;
+      DeserializationError error = deserializeJson(doc, input);
       if(!error) return true;
     }
     if(SerialBT.available()){
@@ -116,7 +122,10 @@ bool isRegistered = false;
 
   bool readFromBridge(JsonDocument& doc){
     if(Serial.available()){
-      DeserializationError error = deserializeJson(doc, Serial);
+      String input = Serial.readStringUntil('\n');
+      input.trim();
+      if(input.length() == 0) return false;
+      DeserializationError error = deserializeJson(doc, input);
       if(!error) return true;
     }
     if(SerialBT.available()){
@@ -178,6 +187,7 @@ int getRollingAverage(int newReading) {
 }
 
 void setup() {
+  isRegistered = false;
   setupComms();
   hardwareIdentifier = generateDeviceId();
   for(int i =0; i< SAMPLE_COUNT; i++){
