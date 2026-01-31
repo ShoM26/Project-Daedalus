@@ -1,6 +1,8 @@
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using ProjectDaedalus.API.Dtos.Device;
 
 namespace ProjectDaeadalus.Bridge.Services
 {
@@ -34,6 +36,29 @@ namespace ProjectDaeadalus.Bridge.Services
             var responseJson = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(responseJson, _jsonOptions);
         }
+
+        public async Task<T> FirstRegisterDeviceAsync<T>(RegisterDeviceDto data, string token)
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            var payload = new RegisterDeviceDto
+            {
+                HardwareIdentifier = data.HardwareIdentifier,
+                UserToken = token,
+                ConnectionType = data.ConnectionType,
+                ConnectionAddress = data.ConnectionAddress
+            };
+            var json = JsonSerializer.Serialize(payload);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_baseUrl}/Devices/internal/register", content);
+            
+            response.EnsureSuccessStatusCode();
+            
+            var responseJson = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<T>(responseJson, _jsonOptions);
+        }
+
         
         public async Task<T> PutAsync<T>(string endpoint, object data)
         {
