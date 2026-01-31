@@ -1,15 +1,21 @@
 ﻿using ProjectDaeadalus.Bridge.Services;
 using ProjectDaeadalus.Bridge.Models;
 using System;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectDaeadalus.Bridge.Configuration;
 using ProjectDaedalus.Core.Entities;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
 
 
 namespace ProjectDaeadalus.Bridge
 {
+    
     /// <summary>
     /// Entry point for the Arduino Bridge Console Application
     /// </summary>
@@ -17,34 +23,44 @@ namespace ProjectDaeadalus.Bridge
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("=== Project Daedalus Arduino Bridge ===");
+            var builder = WebApplication.CreateBuilder(args);
+            builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.Development.json", optional: true);
+            var sharedConfig = new BridgeConfig();
+            builder.Configuration.Bind(sharedConfig);
+            builder.Services.AddSingleton(sharedConfig);
+            builder.Services.AddHttpClient<IInternalApiService, InternalApiService>(client =>
+            {
+                client.BaseAddress = new Uri(sharedConfig.ApiBaseUrl ?? "http://localhost:5278");
+            });
+            builder.Services.AddSingleton<BridgeService>();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            });
+    
+            var app = builder.Build();
+            app.UseCors("AllowAll");
 
-            var handshakeConfig = await DeviceSetup.EnsureConfiguredAsync();
-            
-            Console.WriteLine("Starting Arduino to API bridge service...\n");
+            app.MapPost("/setup", async (TokenPayload payload, BridgeConfig config) =>
+            {
+                Console.WriteLine($"[Setup] Recieved User Token!");
+                config.UserToken = payload.Token;   
+                return Results.Ok(new { message = "Bridge Configured Successfully!" });
+            });
+            _ = app.RunAsync("http://localhost:5000");
+    
+            Console.WriteLine(">> Listening for setup commands on port 5000");
 
             try
             {
-                // Build configuration
-                var config = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: false)
-                    .AddJsonFile("appsettings.Development.json", optional: true)
-                    .Build();
-
-                // Build service provider
-                var services = new ServiceCollection();
-                services.AddSingleton<IConfiguration>(config);
-                services.AddSingleton(handshakeConfig);
-                services.AddHttpClient<IInternalApiService, InternalApiService>(client =>
+                var bridgeService = app.Services.GetRequiredService<BridgeService>();
+                AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
                 {
-                    client.BaseAddress = new Uri(handshakeConfig.ApiBaseUrl);
-                });
-                services.AddSingleton<BridgeService>();
-                var serviceProvider = services.BuildServiceProvider();
-                
-                // Create and run the bridge service
-                var bridgeService = serviceProvider.GetRequiredService<BridgeService>();
+                    bridgeService.Dispose();
+                    Console.WriteLine($"[Exit] Process shutting down!");
+                };
                 await bridgeService.RunAsync();
             }
             catch (Exception ex)
