@@ -280,11 +280,13 @@ namespace ProjectDaeadalus.Bridge.Services
                 var registerDto = new RegisterDeviceDto
                 {
                     HardwareIdentifier = hardwareIdentifier,
-                    UserToken = userToken
+                    UserToken = userToken,
+                    ConnectionAddress = _config.ComPort,
+                    ConnectionType = "USB"
                 };
                 Console.WriteLine("Sending the dto off to the api call");
                 var response =
-                    await _internalApiService.PostAsync<AckMessage>("Devices/internal/register", registerDto);
+                    await _internalApiService.FirstRegisterDeviceAsync<AckMessage>(registerDto, userToken);
                 if (response != null && response.Success)
                 {
                     SendViaSerial(response.Message);
