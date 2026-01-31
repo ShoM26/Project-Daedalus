@@ -90,7 +90,6 @@ namespace ProjectDaedalus.API.Controllers
         
         [HttpPost("internal/register")]
         [Authorize]
-        [InternalApi]
         public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceDto config)
         {
             Console.WriteLine("Made it into the POST api call");
@@ -100,16 +99,33 @@ namespace ProjectDaedalus.API.Controllers
             }
             try
             {
-                var userId = int.Parse(User.FindFirst("sub")?.Value);
+                var userIdClaim = User.FindFirst("userId")?.Value;
+
+                // 2. If null, try the Microsoft specific name
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                }
+
+                // 3. If STILL null, the token is valid but has no ID inside.
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized("Token is valid, but contains no User ID.");
+                }
+
+                // 4. Convert to Int (assuming your DB uses Integers)
+                int userId = int.Parse(userIdClaim);
+                
                 var device = new Device
                 {
                     HardwareIdentifier = config.HardwareIdentifier,
-                    ConnectionType = string.Empty,
-                    ConnectionAddress = string.Empty,
+                    ConnectionType = config.ConnectionType,
+                    ConnectionAddress = config.ConnectionAddress,
                     UserId = userId,
                     Status = "Active",
                     LastSeen = DateTime.Now
                 };
+                Console.WriteLine("Device created");
                 var createdDevice = await _deviceRepository.AddAsync(device);
                 Console.WriteLine($"Added the device {createdDevice} to the database, sending ack message");
                 return Ok(new AckMessage
