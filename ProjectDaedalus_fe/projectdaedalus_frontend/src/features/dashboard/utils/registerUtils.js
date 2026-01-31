@@ -1,11 +1,10 @@
 // This is a pure async function. It knows nothing about React.
 export const configureBridge = async (userToken, apiBaseUrl) => {
-  const response = await fetch('http://localhost:5050/', {
+  const response = await fetch('http://localhost:5000/setup', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
-        UserToken: userToken,
-        ApiBaseUrl: apiBaseUrl 
+        Token: userToken,
     })
   });
 
