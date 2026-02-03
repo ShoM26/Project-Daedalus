@@ -51,12 +51,13 @@ Environment: All components run locally during development
 - React frontend with real-time dashboards
 - Watering alert system with notifications
 - Historical trend visualization
+- Automatic Device Registration
 
 🔮 Planned Features
 
-- Automatic Device Registration
 - Bluetooth device connectivity
 - Mobile-responsive UI
+- Cloud Migration
 
 **Development Approach**
 
