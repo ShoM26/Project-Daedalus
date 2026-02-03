@@ -14,7 +14,7 @@ function RegisterDeviceModal({ isOpen, onClose}){
             <div className="register-body">
                 <h1>Connect Your Device</h1>
                 <p>1. Ensure your device is plugged</p>
-                <p>2. Ensure somethign else is happening</p>
+                <p>2. Ensure the bridge .exe file is running</p>
             </div>
         </Modal>
     );
