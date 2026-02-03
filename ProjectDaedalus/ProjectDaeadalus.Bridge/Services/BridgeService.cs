@@ -1,8 +1,11 @@
 using System.IO.Ports;
+using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using ProjectDaeadalus.Bridge.Configuration;
 using ProjectDaeadalus.Bridge.Models;
 using ProjectDaedalus.API.Dtos.Device;
@@ -17,25 +20,26 @@ namespace ProjectDaeadalus.Bridge.Services
     public class BridgeService : IDisposable
     {
         private readonly BridgeConfig _config;
-        private readonly HttpClient _httpClient;
+        private readonly string _expectedSecret;
         private SerialPort _serialPort;
         private bool _isRunning = true;
         private bool _disposed = false;
-        private readonly IInternalApiService _internalApiService ;
+        private readonly IInternalApiService _internalApiService;
 
         /// <summary>
         /// Initializes the bridge service with configuration and HTTP client
         /// </summary>
-        public BridgeService(IInternalApiService apiService)
+        public BridgeService(IInternalApiService apiService, IConfiguration appSettings, BridgeConfig config)
         {
             _internalApiService = apiService;
-            _config = new BridgeConfig();
+            _config = config;
             _config.Validate(); // Ensure configuration is valid
-            
-            _httpClient = new HttpClient
+            _expectedSecret = appSettings["HardwareSettings:HardwareKey"];
+            if (string.IsNullOrEmpty(_expectedSecret))
             {
-                Timeout = TimeSpan.FromMilliseconds(_config.HttpTimeoutMs)
-            };
+                Console.WriteLine("[Warning] Hardware Secret us missing in appsettings.json");
+            }
+            
         }
 
         /// <summary>
@@ -165,6 +169,9 @@ namespace ProjectDaeadalus.Bridge.Services
                 // Route message based on type
                 switch (arduinoMessage.GetMessageType())
                 {
+                    case ArduinoMessageType.Handshake:
+                        await HandleDeviceHandshake(arduinoMessage);
+                        break;
                     case ArduinoMessageType.Error:
                         HandleErrorMessage(arduinoMessage);
                         break;
@@ -204,40 +211,107 @@ namespace ProjectDaeadalus.Bridge.Services
                 var sensorReading = new SensorReadingInsertDto()
                 {
                     HardwareIdentifier = message.hardwareidentifier,
-                    MoistureLevel = message.moisturelevel.Value,
+                    MoistureLevel = message.moisture.Value,
                     Timestamp = DateTime.Now,
                 };
 
-                await SendToApiAsync(sensorReading);
+                await SendDataToApiAsync(sensorReading);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing sensor reading: {ex.Message}");
             }
         }
+
+        private async Task HandleDeviceHandshake(ArduinoMessage message)
+        {
+            try
+            {
+                var handshake = new HandshakeDto
+                {
+                    HardwareIdentifier = message.hardwareidentifier,
+                    HardwareSecret = message.secret
+                };
+                //Validify Secret
+                if (handshake.HardwareSecret == _expectedSecret)
+                {
+                    //Call Separate methods for update/register
+                    //Register waits for you to press the button
+                    var response = await _internalApiService.CheckDeviceStatusAsync($"Devices/{message.hardwareidentifier}");
+                    if (response == HttpStatusCode.NoContent){
+                        Console.WriteLine("Awaiting the call to register the new device");
+                        await RegisterNewDevice(handshake.HardwareIdentifier);
+                    }
+                    if(response == HttpStatusCode.OK)
+                    {
+                        await UpdateExistingDevice(handshake);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Incorrect hardware secret");
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing device handshake: {ex.Message}");
+            }
+        }
         
         /// <summary>
         /// Register device when it is its first time logging in
         /// </summary>
-        /// TODO:Make sure to write this and be careful about what data you're allowing into the database
-        public async Task RegisterNewDevice(string hardwareIdentifier, int userId)
+        private async Task RegisterNewDevice(string hardwareIdentifier)
         {
-            var registerDto = new DeviceDto
+            //Grab token
+            string userToken;
+            try
             {
-                
-                HardwareIdentifier = hardwareIdentifier,
-                ConnectionType = "",
-                ConnectionAddress = "",
-                UserId = userId
-            };
+                if (_config.UserToken.Length == 0 || _config.UserToken == null)
+                {
+                    Console.WriteLine("User Token is not populated, Retrying in 5 seconds");
+                    //wait 5 seconds and check again
+                    await Task.Delay(500);
+                    await RegisterNewDevice(hardwareIdentifier);
+                }
+                userToken = _config.UserToken;
+                Console.WriteLine("Token is not empty or null");
+                var registerDto = new RegisterDeviceDto
+                {
+                    HardwareIdentifier = hardwareIdentifier,
+                    UserToken = userToken,
+                    ConnectionAddress = _config.ComPort,
+                    ConnectionType = "USB"
+                };
+                Console.WriteLine("Sending the dto off to the api call");
+                var response =
+                    await _internalApiService.FirstRegisterDeviceAsync<AckMessage>(registerDto, userToken);
+                if (response != null && response.Success)
+                {
+                    SendViaSerial(response.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error registering device: {ex.Message}");
+            }
+        }
 
-            await _internalApiService.PostAsync<object>("devices/internal/register", registerDto);
+        public async Task UpdateExistingDevice(HandshakeDto dto)
+        {
+            
+            var response = await _internalApiService.PutAsync<AckMessage>($"Devices/update", dto);
+            if (response != null && response.Success)
+            {
+                SendViaSerial(response.Message);
+            }
         }
 
         /// <summary>
         /// Sends sensor data to the API with retry logic
         /// </summary>
-        private async Task SendToApiAsync(SensorReadingInsertDto sensorReading)
+        private async Task SendDataToApiAsync(SensorReadingInsertDto sensorReading)
         {
             var apiDto = new SensorReadingInsertDto
             {
@@ -296,6 +370,23 @@ namespace ProjectDaeadalus.Bridge.Services
             };
         }
 
+        public void SendViaSerial(object jsonMessage)
+        {
+            if (_serialPort.IsOpen)
+            {
+                var json = JsonSerializer.Serialize(jsonMessage);
+                _serialPort.WriteLine(json);
+                Console.WriteLine($"Sent ACK message {json}");
+            }
+        }
+
+        /*
+        public void SendViaBluetooth(string jsonMessage)
+        {
+            byte[] data = System.Text.Encoding.ASCII.GetBytes(jsonMessage + "\n");
+            _bluetoothStream.Write(data, 0, data.Length);
+        }*/
+
         #endregion
 
         #region IDisposable Implementation
@@ -330,8 +421,6 @@ namespace ProjectDaeadalus.Bridge.Services
                     {
                         Console.WriteLine($"Cleanup warning: {ex.Message}");
                     }
-
-                    _httpClient?.Dispose();
                 }
                 _disposed = true;
             }

@@ -6,6 +6,9 @@ namespace ProjectDaeadalus.Bridge.Configuration
     /// </summary>
     public class BridgeConfig
     {
+        //Authentification
+        public string? UserToken { get; set; }
+        
         // Serial Communication Settings
         public string ComPort { get; set; } = "COM3"; 
         public int BaudRate { get; set; } = 9600;
@@ -13,6 +16,7 @@ namespace ProjectDaeadalus.Bridge.Configuration
         // API Connection Settings  
         public string ApiBaseUrl { get; set; } = "http://localhost:5278";  // API URL
         public string SensorEndpoint { get; set; } = "/api/SensorReadings/internal";
+        public string DeviceRegisterEndpoint { get; set; } = "/api/Device/internal/register";
         
         // Connection Management
         public int ReconnectDelayMs { get; set; } = 5000;  // Wait 5 seconds before reconnecting

@@ -7,6 +7,7 @@ import PlantDetailModal from '../../plantmodal/components/PlantDetailModal.jsx';
 import AddPairingModal from '../components/AddPairingModal.jsx';
 import NotificationBell from '../../notificationmodal/components/NotificationBell.jsx';
 import NotificationModal from '../../notificationmodal/components/NotificationModal.jsx';
+import RegisterDeviceModal from '../components/RegisterDeviceModal.jsx';
 //hooks
 import { usePlants } from '../../plantmodal/hooks/usePlants.js';
 import { useNotifications } from '../../notificationmodal/hooks/useNotifications.js';
@@ -15,6 +16,7 @@ import { usePlantFilter } from '../../plantmodal/hooks/usePlantFilter.js';
 import { usePlantModal } from '../../plantmodal/hooks/usePlantModal.js';
 //services
 import authService from '../../auth/services/authService.js';
+import {configureBridge} from '../utils/registerUtils.js';
 //styles
 import '../styles/Dashboard.css';
 
@@ -71,6 +73,18 @@ function Dashboard() {
     navigate('/landingpage');
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleDeviceRegister = async () => {
+    setIsModalOpen(true);
+    var currentUserToken = authService.getToken();
+    try{
+      await configureBridge(currentUserToken, "http://localhost:5278");
+      alert("Bridge connected");
+    } catch (error){
+      alert("Is the bridge application powered on? please launch it manually");
+    }
+  };
+
   const handlePairingSuccess = () => {
     fetchPlants();
     closeAddModal();
@@ -112,6 +126,9 @@ function Dashboard() {
                 onRefresh={fetchNotifications}/>
             
           </div>
+          <button
+          className="register-button"
+          onClick={handleDeviceRegister}>Register Device</button>
           
           <button
             className="signout-button"
@@ -215,7 +232,9 @@ function Dashboard() {
         isOpen={showAddModal}
         onClose={closeAddModal}
         onSuccess={handlePairingSuccess}/>
-      
+      <RegisterDeviceModal
+      isOpen={isModalOpen}
+      onClose={() => setIsModalOpen(false)}/>
     </div>
   );
 }

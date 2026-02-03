@@ -1,18 +1,19 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 using ProjectDaedalus.API.Attributes;
 using ProjectDaedalus.API.Dtos;
 using ProjectDaedalus.API.Dtos.Device;
 using ProjectDaedalus.Core.Entities;
-using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
-using ProjectDaedalus.Infrastructure.Data; // DbContext
+using ProjectDaedalus.Core.Interfaces;
+using ProjectDaedalus.Infrastructure.Data;
 
 namespace ProjectDaedalus.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    
     public class DevicesController : ControllerBase
     {
         private readonly DaedalusContext _context;
@@ -25,6 +26,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET all devices for a user
         [HttpGet("user/{userId}/devices")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<DeviceDto>>> GetAllDevicesOfUser(int userId)
         {
             try
@@ -55,6 +57,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //GET specific device details
         [HttpGet("{deviceId}/device")]
+        [Authorize]
         public async Task<IActionResult> GetDeviceById(int deviceId)
         {
             try
@@ -84,47 +87,52 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
         //POST register a new Device
+        
         [HttpPost("internal/register")]
-        [InternalApi]
-        [AllowAnonymous]
-        public async Task<IActionResult> RegisterDevice([FromBody] DeviceDto dto)
+        [Authorize]
+        public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceDto config)
         {
-            if (dto == null)
+            Console.WriteLine("Made it into the POST api call");
+            if (config.UserToken == null)
             {
-                return BadRequest("Invalid Payload");
+                return BadRequest("Invalid token");
             }
-
             try
             {
-                var exisitingDevice =
-                    await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
-                if (exisitingDevice != null)
+                var userIdClaim = User.FindFirst("userId")?.Value;
+
+                // 2. If null, try the Microsoft specific name
+                if (string.IsNullOrEmpty(userIdClaim))
                 {
-                    return Conflict($"Device with hardware identifer '{dto.HardwareIdentifier}' already exists");
+                    userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 }
 
+                // 3. If STILL null, the token is valid but has no ID inside.
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized("Token is valid, but contains no User ID.");
+                }
+
+                // 4. Convert to Int (assuming your DB uses Integers)
+                int userId = int.Parse(userIdClaim);
+                
                 var device = new Device
                 {
-                    HardwareIdentifier = dto.HardwareIdentifier,
-                    ConnectionType = dto.ConnectionType,
-                    ConnectionAddress = dto.ConnectionAddress,
-                    UserId = dto.UserId.Value, //UserId = GetCurrentUserId(),
+                    HardwareIdentifier = config.HardwareIdentifier,
+                    ConnectionType = config.ConnectionType,
+                    ConnectionAddress = config.ConnectionAddress,
+                    UserId = userId,
                     Status = "Active",
                     LastSeen = DateTime.Now
                 };
+                Console.WriteLine("Device created");
                 var createdDevice = await _deviceRepository.AddAsync(device);
-
-                var resultDto = new DeviceDto
+                Console.WriteLine($"Added the device {createdDevice} to the database, sending ack message");
+                return Ok(new AckMessage
                 {
-                    DeviceId = createdDevice.DeviceId,
-                    HardwareIdentifier = createdDevice.HardwareIdentifier,
-                    ConnectionType = createdDevice.ConnectionType,
-                    ConnectionAddress = createdDevice.ConnectionAddress,
-                    UserId = createdDevice.UserId,
-                    Status = createdDevice.Status,
-                    LastSeen = createdDevice.LastSeen
-                };
-                return CreatedAtAction(nameof(GetDeviceById), new { deviceId = createdDevice.DeviceId }, resultDto);
+                    Success = true,
+                    Message = new { type = "ACK"}
+                });
             }
             catch (Exception ex)
             {
@@ -196,6 +204,7 @@ namespace ProjectDaedalus.API.Controllers
         }
         //DELETE remove a device
         [HttpDelete("{deviceId}")]
+        [Authorize]
         public async Task<ActionResult<Device>> DeleteDevice(int deviceId)
         {
             try
@@ -235,6 +244,64 @@ namespace ProjectDaedalus.API.Controllers
                     UserId = d.UserId
                 };
                 return Ok(device);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        //GET check if a device with given hardwareidentifier already exists
+        [HttpGet("{hardwareIdentifier}")]
+        public async Task<IActionResult> GetDeviceByHardwareIdentifier(string hardwareIdentifier)
+        {
+            try
+            {
+                var exists = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(hardwareIdentifier);
+                if (exists == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(exists);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateDevice([FromBody] HandshakeDto dto)
+        {
+            if (dto == null)
+                {
+                    return BadRequest("Request body is null");
+                }
+            Console.WriteLine($"API reicieved dto with identifier {dto.HardwareIdentifier}");
+                if (string.IsNullOrEmpty(dto.HardwareIdentifier))
+                {
+                    return BadRequest("HardwareIdentifier is required");
+                }
+           
+            // Find device by id
+            try
+            {
+                var existingDevice = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
+                Console.WriteLine($"Device found in api call");
+                if (existingDevice == null)
+                {
+                    return NoContent();
+                }
+
+                existingDevice.LastSeen = DateTime.Now;
+                // Update in database
+                Console.WriteLine("Updated time saving changes now");
+                await _deviceRepository.SaveChangesAsync();
+                return Ok(new AckMessage
+                {
+                    Success = true,
+                    Message = new { type = "ACK"}
+                });
             }
             catch (Exception ex)
             {

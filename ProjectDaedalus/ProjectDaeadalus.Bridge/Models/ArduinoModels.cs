@@ -7,22 +7,23 @@ namespace ProjectDaeadalus.Bridge.Models
     public class ArduinoMessage
     {
         public string hardwareidentifier { get; set; }
-        public long timestamp { get; set; }
-        public int? moisturelevel { get; set; }
+        public int? moisture { get; set; }
         public string? error { get; set; }        // For error messages
+        public string? secret {get; set; }
+        public string type { get; set; }
         
         /// <summary>
         /// Determines the type of message received from Arduino
         /// </summary>
         public ArduinoMessageType GetMessageType()
         {
-            if (!string.IsNullOrEmpty(error))
-                return ArduinoMessageType.Error;
-                
-            if (moisturelevel.HasValue)
-                return ArduinoMessageType.SensorReading;
-                
-            return ArduinoMessageType.Unknown;
+            return type switch
+            {
+                "HANDSHAKE" => ArduinoMessageType.Handshake,
+                "DATA" => ArduinoMessageType.SensorReading,
+                "ERROR" => ArduinoMessageType.Error, 
+                _ => ArduinoMessageType.Unknown,
+            };
         }
         
         /// <summary>
@@ -38,8 +39,9 @@ namespace ProjectDaeadalus.Bridge.Models
     /// </summary>
     public enum ArduinoMessageType
     {
-        Unknown,
+        Handshake,
         SensorReading,
-        Error
+        Error,
+        Unknown
     }
 }
