@@ -8,13 +8,10 @@ namespace ProjectDaeadalus.Bridge.Models
     {
         public string hardwareidentifier { get; set; }
         public int? moisture { get; set; }
-        public string? error { get; set; }        // For error messages
+        public string? error { get; set; }        
         public string? secret {get; set; }
         public string type { get; set; }
         
-        /// <summary>
-        /// Determines the type of message received from Arduino
-        /// </summary>
         public ArduinoMessageType GetMessageType()
         {
             return type switch
@@ -26,17 +23,9 @@ namespace ProjectDaeadalus.Bridge.Models
             };
         }
         
-        /// <summary>
-        /// Validates that the Arduino message has required fields
-        /// </summary>
         public bool IsValid => !string.IsNullOrEmpty(hardwareidentifier);
     }
     
-    
-    /// <summary>
-    /// Enumeration of different Arduino message types
-    /// Helps with message processing and routing
-    /// </summary>
     public enum ArduinoMessageType
     {
         Handshake,

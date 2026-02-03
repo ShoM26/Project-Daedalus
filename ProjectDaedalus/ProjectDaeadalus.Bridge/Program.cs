@@ -1,17 +1,6 @@
 ﻿using ProjectDaeadalus.Bridge.Services;
 using ProjectDaeadalus.Bridge.Models;
-using System;
-using System.Text.Json.Nodes;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using ProjectDaeadalus.Bridge.Configuration;
-using ProjectDaedalus.Core.Entities;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-
 
 namespace ProjectDaeadalus.Bridge
 {
@@ -31,7 +20,7 @@ namespace ProjectDaeadalus.Bridge
             builder.Services.AddSingleton(sharedConfig);
             builder.Services.AddHttpClient<IInternalApiService, InternalApiService>(client =>
             {
-                client.BaseAddress = new Uri(sharedConfig.ApiBaseUrl ?? "http://localhost:5278");
+                client.BaseAddress = new Uri(sharedConfig.ApiBaseUrl);
             });
             builder.Services.AddSingleton<BridgeService>();
             builder.Services.AddCors(options =>
@@ -45,7 +34,7 @@ namespace ProjectDaeadalus.Bridge
 
             app.MapPost("/setup", async (TokenPayload payload, BridgeConfig config) =>
             {
-                Console.WriteLine($"[Setup] Recieved User Token!");
+                Console.WriteLine($"[Setup] Received User Token!");
                 config.UserToken = payload.Token;   
                 return Results.Ok(new { message = "Bridge Configured Successfully!" });
             });

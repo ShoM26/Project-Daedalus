@@ -1,11 +1,6 @@
 using System.IO.Ports;
 using System.Net;
-using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
-using Microsoft.Extensions.Configuration;
 using ProjectDaeadalus.Bridge.Configuration;
 using ProjectDaeadalus.Bridge.Models;
 using ProjectDaedalus.API.Dtos.Device;
@@ -33,7 +28,7 @@ namespace ProjectDaeadalus.Bridge.Services
         {
             _internalApiService = apiService;
             _config = config;
-            _config.Validate(); // Ensure configuration is valid
+            _config.Validate();
             _expectedSecret = appSettings["HardwareSettings:HardwareKey"];
             if (string.IsNullOrEmpty(_expectedSecret))
             {
@@ -80,10 +75,8 @@ namespace ProjectDaeadalus.Bridge.Services
         {
             Console.WriteLine($"Connecting to Arduino on {_config.ComPort}...");
             
-            // Display available COM ports for diagnostics
             DisplayAvailablePorts();
             
-            // Initialize and configure serial port
             InitializeSerialPort();
             
             try
@@ -165,8 +158,7 @@ namespace ProjectDaeadalus.Bridge.Services
                     Console.WriteLine("Warning: Received invalid message (missing device_id)");
                     return;
                 }
-
-                // Route message based on type
+                
                 switch (arduinoMessage.GetMessageType())
                 {
                     case ArduinoMessageType.Handshake:
@@ -191,23 +183,16 @@ namespace ProjectDaeadalus.Bridge.Services
                 Console.WriteLine($"Raw data: {jsonLine}");
             }
         }
-
-        /// <summary>
-        /// Handles error messages from Arduino
-        /// </summary>
+        
         private void HandleErrorMessage(ArduinoMessage message)
         {
             Console.WriteLine($"Arduino Error from {message.hardwareidentifier}: {message.error}");
         }
-
-        /// <summary>
-        /// Processes sensor readings and sends them to the API
-        /// </summary>
+        
         private async Task HandleSensorReadingAsync(ArduinoMessage message)
         {
             try
             {
-                // Convert Arduino message to API DTO format
                 var sensorReading = new SensorReadingInsertDto()
                 {
                     HardwareIdentifier = message.hardwareidentifier,
@@ -232,11 +217,11 @@ namespace ProjectDaeadalus.Bridge.Services
                     HardwareIdentifier = message.hardwareidentifier,
                     HardwareSecret = message.secret
                 };
-                //Validify Secret
+                
                 if (handshake.HardwareSecret == _expectedSecret)
                 {
-                    //Call Separate methods for update/register
-                    //Register waits for you to press the button
+                    //Call separate methods for update/register
+                    // waits for you to press the button
                     var response = await _internalApiService.CheckDeviceStatusAsync($"Devices/{message.hardwareidentifier}");
                     if (response == HttpStatusCode.NoContent){
                         Console.WriteLine("Awaiting the call to register the new device");
@@ -271,7 +256,6 @@ namespace ProjectDaeadalus.Bridge.Services
                 if (_config.UserToken.Length == 0 || _config.UserToken == null)
                 {
                     Console.WriteLine("User Token is not populated, Retrying in 5 seconds");
-                    //wait 5 seconds and check again
                     await Task.Delay(500);
                     await RegisterNewDevice(hardwareIdentifier);
                 }
@@ -307,10 +291,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 SendViaSerial(response.Message);
             }
         }
-
-        /// <summary>
-        /// Sends sensor data to the API with retry logic
-        /// </summary>
+        
         private async Task SendDataToApiAsync(SensorReadingInsertDto sensorReading)
         {
             var apiDto = new SensorReadingInsertDto
@@ -322,10 +303,7 @@ namespace ProjectDaeadalus.Bridge.Services
             await _internalApiService.PostAsync<object>("sensorreadings/internal", apiDto);
         }
         #region Helper Methods
-
-        /// <summary>
-        /// Displays current configuration settings
-        /// </summary>
+        
         private void DisplayConfiguration()
         {
             Console.WriteLine("Configuration:");
@@ -335,19 +313,13 @@ namespace ProjectDaeadalus.Bridge.Services
             Console.WriteLine($"Reconnect Delay: {_config.ReconnectDelayMs}ms");
             Console.WriteLine();
         }
-
-        /// <summary>
-        /// Shows available COM ports for debugging
-        /// </summary>
+        
         private void DisplayAvailablePorts()
         {
             string[] availablePorts = SerialPort.GetPortNames();
             Console.WriteLine($"Available COM ports: {string.Join(", ", availablePorts)}");
         }
-
-        /// <summary>
-        /// Configures the serial port with proper settings
-        /// </summary>
+        
         private void InitializeSerialPort()
         {
             _serialPort = new SerialPort(_config.ComPort, _config.BaudRate)
@@ -356,10 +328,7 @@ namespace ProjectDaeadalus.Bridge.Services
                 NewLine = "\n" // Arduino uses \n for line endings
             };
         }
-
-        /// <summary>
-        /// Sets up graceful shutdown handling for Ctrl+C
-        /// </summary>
+        
         private void SetupGracefulShutdown()
         {
             Console.CancelKeyPress += (sender, e) =>
@@ -370,14 +339,12 @@ namespace ProjectDaeadalus.Bridge.Services
             };
         }
 
-        public void SendViaSerial(object jsonMessage)
+        private void SendViaSerial(object jsonMessage)
         {
-            if (_serialPort.IsOpen)
-            {
-                var json = JsonSerializer.Serialize(jsonMessage);
-                _serialPort.WriteLine(json);
-                Console.WriteLine($"Sent ACK message {json}");
-            }
+            if (!_serialPort.IsOpen) return;
+            var json = JsonSerializer.Serialize(jsonMessage);
+            _serialPort.WriteLine(json);
+            Console.WriteLine($"Sent ACK message {json}");
         }
 
         /*
@@ -388,12 +355,7 @@ namespace ProjectDaeadalus.Bridge.Services
         }*/
 
         #endregion
-
-        #region IDisposable Implementation
-
-        /// <summary>
-        /// Properly disposes of resources
-        /// </summary>
+        
         public void Dispose()
         {
             Dispose(true);
@@ -425,7 +387,5 @@ namespace ProjectDaeadalus.Bridge.Services
                 _disposed = true;
             }
         }
-
-        #endregion
     }
 }

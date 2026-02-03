@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ProjectDaedalus.API.Attributes;
 using ProjectDaedalus.API.Dtos.Plant;
 using ProjectDaedalus.Core.Entities;
-using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
-using ProjectDaedalus.Infrastructure.Data; // DbContext
+using ProjectDaedalus.Core.Interfaces;
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -14,12 +12,10 @@ namespace ProjectDaedalus.API.Controllers
     [Authorize]
     public class PlantsController : ControllerBase
     {
-        private readonly DaedalusContext _context;
         private readonly IPlantRepository _plantRepository;
 
-        public PlantsController(DaedalusContext context, IPlantRepository plantRepository)
+        public PlantsController(IPlantRepository plantRepository)
         {
-            _context = context;
             _plantRepository = plantRepository;
         }
         
@@ -60,8 +56,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"Plant {plantId} not found");
                 }
-
-                // convert to dto
+                
                 var plant = new PlantDto
                 {
                     PlantId = p.PlantId,
@@ -133,7 +128,7 @@ namespace ProjectDaedalus.API.Controllers
             {
                 return BadRequest("Invalid payload");
             }
-            // Find device by id
+           
             try
             {
                 var existingPlant = await _plantRepository.GetByIdAsync(plantId);
@@ -289,8 +284,7 @@ namespace ProjectDaedalus.API.Controllers
                     Console.WriteLine($"repositoryResult is null: {repositoryResult == null}");
                     Console.WriteLine($"repositoryResult.FailedRegistrations: {repositoryResult.FailedRegistrations}");
                     Console.WriteLine($"repositoryResult.SuccessfulRegistrations: {repositoryResult.SuccessfulRegistrations}");
-    
-                    // Test the HasErrors property specifically
+                    
                     Console.WriteLine("About to check HasErrors");
                     bool hasErrors = repositoryResult.HasErrors;
                     Console.WriteLine($"repositoryResult.HasErrors: {hasErrors}");
@@ -305,8 +299,7 @@ namespace ProjectDaedalus.API.Controllers
                     Console.WriteLine($"Error in debugging: {ex.Message}");
                     Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 }
-
-// Simplified return for now
+                
                 return Ok(response);
             }
             catch (Exception ex)

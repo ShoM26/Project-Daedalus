@@ -1,7 +1,6 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 using ProjectDaedalus.API.Dtos.Device;
 
 namespace ProjectDaeadalus.Bridge.Services
@@ -22,7 +21,7 @@ namespace ProjectDaeadalus.Bridge.Services
 
         private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true // This fixes the CamelCase vs PascalCase issue
+            PropertyNameCaseInsensitive = true
         };
 
         public async Task<T> PostAsync<T>(string endpoint, object data)

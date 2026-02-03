@@ -1,9 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectDaedalus.API.Dtos.Notification;
-using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces;
-using ProjectDaedalus.Infrastructure.UnitOfWork;
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -25,11 +22,8 @@ namespace ProjectDaedalus.API.Controllers
             _logger = logger;
             _notificationRepository = notificationRepository;
         }
-
-        /// <summary>
-        /// Get count of unread notifications for the current user
-        /// Called by frontend polling (every 2 minutes)
-        /// </summary>
+        
+        // GET unread count given userId
         [HttpGet("{userId}/unread-count")]
         public async Task<IActionResult> GetUnreadCount(int userId)
         {
@@ -44,11 +38,7 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, new { error = "Failed to retrieve notification count" });
             }
         }
-
-        /// <summary>
-        /// Get list of notifications for the current user
-        /// Called when user opens the notification modal
-        /// </summary>
+        // GET list of notifications based on userid
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetNotifications(int userId)
         {
@@ -82,10 +72,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Mark a specific notification as read
-        /// Called when user clicks "mark as read" on individual notification
-        /// </summary>
+        // PATCH mark singular notification as read
         [HttpPatch("{userId}/{notificationId}/read")]
         public async Task<IActionResult> MarkAsRead(int notificationId, int userId)
         {
@@ -120,10 +107,7 @@ namespace ProjectDaedalus.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Mark all notifications as read for the current user
-        /// Optional convenience endpoint
-        /// </summary>
+        // PATCH Mark all notifications as read
         [HttpPatch("{userId}/mark-all-read")]
         public async Task<IActionResult> MarkAllAsRead(int userId)
         {

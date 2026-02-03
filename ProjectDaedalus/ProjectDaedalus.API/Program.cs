@@ -6,11 +6,9 @@ using ProjectDaedalus.Core.Interfaces;
 using ProjectDaedalus.Infrastructure.Repositories;
 using ProjectDaedalus.Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using ProjectDaedalus.Core.Configuration;
+using ProjectDaedalus.Core.Configurations;
 using ProjectDaedalus.Infrastructure.Services;
-using ProjectDaedalus.Services;
+using ProjectDaedalus.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +26,7 @@ builder.Services.AddDbContext<DaedalusContext>(options =>
 );
 
 // Register repositories (so UnitOfWork can inject them)
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPlantRepository, PlantRepository>();
@@ -86,7 +84,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -106,8 +103,6 @@ app.Use(async (context, next) =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-//app.UseHttpsRedirection();
 
 app.MapControllers();
 app.Run();

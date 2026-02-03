@@ -26,7 +26,6 @@ namespace ProjectDaedalus.API.Attributes
             if (providedKey != expectedKey)
             {
                 context.Result = new UnauthorizedObjectResult(new { Error = "Invalid internal API key" });
-                return;
             }
         }
     }

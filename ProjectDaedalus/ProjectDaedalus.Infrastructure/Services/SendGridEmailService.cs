@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ProjectDaedalus.Core.Configuration;
+using ProjectDaedalus.Core.Configurations;
 using ProjectDaedalus.Core.Interfaces;
 using SendGrid;
 using SendGrid.Helpers.Mail;
@@ -55,9 +55,6 @@ namespace ProjectDaedalus.Infrastructure.Services
                     "Failed to send email to {Email} with subject '{Subject}'", 
                     toEmail, 
                     subject);
-                
-                // Don't rethrow - we don't want email failures to crash the worker
-                // The notification will still be created in the database
             }
         }
     }

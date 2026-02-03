@@ -1,13 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-using ProjectDaedalus.API.Attributes;
-using ProjectDaedalus.API.Dtos;
 using ProjectDaedalus.API.Dtos.Device;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces;
-using ProjectDaedalus.Infrastructure.Data;
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -16,13 +11,13 @@ namespace ProjectDaedalus.API.Controllers
     
     public class DevicesController : ControllerBase
     {
-        private readonly DaedalusContext _context;
         private readonly IDeviceRepository _deviceRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public DevicesController(DaedalusContext context, IDeviceRepository deviceRepository)
+        public DevicesController(IDeviceRepository deviceRepository, IUnitOfWork unitOfWork)
         {
-            _context = context;
             _deviceRepository = deviceRepository;
+            _unitOfWork = unitOfWork;
         }
         //GET all devices for a user
         [HttpGet("user/{userId}/devices")]
@@ -36,8 +31,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"Devices from user {userId} not found");
                 }
-
-                // Convert to DTO
+                
                 var devices = device.Select(d => new DeviceDto
                 {
                     DeviceId = d.DeviceId,
@@ -67,8 +61,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"Device {deviceId} not found");
                 }
-
-                // Convert to DTO
+                
                 var device = new DeviceDto
                 {
                     DeviceId = d.DeviceId,
@@ -86,8 +79,8 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        //POST register a new Device
         
+        //POST register a new Device
         [HttpPost("internal/register")]
         [Authorize]
         public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceDto config)
@@ -100,20 +93,17 @@ namespace ProjectDaedalus.API.Controllers
             try
             {
                 var userIdClaim = User.FindFirst("userId")?.Value;
-
-                // 2. If null, try the Microsoft specific name
+                
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
                 }
-
-                // 3. If STILL null, the token is valid but has no ID inside.
+                
                 if (string.IsNullOrEmpty(userIdClaim))
                 {
                     return Unauthorized("Token is valid, but contains no User ID.");
                 }
-
-                // 4. Convert to Int (assuming your DB uses Integers)
+                
                 int userId = int.Parse(userIdClaim);
                 
                 var device = new Device
@@ -148,7 +138,6 @@ namespace ProjectDaedalus.API.Controllers
                 return BadRequest("Invalid Payload");
             }
             
-            // Find device by id
             try
             {
                 var existingDevice = await _deviceRepository.GetByIdAsync(deviceId);
@@ -181,11 +170,9 @@ namespace ProjectDaedalus.API.Controllers
 
                 if (!string.IsNullOrEmpty(dto.ConnectionAddress))
                     existingDevice.ConnectionAddress = dto.ConnectionAddress;
-
-                // Update in database
+                
                 var updatedDevice = await _deviceRepository.UpdateAsync(existingDevice);
-
-                // Return updated device as DTO
+                
                 var resultDto = new DeviceDto
                 {
                     HardwareIdentifier = updatedDevice.HardwareIdentifier,
@@ -234,8 +221,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"Device {deviceId} not found");
                 }
-
-                // Convert to DTO
+                
                 var device = new DeviceDto
                 {
                     HardwareIdentifier = d.HardwareIdentifier,
@@ -274,16 +260,15 @@ namespace ProjectDaedalus.API.Controllers
         public async Task<IActionResult> UpdateDevice([FromBody] HandshakeDto dto)
         {
             if (dto == null)
-                {
-                    return BadRequest("Request body is null");
-                }
+            {
+                return BadRequest("Request body is null");
+            }
             Console.WriteLine($"API reicieved dto with identifier {dto.HardwareIdentifier}");
                 if (string.IsNullOrEmpty(dto.HardwareIdentifier))
                 {
                     return BadRequest("HardwareIdentifier is required");
                 }
-           
-            // Find device by id
+                
             try
             {
                 var existingDevice = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
@@ -296,7 +281,7 @@ namespace ProjectDaedalus.API.Controllers
                 existingDevice.LastSeen = DateTime.Now;
                 // Update in database
                 Console.WriteLine("Updated time saving changes now");
-                await _deviceRepository.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return Ok(new AckMessage
                 {
                     Success = true,

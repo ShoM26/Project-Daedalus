@@ -1,5 +1,3 @@
-using ProjectDaedalus.Core.Entities;
-
 namespace ProjectDaedalus.Core.Interfaces
 {
     public interface IRepository<T>
@@ -10,8 +8,6 @@ namespace ProjectDaedalus.Core.Interfaces
         Task<T> UpdateAsync(T entity);
         Task<bool> DeleteAsync(int id);
         Task<int> DeleteManyAsync(IEnumerable<T> entities);
-        Task SaveChangesAsync();
-
     }
 }
 

@@ -26,9 +26,6 @@ namespace ProjectDaeadalus.Bridge.Configuration
         public int MaxRetryAttempts { get; set; } = 3;     // HTTP request retries
         public int HttpTimeoutMs { get; set; } = 30000;    // HTTP request timeout
         
-        /// <summary>
-        /// Validates configuration settings
-        /// </summary>
         public void Validate()
         {
             if (string.IsNullOrEmpty(ComPort))
