@@ -83,7 +83,6 @@
   to { transform: rotate(360deg); }
 }
 
-/* Custom Tooltip Styles */
 .custom-tooltip {
   background: white;
   border: 2px solid #4CAF50;

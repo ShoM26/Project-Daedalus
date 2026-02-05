@@ -1,7 +1,5 @@
-// Base URL for your C# API
 const BASE_URL = 'http://localhost:5278/api';
 
-// Basic API service class
 class ApiService {
 
   constructor() {

@@ -1,4 +1,3 @@
-// hooks/useNotificationDropdown.js
 import { useState, useEffect, useRef } from 'react';
 
 export function useNotificationDropdown() {
@@ -9,7 +8,6 @@ export function useNotificationDropdown() {
   const close = () => setIsOpen(false);
   const toggle = () => setIsOpen(prev => !prev);
 
-  // Click outside handler
   useEffect(() => {
     if (!isOpen) return;
 
@@ -29,7 +27,6 @@ export function useNotificationDropdown() {
     };
   }, [isOpen]);
 
-  // Escape key handler
   useEffect(() => {
     if (!isOpen) return;
 

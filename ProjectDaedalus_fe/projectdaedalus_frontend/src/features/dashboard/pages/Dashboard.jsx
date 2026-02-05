@@ -97,7 +97,6 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Top Navigation Bar */}
       <nav className="dashboard-nav">
         <h1>Plant Monitor Dashboard</h1>
         
@@ -109,7 +108,6 @@ function Dashboard() {
             + Add Plant
           </button>
           
-          {/* Notification Bell */}
           <div ref={anchorRef} className='relative'>
             <NotificationBell 
               unreadCount={unreadCount}
@@ -139,9 +137,7 @@ function Dashboard() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="dashboard-main">
-        {/* Error State */}
         {plantsError && (
           <div className="error-banner">
             <p>Error: {plantsError}</p>
@@ -149,14 +145,12 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Loading State */}
         {plantsLoading ? (
           <div className="loading-container">
             <p>Loading plants...</p>
           </div>
         ) : (
           <>
-            {/* Summary Stats Cards */}
             <div className="summary-stats">
               <div className="stat-card">
                 <span className="stat-number">{stats.total}</span>
@@ -172,7 +166,6 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Filter Controls */}
             <div className="filter-controls">
               <h3>Filter Plants</h3>
               <div className="filter-buttons">
@@ -197,7 +190,6 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* Plants Grid */}
             <div className="plants-grid">
               {filteredPlants.map(pairing => (
                 <PlantCard 
@@ -207,7 +199,6 @@ function Dashboard() {
                 />
               ))}
               
-              {/* Empty state */}
               {filteredPlants.length === 0 && (
                 <div className="no-plants">
                   <p>No plants match the current filter.</p>
@@ -218,7 +209,6 @@ function Dashboard() {
         )}
       </main>
 
-      {/* Modals */}
       <Modal isOpen={selectedPlant !== null} onClose={closePlantDetails}>
         {selectedPlant && (
           <PlantDetailModal 

@@ -97,7 +97,6 @@ export function usePlants() {
     setPlants(prev => prev.filter(plant => plant.id !== deletedPlantId));
   }, []);
 
-  // Initial fetch
   useEffect(() => {
     fetchPlants();
   }, [fetchPlants]);

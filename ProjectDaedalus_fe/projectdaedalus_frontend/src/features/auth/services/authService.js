@@ -2,7 +2,6 @@
 const BASE_URL = 'http://localhost:5278/api';
 
 class authService {
-  // Call your C# login endpoint
   async login(email, password) {
     try {
       const response = await fetch(`${BASE_URL}/Users/login`, {
@@ -86,14 +85,12 @@ class authService {
       const now = Date.now() / 1000;
       
       if (payload.exp < now) {
-        // Token expired, clean up
         this.logout();
         return false;
       }
       
       return true;
     } catch (error) {
-      // Invalid token format
       this.logout();
       return false;
     }

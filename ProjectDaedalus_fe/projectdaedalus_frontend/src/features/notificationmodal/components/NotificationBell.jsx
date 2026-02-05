@@ -1,4 +1,3 @@
-import React from "react";
 import { Bell } from 'lucide-react';
 import styles from '../styles/NotificationBell.module.css';
 

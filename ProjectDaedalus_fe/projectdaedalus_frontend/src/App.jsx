@@ -1,4 +1,3 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from '@features/dashboard/pages/Dashboard.jsx';
 import Login from '@features/auth/pages/Login';
@@ -7,7 +6,6 @@ import LandingPage from './pages/LandingPage';
 import authService from '@features/auth/services/authService';
 import '@shared/styles/global.css';
 
-// Protected Route component - only shows content if user is logged in
 function ProtectedRoute({ children }) {
   return authService.isAuthenticated() ? children : <Navigate to="/landingpage" replace />;
 }

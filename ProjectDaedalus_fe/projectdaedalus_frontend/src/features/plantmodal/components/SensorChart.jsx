@@ -1,4 +1,3 @@
-// src/components/SensorChart.jsx
 import React, { useState, useEffect } from 'react';
 import { plantService } from '../services/plantService';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
@@ -14,9 +13,8 @@ function SensorChart({ deviceId, moistureMin, moistureMax }) {
     return <div>Error: No device ID provided</div>;
   }
 
-  // Calculate start and end dates based on time range
   const getDateRange = (range) => {
-    const endDate = new Date(); // Now
+    const endDate = new Date(); 
     const startDate = new Date();
 
     switch(range) {
@@ -39,7 +37,6 @@ function SensorChart({ deviceId, moistureMin, moistureMax }) {
     };
   };
 
-  // Fetch data whenever deviceId or timeRange changes
   useEffect(() => {
     const fetchReadings = async () => {
       setLoading(true);
@@ -74,9 +71,8 @@ function SensorChart({ deviceId, moistureMin, moistureMax }) {
     };
 
     fetchReadings();
-  }, [deviceId, timeRange]); // Re-fetch when these change
+  }, [deviceId, timeRange]);
 
-  // Handle time range change
   const handleTimeRangeChange = (e) => {
     setTimeRange(e.target.value);
   };
@@ -147,7 +143,6 @@ function SensorChart({ deviceId, moistureMin, moistureMax }) {
               
               <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
               
-              {/* Reference lines for ideal moisture range */}
               <ReferenceLine 
                 y={moistureMax} 
                 stroke="#FF9800" 

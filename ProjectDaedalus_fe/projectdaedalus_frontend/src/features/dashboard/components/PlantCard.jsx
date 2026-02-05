@@ -1,13 +1,6 @@
-// src/features/plants/components/PlantCard.jsx
 import { isInIdealRange } from '../utils/plantUtils';
 import styles from '../styles/PlantCard.module.css';
-/**
- * PlantCard Component
- * Displays a plant pairing with its device, moisture readings, and status
- * 
- * @param {Object} pairing - The plant-device pairing data
- * @param {Function} onClick - Handler for card click
- */
+
 function PlantCard({ pairing, onClick }) {
   const { plant, device, currentReading, status } = pairing;
   
@@ -28,7 +21,6 @@ function PlantCard({ pairing, onClick }) {
       className={styles.plantCard}
       onClick={onClick}
     >
-      {/* Plant Name Header */}
       <div className={styles.plantHeader}>
         <h3>{plant.familiarName}</h3>
         <span 
