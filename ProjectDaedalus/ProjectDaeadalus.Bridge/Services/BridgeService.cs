@@ -73,10 +73,7 @@ namespace ProjectDaeadalus.Bridge.Services
         /// </summary>
         private async Task ConnectAndListenAsync()
         {
-            Console.WriteLine($"Connecting to Arduino on {_config.ComPort}...");
-            
-            DisplayAvailablePorts();
-            
+            _config.ComPort = AutoDetectPort();
             InitializeSerialPort();
             
             try
@@ -314,11 +311,63 @@ namespace ProjectDaeadalus.Bridge.Services
             Console.WriteLine();
         }
         
-        private void DisplayAvailablePorts()
+        private static string AutoDetectPort()
         {
             string[] availablePorts = SerialPort.GetPortNames();
             Console.WriteLine($"Available COM ports: {string.Join(", ", availablePorts)}");
+            while (true)
+            {
+                if (availablePorts.Length == 0)
+                {
+                    Console.WriteLine("No COM ports available");
+                    Thread.Sleep(3000);
+                    continue;
+                }
+                foreach (var portName in availablePorts)
+                {
+                    try
+                    {
+                        using (SerialPort port = new SerialPort(portName, 9600))
+                        {
+                            port.ReadTimeout = 15000;
+                            port.Open();
+
+                            for (int i = 0; i < 3; i++)
+                            {
+                                try
+                                {
+                                    string message = port.ReadLine();
+                                    if (!string.IsNullOrEmpty(message) && message.Contains("HANDSHAKE"))
+                                    {
+                                        Console.WriteLine($"Found port: {message}");
+                                        return portName;
+                                    }
+                                }
+                                catch (TimeoutException)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        Console.WriteLine($"{portName} is a ghost port");
+                    }
+                    catch (IOException)
+                    {
+                        Console.WriteLine($"{portName} IO error");
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Console.WriteLine($"{portName} Access error");
+                    }
+                }
+                Console.WriteLine("Device not found yet");
+                Thread.Sleep(3000);
+            }
         }
+        
         
         private void InitializeSerialPort()
         {
