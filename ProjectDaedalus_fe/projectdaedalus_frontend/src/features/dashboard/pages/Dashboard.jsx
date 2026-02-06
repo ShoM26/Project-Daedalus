@@ -20,6 +20,8 @@ import {configureBridge} from '../utils/registerUtils.js';
 //styles
 import '../styles/Dashboard.css';
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
 function Dashboard() {
   const navigate = useNavigate();
   
@@ -78,7 +80,7 @@ function Dashboard() {
     setIsModalOpen(true);
     var currentUserToken = authService.getToken();
     try{
-      await configureBridge(currentUserToken, "http://localhost:5278");
+      await configureBridge(currentUserToken, BASE_URL);
       alert("Bridge connected");
     } catch (error){
       alert("Is the bridge application powered on? please launch it manually");
