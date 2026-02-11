@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ProjectDaedalus.Core.Configuration;
+using ProjectDaedalus.Core.Configurations;
 using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces;
 using ProjectDaedalus.Infrastructure.Data;
@@ -176,7 +176,7 @@ namespace ProjectDaedalus.Infrastructure.Services
                 userPlant.UserPlantId, 
                 userPlant.Plant.FamiliarName);
 
-            // Send email (fire and forget - don't let email failures stop processing)
+            // Send email (fire and forget, don't let email failures stop processing)
             _ = Task.Run(async () =>
             {
                 try

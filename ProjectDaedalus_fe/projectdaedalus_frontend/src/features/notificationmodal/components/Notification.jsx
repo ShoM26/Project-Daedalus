@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Check, Clock } from 'lucide-react';
 import { formatTimeAgo } from '../../../shared/utils/dateUtils';
 import styles from '../styles/Notification.module.css';

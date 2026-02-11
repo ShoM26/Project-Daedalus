@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { CheckCheck } from 'lucide-react';
 import Notification from './Notification';
 import Modal from '../../../shared/components/Modal';

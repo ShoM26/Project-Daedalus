@@ -51,7 +51,6 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
     return existingPairings.find(p => p.deviceId === parseInt(deviceId));
   };
 
-  // Helper to get plant name by id
   const getPlantName = (plantId) => {
     const plant = plants.find(p => p.plantId === plantId);
     return plant ? plant.familiarName : 'Unknown Plant';
@@ -128,7 +127,7 @@ function AddPairingModal({ isOpen, onClose, onSuccess }) {
 
       if (updateResult.success) {
 
-        onSuccess(); // Refresh dashboard
+        onSuccess();
         resetAndClose();
       } else {
         setError(updateResult.message || 'Failed to update pairing');

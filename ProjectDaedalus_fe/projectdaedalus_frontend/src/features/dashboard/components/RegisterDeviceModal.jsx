@@ -1,12 +1,9 @@
 import { useEffect } from 'react';
 import Modal from '../../../shared/components/Modal.jsx';
-import authService from '../../auth/services/authService.js';
 
 function RegisterDeviceModal({ isOpen, onClose}){
-    const currentUser = authService.getCurrentUser();
     useEffect(() => {
         if(isOpen){
-            //Display Diagram
         }
     }, [isOpen]);
     return (

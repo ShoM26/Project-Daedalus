@@ -1,11 +1,5 @@
-/* ========================================
-   Project Daedalus – Global Styles
-   Minimalist Earthy Theme
-======================================== */
-
 @import './variables.css';
 
-/* ===== CSS Reset ===== */
 *,
 *::before,
 *::after {
@@ -14,7 +8,6 @@
   padding: 0;
 }
 
-/* ===== Base Typography ===== */
 html {
   font-size: 16px;
   scroll-behavior: smooth;
@@ -29,7 +22,6 @@ body {
   min-height: 100vh;
 }
 
-/* ===== Headings ===== */
 h1, h2, h3, h4, h5, h6 {
   color: var(--color-text);
   font-weight: 600;
@@ -42,7 +34,6 @@ h1 { font-size: var(--font-size-heading); }
 h2 { font-size: 1.75rem; }
 h3 { font-size: 1.25rem; }
 
-/* ===== Paragraphs & Links ===== */
 p {
   margin-bottom: var(--space-md);
 }
@@ -57,7 +48,6 @@ a:hover {
   text-decoration: underline;
 }
 
-/* ===== Buttons ===== */
 button {
   font-family: inherit;
   font-size: var(--font-size-base);
@@ -75,7 +65,6 @@ button:hover {
   transform: translateY(-1px);
 }
 
-/* ===== Forms ===== */
 input, select, textarea {
   font-family: inherit;
   font-size: var(--font-size-base);
@@ -91,7 +80,6 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--color-secondary);
 }
 
-/* ===== Layout Helpers ===== */
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -104,7 +92,6 @@ input:focus, select:focus, textarea:focus {
   align-items: center;
 }
 
-/* ===== Utility Details ===== */
 ::selection {
   background-color: var(--color-primary);
   color: var(--color-text);

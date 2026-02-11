@@ -1,13 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using ProjectDaedalus.API.Dtos.User;
 using ProjectDaedalus.Core.Entities;
-using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
-using ProjectDaedalus.Infrastructure.Data; // DbContext
+using ProjectDaedalus.Core.Interfaces; 
+using ProjectDaedalus.API.Services;
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -16,14 +11,14 @@ namespace ProjectDaedalus.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
-        public UsersController(DaedalusContext context, IUserRepository userRepository,
-            IConfiguration configuration, IUnitOfWork unitOfWork)
+        private readonly IJwtService _jwtService;
+        public UsersController(IUserRepository userRepository, 
+            IUnitOfWork unitOfWork, IJwtService jwtService)
         {
-            _configuration = configuration;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _jwtService = jwtService;
         }
         //GET user profile
         [HttpGet("user/{userId}")]
@@ -36,8 +31,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return NotFound($"User with id {userId} not found");
                 }
-
-                // Convert to DTO for security
+                
                 var user = new UserDto
                 {
                     UserId = u.UserId,
@@ -139,11 +133,9 @@ namespace ProjectDaedalus.API.Controllers
                     existingUser.Email = dto.Email;
                 if (!string.IsNullOrEmpty(dto.Password))
                     existingUser.Password = dto.Password;
-
-                //Update in database
+                
                 var updatedUser = await _userRepository.UpdateAsync(existingUser);
-
-                //Return updated device as DTO for security
+                
                 var resultDto = new UserDto
                 {
                     Username = updatedUser.Username,
@@ -185,7 +177,6 @@ namespace ProjectDaedalus.API.Controllers
         {
             try
             {
-                // Validate input
                 if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
                 {
                     return BadRequest(new LoginFailureDto 
@@ -194,8 +185,7 @@ namespace ProjectDaedalus.API.Controllers
                         Message = "Email and Password are required" 
                     });
                 }
-
-                // Validate credentials against database
+                
                 var user = await _userRepository.ValidateUserCredentialsAsync(request.Email, request.Password);
             
                 if (user == null)
@@ -206,11 +196,9 @@ namespace ProjectDaedalus.API.Controllers
                         Message = "Invalid email or password" 
                     });
                 }
+                
+                var token = _jwtService.GenerateToken(user.UserId, user.Username);
 
-                // Generate JWT token
-                var token = GenerateJwtToken(user);
-
-                // Return success response
                 return Ok(new LoginResponseDto
                 {
                     Success = true,
@@ -230,34 +218,6 @@ namespace ProjectDaedalus.API.Controllers
                     Message = "An error occurred during login" 
                 });
             }
-        }
-        private string GenerateJwtToken(User user)
-        {
-            // JWT configuration - reads from appsettings.json
-            var jwtKey = _configuration["Jwt:Key"] ?? "your-super-secret-jwt-key-for-development-minimum-32-characters";
-            var jwtIssuer = _configuration["Jwt:Issuer"] ?? "ProjectDaedalus";
-            var jwtExpireHours = int.Parse(_configuration["Jwt:ExpireHours"] ?? "24");
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(jwtKey);
-        
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("userId", user.UserId.ToString()),
-                    new Claim("username", user.Username),
-                    new Claim("email", user.Email),
-                    new Claim(ClaimTypes.Name, user.Username)
-                }),
-                Expires = DateTime.UtcNow.AddHours(jwtExpireHours),
-                Issuer = jwtIssuer,
-                Audience = jwtIssuer,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-        
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
         }
     }
 }

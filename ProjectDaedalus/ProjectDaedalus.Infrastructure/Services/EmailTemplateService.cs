@@ -23,14 +23,12 @@ namespace ProjectDaedalus.Infrastructure.Services
         {
             try
             {
-                // Load template (with caching)
                 var template = LoadTemplate(templateName);
-
-                // Replace all placeholders
+                
                 var rendered = template;
                 foreach (var kvp in data)
                 {
-                    var placeholder = $"{{{{{kvp.Key}}}}}"; // Creates {{Key}}
+                    var placeholder = $"{{{{{kvp.Key}}}}}";
                     rendered = rendered.Replace(placeholder, kvp.Value);
                 }
 
@@ -46,13 +44,11 @@ namespace ProjectDaedalus.Infrastructure.Services
 
         private string LoadTemplate(string templateName)
         {
-            // Check cache first
             if (_templateCache.TryGetValue(templateName, out var cachedTemplate))
             {
                 return cachedTemplate;
             }
 
-            // Build file path
             var templatePath = Path.Combine(
                 _hostEnvironment.ContentRootPath,
                 "EmailTemplates",
@@ -63,11 +59,9 @@ namespace ProjectDaedalus.Infrastructure.Services
             {
                 throw new FileNotFoundException($"Email template not found: {templateName}.html");
             }
-
-            // Read template
+            
             var template = File.ReadAllText(templatePath);
 
-            // Cache it (templates don't change at runtime)
             _templateCache[templateName] = template;
 
             _logger.LogInformation("Loaded email template from {Path}", templatePath);

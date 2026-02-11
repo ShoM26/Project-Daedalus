@@ -1,7 +1,5 @@
-// Base URL for your C# API
-const BASE_URL = 'http://localhost:5278/api';
+const BASE_URL = import.meta.env.VITE_API_URL;
 
-// Basic API service class
 class ApiService {
 
   constructor() {

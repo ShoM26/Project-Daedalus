@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import SensorChart from './SensorChart';
 import '../styles/PlantDetailModal.css';
 import ConfirmDialog from '../../dashboard/components/ConfirmDialog';

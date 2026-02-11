@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ProjectDaedalus.API.Dtos.Device;
 using ProjectDaedalus.API.Dtos.Plant;
 using ProjectDaedalus.API.Dtos.UserPlant;
 using ProjectDaedalus.Core.Entities;
-using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
-using ProjectDaedalus.Infrastructure.Data; // DbContext
+using ProjectDaedalus.Core.Interfaces; 
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -15,14 +13,12 @@ namespace ProjectDaedalus.API.Controllers
     [Authorize]
     public class UserPlantsController : ControllerBase
     {
-        private readonly DaedalusContext _context;
         private readonly IUserPlantRepository _userPlantRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public UserPlantsController(DaedalusContext context, IUserPlantRepository userPlantRepository, IUnitOfWork unitOfWork)
+        public UserPlantsController(IUserPlantRepository userPlantRepository, IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _context = context;
             _userPlantRepository = userPlantRepository;
         }
         // GET all user's plants
@@ -155,7 +151,7 @@ namespace ProjectDaedalus.API.Controllers
                 {
                     return BadRequest("This device is already assigned to this plant for this user.");
                 }
-                // Update the device assignment
+                
                 existingUserPlant.DeviceId = dto.DeviceId;
                 existingUserPlant.UserId = dto.UserId;
                 existingUserPlant.PlantId = dto.PlantId;
@@ -259,6 +255,5 @@ namespace ProjectDaedalus.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        
     }
 }

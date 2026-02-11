@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/authService';
@@ -14,7 +13,6 @@ function Login() {
   
   const navigate = useNavigate();
 
-  // Handle form input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -22,7 +20,6 @@ function Login() {
     });
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -96,7 +93,6 @@ function Login() {
         </form>
 
         <div className="login-footer">
-          <p>Test credentials: email "email@email.com", password "123"</p>
         </div>
       </div>
     </div>

@@ -13,5 +13,4 @@ export const notificationService = {
     markAllAsRead: async (userId) => {
         return await apiService.patch(`/Notifications/${userId}/mark-all-read`);
     }
-
 };

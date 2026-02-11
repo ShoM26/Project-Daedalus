@@ -1,4 +1,4 @@
-namespace ProjectDaedalus.Core.Configuration
+namespace ProjectDaedalus.Core.Configurations
 {
     public class EmailSettings
     {

@@ -2,7 +2,7 @@ namespace ProjectDaedalus.API.Dtos.Plant
 {
     public class PlantDto
     {
-        public int? PlantId { get; set; } //Nullable for post and put requests
+        public int? PlantId { get; set; }
 
         public string ScientificName { get; set; } = string.Empty;
 

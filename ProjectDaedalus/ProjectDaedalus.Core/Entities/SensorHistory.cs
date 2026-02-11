@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ProjectDaedalus.Core.Entities;
+﻿namespace ProjectDaedalus.Core.Entities;
 
 public class SensorHistory
 {

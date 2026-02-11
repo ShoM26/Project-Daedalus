@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using ProjectDaedalus.Core.Interfaces;
 using ProjectDaedalus.Infrastructure.Data;
 
@@ -30,12 +29,6 @@ namespace ProjectDaedalus.Infrastructure.UnitOfWork
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
-        }
-
-        public async Task<int> CompleteAsync() => await _context.SaveChangesAsync();
-        public void Dispose()
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,3 @@
-// src/utils/dateUtils.js
 export const formatTimeAgo = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();

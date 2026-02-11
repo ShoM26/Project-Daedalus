@@ -10,7 +10,7 @@ namespace ProjectDaeadalus.Bridge.Configuration
         public string? UserToken { get; set; }
         
         // Serial Communication Settings
-        public string ComPort { get; set; } = "COM3"; 
+        public string ComPort { get; set; } 
         public int BaudRate { get; set; } = 9600;
 
         // API Connection Settings  
@@ -26,14 +26,8 @@ namespace ProjectDaeadalus.Bridge.Configuration
         public int MaxRetryAttempts { get; set; } = 3;     // HTTP request retries
         public int HttpTimeoutMs { get; set; } = 30000;    // HTTP request timeout
         
-        /// <summary>
-        /// Validates configuration settings
-        /// </summary>
         public void Validate()
         {
-            if (string.IsNullOrEmpty(ComPort))
-                throw new ArgumentException("ComPort cannot be empty");
-                
             if (BaudRate <= 0)
                 throw new ArgumentException("BaudRate must be positive");
                 

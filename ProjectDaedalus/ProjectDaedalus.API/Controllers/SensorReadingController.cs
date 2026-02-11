@@ -1,11 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ProjectDaedalus.API.Attributes;
-using ProjectDaedalus.API.Dtos;
 using ProjectDaedalus.API.Dtos.SensorReading;
 using ProjectDaedalus.Core.Entities;
-using ProjectDaedalus.Core.Interfaces; // assuming entities live in Core
-using ProjectDaedalus.Infrastructure.Data; // DbContext
+using ProjectDaedalus.Core.Interfaces;
 
 namespace ProjectDaedalus.API.Controllers
 {
@@ -13,13 +9,16 @@ namespace ProjectDaedalus.API.Controllers
     [Route("api/[controller]")]
     public class SensorReadingsController : ControllerBase
     {
-        private readonly DaedalusContext _context;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ISensorReadingRepository _sensorReadingRepository;
+        private readonly IDeviceRepository _deviceRepository;
 
-        public SensorReadingsController(DaedalusContext context, ISensorReadingRepository sensorReadingRepository)
+        public SensorReadingsController(IUnitOfWork unitOfWork, ISensorReadingRepository sensorReadingRepository, 
+            IDeviceRepository deviceRepository)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
             _sensorReadingRepository = sensorReadingRepository;
+            _deviceRepository = deviceRepository;
         }
 
         // POST: api/sensorreadings
@@ -45,9 +44,7 @@ namespace ProjectDaedalus.API.Controllers
             {
                 return BadRequest("Invalid payload.");
             }
-            // Look up device by identifier
-            var device = await _context.Devices
-                .FirstOrDefaultAsync(d => d.HardwareIdentifier == dto.HardwareIdentifier);
+            var device = await _deviceRepository.GetDeviceByHardwareIdentifierAsync(dto.HardwareIdentifier);
 
             if (device == null)
             {
@@ -61,9 +58,9 @@ namespace ProjectDaedalus.API.Controllers
                 TimeStamp = dto.Timestamp ?? DateTime.UtcNow,
                 MoistureLevel = dto.MoistureLevel
             };
-
-            _context.SensorHistories.Add(reading);
-            await _context.SaveChangesAsync();
+            
+            await _sensorReadingRepository.AddAsync(reading);
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(new
             {
@@ -79,14 +76,12 @@ namespace ProjectDaedalus.API.Controllers
         {
             try
             {
-                // First get the device to find the associated device
                 var readings = await _sensorReadingRepository.GetReadingsByDeviceIdAsync(deviceId);
                 if (!readings.Any())
                 {
                     return NotFound($"Device with ID {deviceId} not found");
                 }
-       
-                // Convert to DTOs
+                
                 var sensorReadingDtos = readings.Select(reading => new SensorReadingSelectDto
                 {
                     DeviceId = reading.DeviceId,
@@ -134,7 +129,7 @@ namespace ProjectDaedalus.API.Controllers
                 var readings = await _sensorReadingRepository.GetReadingsForDeviceByRangeAsync(deviceId, startDate, endDate);
                 if (!readings.Any())
                 {
-                    return NoContent(); //204 which front end looks for
+                    return NoContent(); //204 handled by front end
                 }
                 var readingDtos = readings.Select(r => new SensorReadingSelectDto
                 {
@@ -177,7 +172,7 @@ namespace ProjectDaedalus.API.Controllers
                 var readings = await _sensorReadingRepository.GetReadingsByDeviceIdAsync(deviceId);
                 if (!readings.Any())
                 {
-                    return NoContent(); //allows it to be gracefully handled on the frontend
+                    return NoContent(); //204 handled by front end
                 }
 
                 await _sensorReadingRepository.DeleteManyAsync(readings);

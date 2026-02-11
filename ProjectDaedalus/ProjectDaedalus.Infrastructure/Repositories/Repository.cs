@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ProjectDaedalus.Core.Entities;
 using ProjectDaedalus.Core.Interfaces;
 using ProjectDaedalus.Infrastructure.Data;
 
@@ -61,10 +55,5 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet.RemoveRange(entitiesList);
         await _context.SaveChangesAsync();
         return entitiesList.Count();
-    }
-
-    public async Task SaveChangesAsync()
-    {
-        await _context.SaveChangesAsync();
     }
 }

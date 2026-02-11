@@ -1,4 +1,3 @@
-// hooks/useNotifications.js
 import { useState, useCallback, useEffect } from 'react';
 import { notificationService } from '../services/notificationService';
 import authService from '../../auth/services/authService';
@@ -60,14 +59,12 @@ export function useNotifications() {
     try {
       await notificationService.markAsRead(notificationId, currentUser.userId);
       
-      // Optimistic update
       setNotifications(prev => 
         prev.map(n => n.notificationId === notificationId ? { ...n, isRead: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking as read:', error);
-      // Rollback on error
       await fetchNotifications();
       await fetchUnreadCount();
     }
@@ -78,18 +75,15 @@ export function useNotifications() {
     try {
       await notificationService.markAllAsRead(currentUser.userId);
       
-      // Optimistic update
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (error) {
       console.error('Error marking all as read:', error);
-      // Rollback on error
       await fetchNotifications();
       await fetchUnreadCount();
     }
   }, [fetchNotifications, fetchUnreadCount]);
 
-  // Auto-refresh unread count
   useEffect(() => {
     fetchUnreadCount();
     
