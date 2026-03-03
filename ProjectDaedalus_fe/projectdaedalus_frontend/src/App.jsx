@@ -7,7 +7,7 @@ import authService from '@features/auth/services/authService';
 import '@shared/styles/global.css';
 
 function ProtectedRoute({ children }) {
-  return authService.isAuthenticated() ? children : <Navigate to="/landingpage" replace />;
+  return authService.isAuthenticated() ? children : <Navigate to="/" replace />;
 }
 
 function AuthRoute({ children }) {
@@ -23,7 +23,7 @@ function App() {
         <Routes>
           <Route path="/" element={<AuthRoute><LandingPage/></AuthRoute>}/>
           <Route path="/signup" element={<AuthRoute><Signup/></AuthRoute>}/>
-          {<Route path="/login" element={<AuthRoute><Login/></AuthRoute>} />}
+          <Route path="/login" element={<AuthRoute><Login/></AuthRoute>} />
           <Route 
             path="/dashboard" 
             element={
