@@ -1,0 +1,22 @@
+name: Database Keep-Alive Ping
+
+on:
+    schedule:
+        - cron: '0 12 * * *'
+    workflow_dispatch:
+
+jobs:
+    ping-database:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Install Database Client
+              run: |
+                sudo apt-get update
+                sudo apt-get intall -y default-mysql-client
+
+            - name: Ping Aiven Database
+              env:
+                DB_URI: ${{secrets.Aiven_DB_URI}}
+              run: |
+                mysql $"DB_URI" -e "SELECT 1;"s
