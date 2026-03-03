@@ -19,4 +19,4 @@ jobs:
               env:
                 DB_URI: ${{secrets.Aiven_DB_URI}}
               run: |
-                mysql $"DB_URI" -e "SELECT 1;"s
+                mysql "$DB_URI" -e "SELECT 1;"
